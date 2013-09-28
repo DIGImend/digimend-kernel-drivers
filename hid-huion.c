@@ -2,6 +2,7 @@
  *  HID driver for Huion devices not fully compliant with HID standard
  *
  *  Copyright (c) 2013 Martin Rusko
+ *  Copyright (c) 2013 Nikolai Kondrashov
  */
 
 /*
@@ -22,13 +23,13 @@
 
 /* #include "hid-ids.h" */
 #define USB_VENDOR_ID_HUION		0x256c
-#define USB_DEVICE_ID_HUION_580		0x006e
+#define USB_DEVICE_ID_HUION_TABLET	0x006e
 
-/* Original Huion 580 report descriptor size */
-#define HUION_580_RDESC_ORIG_SIZE	177
+/* Original tablet report descriptor size */
+#define HUION_TABLET_RDESC_ORIG_SIZE	177
 
-/* Fixed Huion 580 report descriptor */
-static __u8 huion_580_rdesc_fixed[] = {
+/* Fixed tablet report descriptor */
+static __u8 huion_tablet_rdesc_fixed[] = {
 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
 	0x09, 0x02,         /*  Usage (Pen),                        */
 	0xA1, 0x01,         /*  Collection (Application),           */
@@ -77,10 +78,10 @@ static __u8 *huion_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 		unsigned int *rsize)
 {
 	switch (hdev->product) {
-	case USB_DEVICE_ID_HUION_580:
-		if (*rsize == HUION_580_RDESC_ORIG_SIZE) {
-			rdesc = huion_580_rdesc_fixed;
-			*rsize = sizeof(huion_580_rdesc_fixed);
+	case USB_DEVICE_ID_HUION_TABLET:
+		if (*rsize == HUION_TABLET_RDESC_ORIG_SIZE) {
+			rdesc = huion_tablet_rdesc_fixed;
+			*rsize = sizeof(huion_tablet_rdesc_fixed);
 		}
 		break;
 	}
@@ -117,7 +118,7 @@ static int huion_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	 * as they are not used
 	 */
 	switch (id->product) {
-	case USB_DEVICE_ID_HUION_580:
+	case USB_DEVICE_ID_HUION_TABLET:
 		if (intf->cur_altsetting->desc.bInterfaceNumber != 0x00)
 			return -ENODEV;
 		break;
@@ -136,7 +137,7 @@ static int huion_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	}
 
 	switch (id->product) {
-	case USB_DEVICE_ID_HUION_580:
+	case USB_DEVICE_ID_HUION_TABLET:
 		ret = huion_tablet_enable(hdev);
 		if (ret) {
 			hid_err(hdev, "tablet enabling failed\n");
@@ -163,7 +164,7 @@ static int huion_raw_event(struct hid_device *hdev, struct hid_report *report,
 }
 
 static const struct hid_device_id huion_devices[] = {
-	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_580) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_TABLET) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, huion_devices);
