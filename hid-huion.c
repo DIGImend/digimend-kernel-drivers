@@ -15,9 +15,14 @@
 #include <linux/hid.h>
 #include <linux/module.h>
 #include <linux/usb.h>
-#include "usbhid/usbhid.h"
 
-#include "hid-ids.h"
+/* #include "usbhid/usbhid.h" */
+#define	hid_to_usb_dev(hid_dev) \
+	container_of(hid_dev->dev.parent->parent, struct usb_device, dev)
+
+/* #include "hid-ids.h" */
+#define USB_VENDOR_ID_HUION		0x256c
+#define USB_DEVICE_ID_HUION_580		0x006e
 
 /* Original Huion 580 report descriptor size */
 #define HUION_580_RDESC_ORIG_SIZE	177
