@@ -136,11 +136,11 @@ static int huion_tablet_enable(struct hid_device *hdev)
 				0x0409, buf, sizeof(buf),
 				USB_CTRL_GET_TIMEOUT);
 	if (rc == -EPIPE)
-		hid_warn(hdev, "device parameters not found");
+		hid_warn(hdev, "device parameters not found\n");
 	else if (rc < 0)
-		hid_warn(hdev, "failed to get device parameters: %d", rc);
+		hid_warn(hdev, "failed to get device parameters: %d\n", rc);
 	else if (rc != sizeof(buf))
-		hid_warn(hdev, "invalid device parameters");
+		hid_warn(hdev, "invalid device parameters\n");
 	else {
 		__s32 params[HUION_PH_ID_NUM];
 		__s32 resolution;
@@ -161,7 +161,7 @@ static int huion_tablet_enable(struct hid_device *hdev)
 					sizeof(huion_tablet_rdesc_template),
 					GFP_KERNEL);
 		if (drvdata->rdesc == NULL) {
-			hid_err(hdev, "failed to allocate fixed rdesc");
+			hid_err(hdev, "failed to allocate fixed rdesc\n");
 			return -ENOMEM;
 		}
 		drvdata->rsize = sizeof(huion_tablet_rdesc_template);
@@ -206,7 +206,7 @@ static int huion_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
 			rc = huion_tablet_enable(hdev);
 			if (rc) {
-				hid_err(hdev, "tablet enabling failed");
+				hid_err(hdev, "tablet enabling failed\n");
 				return rc;
 			}
 		}
