@@ -156,9 +156,15 @@ err:
 static int huion_raw_event(struct hid_device *hdev, struct hid_report *report,
 			u8 *data, int size)
 {
-	/* If this is a pen input report then invert the in-range bit */
-	if (report->type == HID_INPUT_REPORT && report->id == 0x07 && size >= 2)
-		data[1] ^= 0x40;
+	switch (hdev->product) {
+	case USB_DEVICE_ID_HUION_TABLET:
+		/* If this is a pen input report */
+		if (report->type == HID_INPUT_REPORT &&
+		    report->id == 0x07 && size >= 2)
+			/* Invert the in-range bit */
+			data[1] ^= 0x40;
+		break;
+	}
 
 	return 0;
 }
