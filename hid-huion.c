@@ -145,6 +145,7 @@ static int huion_tablet_enable(struct hid_device *hdev)
 		s32 params[HUION_PH_ID_NUM];
 		s32 resolution;
 		__u8 *p;
+		s32 v;
 
 		/* Extract device parameters */
 		params[HUION_PH_ID_X_LM] = le16_to_cpu(buf[1]);
@@ -173,7 +174,8 @@ static int huion_tablet_enable(struct hid_device *hdev)
 		     p <= drvdata->rdesc + drvdata->rsize - 4;) {
 			if (p[0] == 0xFE && p[1] == 0xED && p[2] == 0x1D &&
 			    p[3] < sizeof(params)) {
-				put_unaligned(cpu_to_le32(params[p[3]]), p);
+				v = params[p[3]];
+				put_unaligned(cpu_to_le32(v), (s32 *)p);
 				p += 4;
 			} else {
 				p++;
