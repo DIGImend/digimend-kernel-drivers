@@ -112,17 +112,6 @@ static int huion_tablet_enable(struct hid_device *hdev)
 static int huion_probe(struct hid_device *hdev, const struct hid_device_id *id)
 {
 	int ret;
-	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-
-	/* Ignore interfaces 1 (mouse) and 2 (keyboard) for Huion 580 tablet,
-	 * as they are not used
-	 */
-	switch (id->product) {
-	case USB_DEVICE_ID_HUION_TABLET:
-		if (intf->cur_altsetting->desc.bInterfaceNumber != 0x00)
-			return -ENODEV;
-		break;
-	}
 
 	ret = hid_parse(hdev);
 	if (ret) {
@@ -156,10 +145,13 @@ err:
 static int huion_raw_event(struct hid_device *hdev, struct hid_report *report,
 			u8 *data, int size)
 {
+	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+
 	switch (hdev->product) {
 	case USB_DEVICE_ID_HUION_TABLET:
 		/* If this is a pen input report */
-		if (report->type == HID_INPUT_REPORT &&
+		if (intf->cur_altsetting->desc.bInterfaceNumber == 0x00 &&
+		    report->type == HID_INPUT_REPORT &&
 		    report->id == 0x07 && size >= 2)
 			/* Invert the in-range bit */
 			data[1] ^= 0x40;
