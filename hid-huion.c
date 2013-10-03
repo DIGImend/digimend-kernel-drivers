@@ -238,7 +238,7 @@ static int huion_raw_event(struct hid_device *hdev, struct hid_report *report,
 	switch (hdev->product) {
 	case USB_DEVICE_ID_HUION_TABLET:
 		/* If this is a pen input report */
-		if (intf->cur_altsetting->desc.bInterfaceNumber == 0x00 &&
+		if (intf->cur_altsetting->desc.bInterfaceNumber == 0 &&
 		    report->type == HID_INPUT_REPORT &&
 		    report->id == 0x07 && size >= 2)
 			/* Invert the in-range bit */
