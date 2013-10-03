@@ -7,5 +7,9 @@ modules modules_install clean:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) $@
 modules_depmod: modules_install
 	depmod -a
-install: modules_depmod
+udev_install:
+	install hid-rebind /sbin
+	install -m 0644 hid-rebind.rules /lib/udev/rules.d/70-hid-rebind.rules
+	udevadm control --reload
+install: modules_depmod udev_install
 endif

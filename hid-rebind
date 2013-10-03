@@ -1,0 +1,81 @@
+#!/bin/sh
+#
+# Rebind HID device to specific driver.
+# Author: Nikolai Kondrashov <spbnick@gmail.com>
+#
+# To be used with udev rules like this one:
+# SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:0000172F:*", \
+#     RUN+="/usr/local/bin/hid-rebind" 
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -e -u
+
+progname=`basename "$0"`
+
+# Write a string to a file, ignoring ENODEV.
+write_ignore_enodev() {
+    local str="$1"
+    local path="$2"
+    local output
+
+    # Write the string with tee, capturing error output
+    if ! output=`echo "$str" | tee "$path" 2>&1 >/dev/null`; then
+        # Raise anything except ENODEV
+        if test "${output##*: }" != "No such device"; then
+            echo "$output" >&2
+            return 1
+        fi
+    fi
+}
+
+{
+    id=`basename "$DEVPATH"`
+
+    cur_driver_path=`readlink -v -f "/sys${DEVPATH}/driver"`
+    if test -e "$cur_driver_path"; then
+        cur_driver=`basename "$cur_driver_path"`
+    else
+        cur_driver=""
+    fi
+
+    new_module=`modprobe -R "$MODALIAS" | tr - _ |
+                    { grep -v -F "hid_generic" || true; } | head -n1`
+    if test -z "$new_module"; then
+        exit 0
+    fi
+    # Assume the driver will be called the same as module,
+    # but without the "hid_" prefix
+    new_driver="${new_module#hid_}"
+    new_driver_path="/sys/bus/hid/drivers/$new_driver"
+
+    if test "$new_driver" = "$cur_driver"; then
+        exit 0
+    fi
+
+    logger -p daemon.notice -t "$progname" \
+           "rebinding $DEVPATH to \"$new_driver\" driver"
+
+    # Ensure the new driver module is loaded
+    modprobe "$new_module"
+
+    # Unbind from the current driver, if any
+    if test -e "$cur_driver_path"; then
+        write_ignore_enodev "$id" "$cur_driver_path/unbind"
+    fi
+
+    # Bind to the new driver
+    write_ignore_enodev "$id" "$new_driver_path/bind"
+} 2>&1 | logger -p daemon.warning -t "$progname"
