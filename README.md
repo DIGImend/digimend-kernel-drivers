@@ -31,4 +31,7 @@ To build the driver run "make" in the driver's source directory. To install
 the driver and the associated rebinding script run "make install" as root in
 the same directory.
 
-After that (re-)plugging the tablet should be sufficient to make it work.
+If you run a v3.11 or later kernel you will need to unload the mainline driver
+with a "rmmod hid-huion" command so this driver can be loaded, first time you
+use the tablet. Then, (re-)plugging the tablet should be sufficient to make it
+work.
