@@ -267,4 +267,4 @@ module_hid_driver(huion_driver);
 MODULE_AUTHOR("Martin Rusko");
 MODULE_DESCRIPTION("Huion HID driver");
 MODULE_LICENSE("GPL");
-MODULE_VERSION("1");
+MODULE_VERSION("2");
