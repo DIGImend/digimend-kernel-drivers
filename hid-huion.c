@@ -262,7 +262,7 @@ static struct hid_driver huion_driver = {
 	.report_fixup = huion_report_fixup,
 	.raw_event = huion_raw_event,
 };
-module_hid_driver(huion_driver);
+module_driver(huion_driver, hid_register_driver, hid_unregister_driver);
 
 MODULE_AUTHOR("Martin Rusko");
 MODULE_DESCRIPTION("Huion HID driver");
