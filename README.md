@@ -29,15 +29,6 @@ installing appropriate version of "linux-headers" package.
 
 To build the driver run "make" in the driver's source directory.
 
-If you run Ubuntu or a derived distro, you might need to prepend "extra" to
-the directory search list in /etc/depmod/ubuntu.conf before installation. Put
-it right after the "search" command word and before any other directories, so
-the installed driver takes precedence over the stock driver in v3.11 and later
-kernels. For example, on Ubuntu 13.10 /etc/depmod/ubuntu.conf would have to
-become this:
-
-    search extra updates ubuntu built-in
-
 To install the driver and the associated rebinding script run "make install"
 as root in the source directory.
 

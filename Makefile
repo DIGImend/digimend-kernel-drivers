@@ -5,7 +5,9 @@ KDIR := /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
 modules modules_install clean:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) $@
-modules_depmod: modules_install
+conf_install:
+	install -D -m 0644 hid-huion.conf /etc/depmod.d/hid-huion.conf
+modules_depmod: modules_install conf_install
 	depmod -a
 udev_install:
 	install hid-rebind /sbin
