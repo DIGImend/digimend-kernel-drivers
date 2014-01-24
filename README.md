@@ -7,7 +7,7 @@ Model support is as follows:
 
     H610    tested      works
     580     untested    likely works
-    K58     untested    likely works
+    K58     tested      works
     W58     untested    likely works
     other   untested    can work
 
