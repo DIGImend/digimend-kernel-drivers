@@ -6,9 +6,11 @@ This is a Linux kernel driver for Huion graphics tablets.
 Model support is as follows:
 
     H610    tested      works
+    H690    tested      works
     580     untested    likely works
     K58     tested      works
     W58     untested    likely works
+    W58L    tested      works
     other   untested    can work
 
 This driver should support more models than the hid-huion driver present in
