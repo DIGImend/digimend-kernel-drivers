@@ -11,6 +11,7 @@ Model support is as follows:
     K58     tested      works
     W58     untested    likely works
     W58L    tested      works
+    H420    tested      works
     other   untested    can work
 
 This driver should support more models than the hid-huion driver present in
