@@ -28,7 +28,8 @@ the kernel as of v3.12-rc1, but it wasn't tested with many and so is not yet
 merged with the mainline. The table above will be updated as additional models
 are tested.
 
-Please send your testing results to DIGImend-devel@lists.sourceforge.net.
+Please send your testing results to DIGImend-devel@lists.sourceforge.net, or
+do a pull request with updates.
 
 Installing
 ----------
