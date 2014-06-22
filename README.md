@@ -5,14 +5,23 @@ This is a Linux kernel driver for Huion graphics tablets.
 
 Model support is as follows:
 
-    580     untested    likely works
-    H420    tested      works
-    H610    tested      works
-    H690    tested      works
-    K58     tested      works
-    W58     untested    likely works
-    W58L    tested      works
-    other   untested    can work
+    Original    Rebranded as    Status*
+
+    580                         likely works
+    H420        osu!tablet(?)   works
+    H610                        works
+    H690                        works
+    K58                         works
+    W58                         likely works
+    W58L                        works
+    other                       possibly works
+
+    * "works"           - tested, works
+      "likely works"    - not tested, likely works (75% chance)
+      "possibly works"  - not tested, possibly works (50% chance)
+
+    (?) the rebranded model is likely the specified original model,
+        but wasn't verified to be
 
 This driver should support more models than the hid-huion driver present in
 the kernel as of v3.12-rc1, but it wasn't tested with many and so is not yet
