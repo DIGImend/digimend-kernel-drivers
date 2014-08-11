@@ -198,8 +198,6 @@ static int huion_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		hid_err(hdev, "failed to allocate driver data\n");
 		return -ENOMEM;
 	}
-	drvdata->rdesc = NULL;
-	drvdata->rsize = 0;
 	hid_set_drvdata(hdev, drvdata);
 
 	switch (id->product) {
