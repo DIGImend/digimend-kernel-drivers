@@ -38,7 +38,8 @@ Kernel v3.5 or newer is required. Kernel headers or the build tree for the
 running kernel are required.
 
 On Debian-derived systems (such as Ubuntu and Mint) headers can be obtained by
-installing appropriate version of `linux-headers` package.
+installing appropriate version of `linux-headers` package. On Red Hat and
+derived distributions the package name is `kernel-headers`.
 
 To build the drivers run `make` in the package's directory.
 
