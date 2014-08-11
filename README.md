@@ -6,7 +6,7 @@ and maintained by the DIGImend project. We maintain this package to provide
 newer drivers for older kernel versions which don't have them, and to allow
 users to test new drivers before we contribute them to the mainline kernel.
 
-This package supersedes the "huion-driver" package.
+This package supersedes the `huion-driver` package.
 
 Model support is as follows:
 
@@ -38,11 +38,11 @@ Kernel v3.5 or newer is required. Kernel headers or the build tree for the
 running kernel are required.
 
 On Debian-derived systems (such as Ubuntu and Mint) headers can be obtained by
-installing appropriate version of "linux-headers" package.
+installing appropriate version of `linux-headers` package.
 
-To build the drivers run "make" in the package's directory.
+To build the drivers run `make` in the package's directory.
 
-To install the drivers and the associated rebinding script run "make install"
+To install the drivers and the associated rebinding script run `make install`
 as root in the package's directory.
 
 Upgrading
