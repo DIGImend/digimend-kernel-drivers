@@ -2,7 +2,7 @@
  *  HID driver for Huion devices not fully compliant with HID standard
  *
  *  Copyright (c) 2013 Martin Rusko
- *  Copyright (c) 2013 Nikolai Kondrashov
+ *  Copyright (c) 2014 Nikolai Kondrashov
  */
 
 /*
