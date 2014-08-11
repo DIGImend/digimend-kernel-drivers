@@ -147,10 +147,15 @@ static int huion_tablet_enable(struct hid_device *hdev)
 		params[HUION_PH_ID_Y_LM] = le16_to_cpu(buf[2]);
 		params[HUION_PH_ID_PRESSURE_LM] = le16_to_cpu(buf[4]);
 		resolution = le16_to_cpu(buf[5]);
-		params[HUION_PH_ID_X_PM] = params[HUION_PH_ID_X_LM] *
-						1000 / resolution;
-		params[HUION_PH_ID_Y_PM] = params[HUION_PH_ID_Y_LM] *
-						1000 / resolution;
+		if (resolution == 0) {
+			params[HUION_PH_ID_X_PM] = 0;
+			params[HUION_PH_ID_Y_PM] = 0;
+		} else {
+			params[HUION_PH_ID_X_PM] = params[HUION_PH_ID_X_LM] *
+							1000 / resolution;
+			params[HUION_PH_ID_Y_PM] = params[HUION_PH_ID_Y_LM] *
+							1000 / resolution;
+		}
 
 		/* Allocate fixed report descriptor */
 		drvdata->rdesc = devm_kzalloc(&hdev->dev,
