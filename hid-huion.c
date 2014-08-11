@@ -106,13 +106,9 @@ static __u8 *huion_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 }
 
 /**
- * Enable fully-functional tablet mode by reading special string
- * descriptor.
+ * Enable fully-functional tablet mode and determine device parameters.
  *
  * @hdev:	HID device
- *
- * The specific string descriptor and data were discovered by sniffing
- * the Windows driver traffic.
  */
 static int huion_tablet_enable(struct hid_device *hdev)
 {
@@ -122,7 +118,9 @@ static int huion_tablet_enable(struct hid_device *hdev)
 	u16 buf[6];
 
 	/*
-	 * Read string descriptor containing tablet parameters.
+	 * Read string descriptor containing tablet parameters. The specific
+	 * string descriptor and data were discovered by sniffing the Windows
+	 * driver traffic.
 	 * NOTE: This enables fully-functional tablet mode.
 	 */
 	rc = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
