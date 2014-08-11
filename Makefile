@@ -6,7 +6,7 @@ PWD := $(shell pwd)
 modules modules_install clean:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) $@
 conf_install:
-	install -D -m 0644 hid-huion.conf /etc/depmod.d/hid-huion.conf
+	install -D -m 0644 digimend.conf /etc/depmod.d/digimend.conf
 modules_depmod: modules_install conf_install
 	depmod -a
 udev_install:

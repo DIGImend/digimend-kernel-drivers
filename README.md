@@ -1,20 +1,25 @@
-Huion-driver
-============
+DIGImend kernel drivers
+=======================
 
-This is a Linux kernel driver for Huion graphics tablets.
+This is a collection of graphics tablet drivers for the Linux kernel, produced
+and maintained by the DIGImend project. We maintain this package to provide
+newer drivers for older kernel versions which don't have them, and to allow
+users to test new drivers before we contribute them to the mainline kernel.
+
+This package supersedes the "huion-driver" package.
 
 Model support is as follows:
 
-    Original    Rebranded as    Status*
+    Original            Rebranded as    Status*
 
-    580                         likely works
-    H420        osu!tablet(?)   works
-    H610                        works
-    H690                        works
-    K58                         works
-    W58                         likely works
-    W58L                        works
-    other                       possibly works
+    Huion 580                           likely works
+          H420          osu!tablet(?)   works
+          H610                          works
+          H690                          works
+          K58                           works
+          W58                           likely works
+          W58L                          works
+          other                         possibly works
 
     * "works"           - tested, works
       "likely works"    - not tested, likely works (75% chance)
@@ -22,11 +27,6 @@ Model support is as follows:
 
     (?) the rebranded model is likely the specified original model,
         but wasn't verified to be
-
-This driver should support more models than the hid-huion driver present in
-the kernel as of v3.12-rc1, but it wasn't tested with many and so is not yet
-merged with the mainline. The table above will be updated as additional models
-are tested.
 
 Please send your testing results to DIGImend-devel@lists.sourceforge.net, or
 do a pull request with updates.
@@ -40,12 +40,23 @@ running kernel are required.
 On Debian-derived systems (such as Ubuntu and Mint) headers can be obtained by
 installing appropriate version of "linux-headers" package.
 
-To build the driver run "make" in the driver's source directory.
+To build the drivers run "make" in the package's directory.
 
-To install the driver and the associated rebinding script run "make install"
-as root in the source directory.
+To install the drivers and the associated rebinding script run "make install"
+as root in the package's directory.
 
-If you run a v3.11 or later kernel you might need to unload the mainline
-driver with a "rmmod hid-huion" command so this driver can be loaded, first
-time you use the tablet. Then, (re-)plugging the tablet should be sufficient
-to make it work.
+Upgrading
+---------
+
+If you run a kernel which already has a driver for your tablet with the same
+name as the one being installed (including the case of upgrading an
+installation of this package), you will need to unload the installed kernel's
+driver using the `rmmod` command and then to (re-)plug the tablet in to allow
+the driver from this package to take over.
+
+For example, if you run a v3.11 or later kernel, and/or would like to upgrade
+the driver for Huion tablets, then after installing this package you will need
+to execute `rmmod hid-huion`, and then disconnect and reconnect the tablet to
+make it work.
+
+Alternatively, you can simply reboot the machine.
