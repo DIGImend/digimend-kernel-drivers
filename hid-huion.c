@@ -17,15 +17,9 @@
 #include <linux/module.h>
 #include <linux/usb.h>
 #include <asm/unaligned.h>
+#include "usbhid/usbhid.h"
 
-/* #include "usbhid/usbhid.h" */
-#define	hid_to_usb_dev(hid_dev) \
-	container_of(hid_dev->dev.parent->parent, struct usb_device, dev)
-
-/* #include "hid-ids.h" */
-#define USB_VENDOR_ID_HUION		0x256c
-#define USB_VENDOR_ID_UCLOGIC		0x5543
-#define USB_DEVICE_ID_HUION_TABLET	0x006e
+#include "hid-ids.h"
 
 /* Report descriptor template placeholder head */
 #define HUION_PH_HEAD	0xFE, 0xED, 0x1D
