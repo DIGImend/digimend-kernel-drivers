@@ -272,6 +272,7 @@ static int huion_raw_event(struct hid_device *hdev, struct hid_report *report,
 static const struct hid_device_id huion_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_TABLET) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_HUION_TABLET) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_YIYNOVA_MXP) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, huion_devices);

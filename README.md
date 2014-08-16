@@ -13,14 +13,18 @@ Model support is as follows:
 
     Original            Rebranded as    Status*
 
-    Huion 580                           likely works
-          H420          osu!tablet(?)   works
-          H610                          works
-          H690                          works
-          K58                           works
-          W58                           likely works
-          W58L                          works
-          other                         possibly works
+       Huion 580                        likely works
+             H420       osu!tablet(?)   works
+             H610                       works
+             H690                       works
+             K58                        works
+             W58                        likely works
+             W58L                       works
+             other                      possibly works
+
+     Yiynova MSP19U                     possibly works
+             MSP19U+                    possibly works
+             MVP22U+                    possibly works
 
     * "works"           - tested, works
       "likely works"    - not tested, likely works (75% chance)
