@@ -103,13 +103,9 @@ static __u8 *huion_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 		unsigned int *rsize)
 {
 	struct huion_drvdata *drvdata = hid_get_drvdata(hdev);
-	switch (hdev->product) {
-	case USB_DEVICE_ID_HUION_TABLET:
-		if (drvdata->rdesc != NULL) {
-			rdesc = drvdata->rdesc;
-			*rsize = drvdata->rsize;
-		}
-		break;
+	if (drvdata->rdesc != NULL) {
+		rdesc = drvdata->rdesc;
+		*rsize = drvdata->rsize;
 	}
 	return rdesc;
 }
