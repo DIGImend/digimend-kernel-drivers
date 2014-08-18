@@ -66,3 +66,9 @@ to execute `rmmod hid-huion`, and then disconnect and reconnect the tablet to
 make it work.
 
 Alternatively, you can simply reboot the machine.
+
+Uninstalling
+------------
+
+To uninstall the package execute `make uninstall` in the package source
+directory.
