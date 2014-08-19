@@ -224,7 +224,7 @@ static int huion_probe(struct hid_device *hdev, const struct hid_device_id *id)
 
 	switch (id->product) {
 	case USB_DEVICE_ID_HUION_TABLET:
-	case USB_DEVICE_ID_YIYNOVA_MXP:
+	case USB_DEVICE_ID_YIYNOVA_TABLET:
 		/* If this is the pen interface */
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
 			rc = huion_tablet_enable(hdev);
@@ -269,7 +269,7 @@ static int huion_raw_event(struct hid_device *hdev, struct hid_report *report,
 static const struct hid_device_id huion_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_TABLET) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_HUION_TABLET) },
-	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_YIYNOVA_MXP) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_YIYNOVA_TABLET) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, huion_devices);
