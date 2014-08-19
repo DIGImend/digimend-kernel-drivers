@@ -11,24 +11,33 @@ This package supersedes the
 
 Model support is as follows:
 
-    Original            Rebranded as    Status*
+    Original                Rebranded as    Status*
 
-       Huion 580                        likely works
-             H420       osu!tablet(?)   works
-             H610                       works
-             H690                       works
-             K58                        works
-             W58                        likely works
-             W58L                       works
-             other                      possibly works
+       Huion 580                            likely works
+             H420           osu!tablet(?)   works
+             H610                           works
+             H690                           works
+             K58                            works
+             W58                            likely works
+             W58L                           works
+             other                          possibly works
 
-     Yiynova MSP19U                     possibly works
-             MSP19U+                    possibly works
-             MVP22U+                    possibly works
+     Yiynova MSP19U                         works
+             MSP19U+                        works
+             MVP22U+                        works
+             MVP10U                         works (t)
+             MVP10U IPS                     works (t)
+             MVP10U HD IPS                  works (t)
+             DP10U                          works (t)
+             DP10U+                         works (t)
 
     * "works"           - tested, works
       "likely works"    - not tested, likely works (75% chance)
       "possibly works"  - not tested, possibly works (50% chance)
+
+    (t) concerns only the input part of this display tablet, output (display)
+        support is not provided by this package and should be verified
+        separately
 
     (?) the rebranded model is likely the specified original model,
         but wasn't verified to be
