@@ -284,6 +284,7 @@ static struct hid_driver huion_driver = {
 module_driver(huion_driver, hid_register_driver, hid_unregister_driver);
 
 MODULE_AUTHOR("Martin Rusko");
+MODULE_AUTHOR("Nikolai Kondrashov");
 MODULE_DESCRIPTION("Huion HID driver");
 MODULE_LICENSE("GPL");
 MODULE_VERSION("4");
