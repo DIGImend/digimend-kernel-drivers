@@ -176,7 +176,7 @@ static int huion_tablet_enable(struct hid_device *hdev)
 	}
 
 	/* Allocate fixed report descriptor */
-	drvdata->rdesc = devm_kmalloc(&hdev->dev,
+	drvdata->rdesc = devm_kzalloc(&hdev->dev,
 				sizeof(huion_tablet_rdesc_template),
 				GFP_KERNEL);
 	if (drvdata->rdesc == NULL) {
