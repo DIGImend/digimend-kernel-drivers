@@ -60,6 +60,9 @@ To build the drivers run `make` in the package's directory.
 To install the drivers and the associated rebinding script run `make install`
 as root in the package's directory.
 
+See the DIGImend project [wiki](http://digimend.sourceforge.net) for further
+setup instructions.
+
 Upgrading
 ---------
 
