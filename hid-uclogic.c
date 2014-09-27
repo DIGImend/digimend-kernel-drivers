@@ -653,3 +653,4 @@ static struct hid_driver uclogic_driver = {
 module_driver(uclogic_driver, hid_register_driver, hid_unregister_driver);
 
 MODULE_LICENSE("GPL");
+MODULE_VERSION("5");
