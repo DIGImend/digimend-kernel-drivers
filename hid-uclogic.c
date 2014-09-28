@@ -626,15 +626,40 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 	return rdesc;
 }
 
+static int uclogic_probe(struct hid_device *hdev, const struct hid_device_id *id)
+{
+	int rc;
+
+	hdev->quirks |= id->driver_data;
+
+	rc = hid_parse(hdev);
+	if (rc) {
+		hid_err(hdev, "parse failed\n");
+		return rc;
+	}
+
+	rc = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+	if (rc) {
+		hid_err(hdev, "hw start failed\n");
+		return rc;
+	}
+
+	return 0;
+}
+
 static const struct hid_device_id uclogic_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-				USB_DEVICE_ID_UCLOGIC_TABLET_PF1209) },
+				USB_DEVICE_ID_UCLOGIC_TABLET_PF1209),
+	  .driver_data = HID_QUIRK_MULTI_INPUT },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-				USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U) },
+				USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U),
+	  .driver_data = HID_QUIRK_MULTI_INPUT },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-				USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U) },
+				USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U),
+	  .driver_data = HID_QUIRK_MULTI_INPUT },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-				USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U) },
+				USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U),
+	  .driver_data = HID_QUIRK_MULTI_INPUT },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
 				USB_DEVICE_ID_UCLOGIC_TABLET_WP1062) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
@@ -648,6 +673,7 @@ MODULE_DEVICE_TABLE(hid, uclogic_devices);
 static struct hid_driver uclogic_driver = {
 	.name = "uclogic",
 	.id_table = uclogic_devices,
+	.probe = uclogic_probe,
 	.report_fixup = uclogic_report_fixup,
 };
 module_driver(uclogic_driver, hid_register_driver, hid_unregister_driver);
