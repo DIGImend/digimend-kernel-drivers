@@ -6,8 +6,7 @@ and maintained by the DIGImend project. We maintain this package to provide
 newer drivers for older kernel versions which don't have them, and to allow
 users to test new drivers before we contribute them to the mainline kernel.
 
-This package supersedes the
-[huion-driver](https://github.com/DIGImend/huion-driver) package.
+This package supersedes the huion-driver package.
 
 Model support is as follows:
 
