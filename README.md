@@ -13,7 +13,7 @@ Model support is as follows:
     Original                Rebranded as    Status*
 
        Huion 580                            likely works
-             H420           osu!tablet(?)   works
+             H420           osu!tablet      works
              H610                           works
              H690                           works
              K58                            works
@@ -37,9 +37,6 @@ Model support is as follows:
     (t) concerns only the input part of this display tablet, output (display)
         support is not provided by this package and should be verified
         separately
-
-    (?) the rebranded model is likely the specified original model,
-        but wasn't verified to be
 
 Please send your testing results to DIGImend-devel@lists.sourceforge.net, or
 do a pull request with updates.
