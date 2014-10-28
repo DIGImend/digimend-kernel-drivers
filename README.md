@@ -10,16 +10,16 @@ This package supersedes the huion-driver package.
 
 Model support is as follows:
 
-    Original                Rebranded as    Status*         Upstream in
+    Original                Rebranded as    Status*             Upstream in
 
-       Huion 580                            likely works    3.11
-             H420           osu!tablet      works           3.17
-             H610                           works           3.17
-             H690                           works           3.17
-             K58                            works           3.11
-             W58                            likely works    3.11
-             W58L                           works           3.11
-             other                          possibly works  3.17
+       Huion 580                            likely works        3.11
+             H420           osu!tablet      works               3.17
+             H610                           works               3.17
+             H690                           works               3.17
+             K58                            works               3.11
+             W58                            likely works        3.11
+             W58L                           works               3.11
+             other                          possibly works      3.17
 
      Yiynova MSP19U                         works
              MSP19U+                        works
