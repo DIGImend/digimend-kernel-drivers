@@ -15,6 +15,7 @@ Model support is as follows:
        Huion 580                            likely works        3.11
              H420           osu!tablet      works               3.17
              H610                           works               3.17
+             H610 Pro                       works               3.17
              H690                           works               3.17
              K58                            works               3.11
              W58                            likely works        3.11
