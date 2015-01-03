@@ -1,5 +1,5 @@
 ifneq ($(KERNELRELEASE),)
-obj-m := hid-huion.o hid-uclogic.o
+obj-m := hid-huion.o hid-kye.o hid-uclogic.o
 else
 KDIR := /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
