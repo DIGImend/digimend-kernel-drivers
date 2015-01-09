@@ -17,6 +17,7 @@ install: modules_install
 uninstall:
 	rm -vf $(UDEV_RULES) $(HID_REBIND) $(DEPMOD_CONF) \
 		/lib/modules/*/extra/hid-huion.ko \
+		/lib/modules/*/extra/hid-kye.ko \
 		/lib/modules/*/extra/hid-uclogic.ko
 	udevadm control --reload
 	depmod -a
