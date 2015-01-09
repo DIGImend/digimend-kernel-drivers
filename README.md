@@ -78,5 +78,5 @@ Alternatively, you can simply reboot the machine.
 Uninstalling
 ------------
 
-To uninstall the package execute `make uninstall` in the package source
-directory.
+To uninstall the package execute `make uninstall` as root in the package
+source directory.
