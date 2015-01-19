@@ -31,6 +31,8 @@ Model support is as follows:
              DP10U                                      works (t)
              DP10U+                                     works (t)
 
+         KYE MousePen i608X v2  Genius MousePen i608X   works
+
     * "works"           - tested, works
       "likely works"    - not tested, likely works (75% chance)
       "possibly works"  - not tested, possibly works (50% chance)
