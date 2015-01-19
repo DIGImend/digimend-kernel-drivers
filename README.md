@@ -12,7 +12,8 @@ Model support is as follows:
 
     Original                    Rebranded as            Status*             Upstream in
 
-       Huion 580                                        likely works        3.11
+       Huion 540                                        works               3.17
+             580                                        likely works        3.11
              H420               osu!tablet              works               3.17
              H610                                       works               3.17
              H610 Pro                                   works               3.17
