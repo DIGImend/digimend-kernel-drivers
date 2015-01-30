@@ -57,6 +57,10 @@ derived distributions the package name is `kernel-headers`.
 
 To build the drivers run `make` in the package's directory.
 
+Please disregard the possible "Can't read private key" messages. They don't
+affect the driver functionality, unless you set up kernel module signature
+verification.
+
 To install the drivers run `make install` as root in the package's directory.
 
 See the DIGImend project [support page](http://digimend.github.io/support/)
