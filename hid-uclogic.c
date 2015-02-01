@@ -815,6 +815,7 @@ static int uclogic_probe(struct hid_device *hdev, const struct hid_device_id *id
 {
 	int rc;
 	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+	struct usb_device *udev = to_usb_device(intf->usb_dev);
 	struct uclogic_drvdata *drvdata;
 
 	hdev->quirks |= id->driver_data;
@@ -832,6 +833,20 @@ static int uclogic_probe(struct hid_device *hdev, const struct hid_device_id *id
 	case USB_DEVICE_ID_YIYNOVA_TABLET:
 		/* If this is the pen interface */
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
+			rc = uclogic_tablet_enable(hdev);
+			if (rc) {
+				hid_err(hdev, "tablet enabling failed\n");
+				return rc;
+			}
+		}
+		break;
+	case USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60:
+		/*
+		 * If it is the pen interface of the three-interface version,
+		 * which is known to respond to initialization.
+		 */
+		if (udev->config->desc.bNumInterfaces == 3 &&
+		    intf->cur_altsetting->desc.bInterfaceNumber == 0) {
 			rc = uclogic_tablet_enable(hdev);
 			if (rc) {
 				hid_err(hdev, "tablet enabling failed\n");
