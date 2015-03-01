@@ -55,6 +55,11 @@ On Debian-derived systems (such as Ubuntu and Mint) headers can be obtained by
 installing appropriate version of `linux-headers` package. On Red Hat and
 derived distributions the package name is `kernel-headers`.
 
+Download one of the releases from the [releases
+page](https://github.com/DIGImend/digimend-kernel-drivers/releases). The
+"Download ZIP" link on the right of the GitHub page leads to the current
+development version, use it only if you know what you're doing.
+
 To build the drivers run `make` in the package's directory.
 
 Please disregard the possible "Can't read private key" messages. They don't
