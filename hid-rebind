@@ -51,8 +51,16 @@ write_ignore_enodev() {
         cur_driver=""
     fi
 
-    new_module=`modprobe -R "$MODALIAS" | tr - _ |
-                    { grep -v -F "hid_generic" || true; } | head -n1`
+    # Choose a matching module installed under .../extra/
+    new_module=$(
+        modprobe -R "$MODALIAS" | tr - _ |
+            while read -r m; do
+                if modinfo -F filename "$m" | grep -q /extra/; then
+                    echo "$m"
+                    break
+                fi
+            done
+    )
     if test -z "$new_module"; then
         exit 0
     fi
