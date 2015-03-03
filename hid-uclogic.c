@@ -564,6 +564,7 @@ enum uclogic_ph_id {
 
 /* Report descriptor template placeholder */
 #define UCLOGIC_PH(_ID) UCLOGIC_PH_HEAD, UCLOGIC_PH_ID_##_ID
+#define UCLOGIC_PEN_REPORT_ID	0x07
 
 /* Fixed report descriptor template */
 static const __u8 uclogic_tablet_rdesc_template[] = {
@@ -625,6 +626,7 @@ enum uclogic_prm {
 struct uclogic_drvdata {
 	__u8 *rdesc;
 	unsigned int rsize;
+	bool invert_pen_inrange;
 };
 
 static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
@@ -711,6 +713,70 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 	}
 
 	return rdesc;
+}
+
+static int uclogic_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+		struct hid_field *field, struct hid_usage *usage,
+		unsigned long **bit, int *max)
+{
+	struct usb_interface *intf;
+
+	if (hdev->product == USB_DEVICE_ID_HUION_TABLET) {
+		intf = to_usb_interface(hdev->dev.parent);
+
+		/* discard the unused pen interface */
+		if ((intf->cur_altsetting->desc.bInterfaceNumber != 0) &&
+		    (field->application == HID_DG_PEN))
+			return -1;
+	}
+
+	/* let hid-core decide what to do */
+	return 0;
+}
+
+static void uclogic_input_configured(struct hid_device *hdev,
+		struct hid_input *hi)
+{
+	char *name;
+	const char *suffix = NULL;
+	struct hid_field *field;
+	size_t len;
+
+	/* no report associated (HID_QUIRK_MULTI_INPUT not set) */
+	if (!hi->report)
+		return;
+
+	field = hi->report->field[0];
+
+	switch (field->application) {
+	case HID_GD_KEYBOARD:
+		suffix = "Keyboard";
+		break;
+	case HID_GD_MOUSE:
+		suffix = "Mouse";
+		break;
+	case HID_GD_KEYPAD:
+		suffix = "Pad";
+		break;
+	case HID_DG_PEN:
+		suffix = "Pen";
+		break;
+	case HID_CP_CONSUMER_CONTROL:
+		suffix = "Consumer Control";
+		break;
+	case HID_GD_SYSTEM_CONTROL:
+		suffix = "System Control";
+		break;
+	}
+
+	if (suffix) {
+		len = strlen(hdev->name) + 2 + strlen(suffix);
+		name = devm_kzalloc(&hi->input->dev, len, GFP_KERNEL);
+		if (name) {
+			snprintf(name, len, "%s %s", hdev->name, suffix);
+			hi->input->name = name;
+		}
+	}
 }
 
 /**
@@ -811,21 +877,26 @@ cleanup:
 	return rc;
 }
 
-static int uclogic_probe(struct hid_device *hdev, const struct hid_device_id *id)
+static int uclogic_probe(struct hid_device *hdev,
+		const struct hid_device_id *id)
 {
 	int rc;
 	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
 	struct usb_device *udev = to_usb_device(intf->usb_dev);
 	struct uclogic_drvdata *drvdata;
 
-	hdev->quirks |= id->driver_data;
+	/*
+	 * libinput requires the pad interface to be on a different node
+	 * than the pen, so use QUIRK_MULTI_INPUT for all tablets.
+	 */
+	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+	hdev->quirks |= HID_QUIRK_NO_EMPTY_INPUT;
 
 	/* Allocate and assign driver data */
 	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
-	if (drvdata == NULL) {
-		hid_err(hdev, "failed to allocate driver data\n");
+	if (drvdata == NULL)
 		return -ENOMEM;
-	}
+
 	hid_set_drvdata(hdev, drvdata);
 
 	switch (id->product) {
@@ -838,6 +909,7 @@ static int uclogic_probe(struct hid_device *hdev, const struct hid_device_id *id
 				hid_err(hdev, "tablet enabling failed\n");
 				return rc;
 			}
+			drvdata->invert_pen_inrange = true;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60:
@@ -874,12 +946,12 @@ static int uclogic_probe(struct hid_device *hdev, const struct hid_device_id *id
 static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 			u8 *data, int size)
 {
-	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 
-	/* If this is a pen input report */
-	if (intf->cur_altsetting->desc.bInterfaceNumber == 0 &&
-	    report->type == HID_INPUT_REPORT &&
-	    report->id == 0x07 && size >= 2)
+	if ((drvdata->invert_pen_inrange) &&
+	    (report->type == HID_INPUT_REPORT) &&
+	    (report->id == UCLOGIC_PEN_REPORT_ID) &&
+	    (size >= 2))
 		/* Invert the in-range bit */
 		data[1] ^= 0x40;
 
@@ -888,17 +960,13 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 
 static const struct hid_device_id uclogic_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-				USB_DEVICE_ID_UCLOGIC_TABLET_PF1209),
-	  .driver_data = HID_QUIRK_MULTI_INPUT },
+				USB_DEVICE_ID_UCLOGIC_TABLET_PF1209) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-				USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U),
-	  .driver_data = HID_QUIRK_MULTI_INPUT },
+				USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-				USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U),
-	  .driver_data = HID_QUIRK_MULTI_INPUT },
+				USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-				USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U),
-	  .driver_data = HID_QUIRK_MULTI_INPUT },
+				USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
 				USB_DEVICE_ID_UCLOGIC_TABLET_WP1062) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
@@ -918,6 +986,8 @@ static struct hid_driver uclogic_driver = {
 	.probe = uclogic_probe,
 	.report_fixup = uclogic_report_fixup,
 	.raw_event = uclogic_raw_event,
+	.input_mapping = uclogic_input_mapping,
+	.input_configured = uclogic_input_configured,
 };
 module_driver(uclogic_driver, hid_register_driver, hid_unregister_driver);
 
