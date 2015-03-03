@@ -811,21 +811,25 @@ cleanup:
 	return rc;
 }
 
-static int uclogic_probe(struct hid_device *hdev, const struct hid_device_id *id)
+static int uclogic_probe(struct hid_device *hdev,
+		const struct hid_device_id *id)
 {
 	int rc;
 	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
 	struct usb_device *udev = to_usb_device(intf->usb_dev);
 	struct uclogic_drvdata *drvdata;
 
-	hdev->quirks |= id->driver_data;
+	/*
+	 * libinput requires the pad interface to be on a different node
+	 * than the pen, so use QUIRK_MULTI_INPUT for all tablets.
+	 */
+	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
 
 	/* Allocate and assign driver data */
 	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
-	if (drvdata == NULL) {
-		hid_err(hdev, "failed to allocate driver data\n");
+	if (drvdata == NULL)
 		return -ENOMEM;
-	}
+
 	hid_set_drvdata(hdev, drvdata);
 
 	switch (id->product) {
@@ -888,17 +892,13 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 
 static const struct hid_device_id uclogic_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-				USB_DEVICE_ID_UCLOGIC_TABLET_PF1209),
-	  .driver_data = HID_QUIRK_MULTI_INPUT },
+				USB_DEVICE_ID_UCLOGIC_TABLET_PF1209) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-				USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U),
-	  .driver_data = HID_QUIRK_MULTI_INPUT },
+				USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-				USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U),
-	  .driver_data = HID_QUIRK_MULTI_INPUT },
+				USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-				USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U),
-	  .driver_data = HID_QUIRK_MULTI_INPUT },
+				USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
 				USB_DEVICE_ID_UCLOGIC_TABLET_WP1062) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
