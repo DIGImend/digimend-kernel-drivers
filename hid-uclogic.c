@@ -18,8 +18,8 @@
 #include <linux/usb.h>
 #include <asm/unaligned.h>
 #include "usbhid/usbhid.h"
-
 #include "hid-ids.h"
+#include "compat.h"
 
 /*
  * See WPXXXXU model descriptions, device and HID report descriptors at
