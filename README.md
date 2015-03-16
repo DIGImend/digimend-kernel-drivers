@@ -66,29 +66,28 @@ Please disregard the possible "Can't read private key" messages. They don't
 affect the driver functionality, unless you set up kernel module signature
 verification.
 
-To install the drivers run `make install` as root in the package's directory.
+To install the drivers run `sudo make install` in the package's directory.
+
+Make sure the previous versions of the drivers were unloaded from memory with
+the following commands:
+
+    sudo rmmod hid-kye
+    sudo rmmod hid-uclogic
+    sudo rmmod hid-huion
+
+and reconnect the tablet. Or simply reboot the machine.
 
 See the DIGImend project [support page](http://digimend.github.io/support/)
 for further setup instructions.
-
-Upgrading
----------
-
-If you run a kernel which already has a driver for your tablet with the same
-name as the one being installed (including the case of upgrading an
-installation of this package), you will need to unload the installed kernel's
-driver using the `rmmod` command and then to (re-)plug the tablet in to allow
-the driver from this package to take over.
-
-For example, if you run a v3.11 or later kernel, and/or would like to upgrade
-the driver for Huion tablets, then after installing this package you will need
-to execute `rmmod hid-huion`, and then disconnect and reconnect the tablet to
-make it work.
-
-Alternatively, you can simply reboot the machine.
 
 Uninstalling
 ------------
 
 To uninstall the package execute `make uninstall` as root in the package
 source directory.
+
+Upgrading / downgrading
+-----------------------
+
+If you've installed a version of this package before, please uninstall it
+before installing another one, using the sources you used for installation.
