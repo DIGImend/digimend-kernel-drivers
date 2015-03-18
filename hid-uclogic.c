@@ -630,6 +630,23 @@ static const __u8 uclogic_buttonpad_rdesc[] = {
 	0x29, 0x08,             /*          Usage Maximum (08h),            */
 	0x95, 0x08,             /*          Report Count (8),               */
 	0x81, 0x02,             /*          Input (Variable),               */
+	0x05, 0x0D,             /*          Usage Page (Digitizers),        */
+	0x09, 0x20,             /*          Usage (Stylus),                 */
+	0x14,                   /*          Logical Minimum (0),            */
+	0x25, 0x01,             /*          Logical Maximum (1),            */
+	0x09, 0x44,             /*          Usage (Barrel Switch),          */
+	0x95, 0x01,             /*          Report Count (1),               */
+	0x81, 0x02,             /*          Input (Data,Var,Abs),           */
+	0x05, 0x01,             /*          Usage Page (Generic Desktop),   */
+	0x09, 0x30,             /*          Usage (X),                      */
+	0x09, 0x31,             /*          Usage (Y),                      */
+	0x95, 0x02,             /*          Report Count (2),               */
+	0x81, 0x02,             /*          Input (Data,Var,Abs),           */
+	0x05, 0x0D,             /*          Usage Page (Digitizers),        */
+	0x09, 0xFF,             /*          Usage (Vendor Usage 0xff),      */
+	0x75, 0x05,             /*          Report Size (5),                */
+	0x95, 0x01,             /*          Report Count (1),               */
+	0x81, 0x02,             /*          Input (Data,Var,Abs),           */
 	0xC0,                   /*      End Collection                      */
 	0xC0                    /*  End Collection                          */
 };
