@@ -32,4 +32,8 @@
 
 #define USB_DEVICE_ID_YIYNOVA_TABLET	0x004d
 
+/* Known as Zippy Technology Corp. in usbutils */
+#define USB_VENDOR_ID_POLOSTAR 0x099a
+#define USB_DEVICE_ID_POLOSTAR_TABLET_PT1001 0x2620
+
 #endif
