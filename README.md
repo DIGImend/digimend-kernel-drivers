@@ -34,6 +34,7 @@ Model support is as follows:
 
          KYE MousePen i608X v2  Genius MousePen i608X   works
 
+    Polostar PT-1001            Leogics PT-1001         works
     * "works"           - tested, works
       "likely works"    - not tested, likely works (75% chance)
       "possibly works"  - not tested, possibly works (50% chance)
