@@ -1,5 +1,5 @@
 ifneq ($(KERNELRELEASE),)
-obj-m := hid-kye.o hid-uclogic.o
+obj-m := hid-kye.o hid-uclogic.o hid-polostar.o
 else
 KDIR := /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
@@ -17,6 +17,7 @@ install: modules_install
 uninstall:
 	rm -vf $(UDEV_RULES) $(HID_REBIND) $(DEPMOD_CONF) \
 		/lib/modules/*/extra/hid-kye.ko \
+		/lib/modules/*/extra/hid-polostar.ko \
 		/lib/modules/*/extra/hid-uclogic.ko
 	udevadm control --reload
 	depmod -a
