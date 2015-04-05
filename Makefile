@@ -1,7 +1,6 @@
-ifneq ($(KERNELRELEASE),)
 obj-m := hid-kye.o hid-uclogic.o hid-polostar.o
-else
-KDIR := /lib/modules/$(shell uname -r)/build
+KVERSION := $(shell uname -r)
+KDIR := /lib/modules/$(KVERSION)/build
 PWD := $(shell pwd)
 UDEV_RULES := /lib/udev/rules.d/90-hid-rebind.rules
 DEPMOD_CONF := /etc/depmod.d/digimend.conf
@@ -21,4 +20,3 @@ uninstall:
 		/lib/modules/*/extra/hid-uclogic.ko
 	udevadm control --reload
 	depmod -a
-endif

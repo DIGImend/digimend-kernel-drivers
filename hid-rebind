@@ -51,11 +51,12 @@ write_ignore_enodev() {
         cur_driver=""
     fi
 
-    # Choose a matching module installed under .../extra/
+    # Choose a matching module installed under /extra or /updates
     new_module=$(
         modprobe -R "$MODALIAS" | tr - _ |
             while read -r m; do
-                if modinfo -F filename "$m" | grep -q /extra/; then
+                if modinfo -F filename "$m" |
+                   grep -q '/extra/\|/updates/'; then
                     echo "$m"
                     break
                 fi
