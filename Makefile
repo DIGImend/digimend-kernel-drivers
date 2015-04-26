@@ -3,7 +3,7 @@ obj-m := hid-kye.o hid-uclogic.o hid-polostar.o
 else
 KDIR := /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
-UDEV_RULES := /lib/udev/rules.d/70-hid-rebind.rules
+UDEV_RULES := /lib/udev/rules.d/90-hid-rebind.rules
 DEPMOD_CONF := /etc/depmod.d/digimend.conf
 HID_REBIND := /sbin/hid-rebind
 modules modules_install clean:
