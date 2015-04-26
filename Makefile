@@ -12,7 +12,7 @@ install: modules_install
 	install -D -m 0644 digimend.conf $(DEPMOD_CONF)
 	depmod -a
 	install hid-rebind $(HID_REBIND)
-	install -m 0644 hid-rebind.rules $(UDEV_RULES)
+	install -m 0644 90-hid-rebind.rules $(UDEV_RULES)
 	udevadm control --reload
 uninstall:
 	rm -vf $(UDEV_RULES) $(HID_REBIND) $(DEPMOD_CONF) \
