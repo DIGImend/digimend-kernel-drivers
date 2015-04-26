@@ -1,0 +1,32 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: digimend-kernel-drivers
+Source: https://github.com/DIGImend/digimend-kernel-drivers
+
+Files: *
+Copyright: 2009 Jiri Kosina <jkosina@suse.cz>
+           2009 Tomas Hanak <tomas.hanak@gmail.com>
+           2010-2015 Nikolai Kondrashov <spbnick@gmail.com>
+           2013 Martin Rusko <martin.rusko@gmail.com>
+           2015 Yann Vernier <yann.vernier@orsoc.se>
+License: GPL-2.0+
+
+Files: debian/*
+Copyright: 2015 Nikolai Kondrashov <spbnick@gmail.com>
+License: GPL-2.0+
+
+License: GPL-2.0+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <http://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".

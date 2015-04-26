@@ -1,0 +1,16 @@
+Source: digimend-dkms
+Section: kernel
+Priority: extra
+Maintainer: Nikolai Kondrashov <spbnick@gmail.com>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: https://github.com/DIGImend/digimend-kernel-drivers
+Vcs-Git: https://github.com/DIGImend/digimend-kernel-drivers.git
+Vcs-Browser: https://github.com/DIGImend/digimend-kernel-drivers
+
+Package: digimend-dkms
+Architecture: all
+Depends: ${misc:Depends}
+Description: A collection of graphics tablet drivers by DIGImend project
+ This is a collection of graphics tablet drivers for the Linux kernel, produced
+ and maintained by the DIGImend project.
