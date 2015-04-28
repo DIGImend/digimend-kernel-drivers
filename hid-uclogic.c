@@ -1004,6 +1004,7 @@ static int uclogic_probe(struct hid_device *hdev,
 	case USB_DEVICE_ID_YIYNOVA_TABLET:
 	case USB_DEVICE_ID_UGEE_TABLET_81:
 	case USB_DEVICE_ID_UGEE_TABLET_45:
+	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
 		/* If this is the pen interface */
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
 			rc = uclogic_tablet_enable(hdev);
@@ -1089,6 +1090,7 @@ static const struct hid_device_id uclogic_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_YIYNOVA_TABLET) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UGEE_TABLET_81) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UGEE_TABLET_45) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER, USB_DEVICE_ID_UGTIZER_TABLET_GP0610) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, uclogic_devices);
