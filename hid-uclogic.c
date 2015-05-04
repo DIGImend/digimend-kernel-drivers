@@ -1003,6 +1003,7 @@ static int uclogic_probe(struct hid_device *hdev,
 	case USB_DEVICE_ID_HUION_TABLET:
 	case USB_DEVICE_ID_YIYNOVA_TABLET:
 	case USB_DEVICE_ID_UGEE_TABLET_81:
+	case USB_DEVICE_ID_UGEE_TABLET_3031:
 	case USB_DEVICE_ID_UGEE_TABLET_45:
 	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
 		/* If this is the pen interface */
