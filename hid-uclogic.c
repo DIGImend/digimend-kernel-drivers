@@ -1004,7 +1004,6 @@ static int uclogic_probe(struct hid_device *hdev,
 	case USB_DEVICE_ID_YIYNOVA_TABLET:
 	case USB_DEVICE_ID_UGEE_TABLET_81:
 	case USB_DEVICE_ID_UGEE_TABLET_45:
-	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
 		/* If this is the pen interface */
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
 			rc = uclogic_tablet_enable(hdev);
@@ -1016,6 +1015,19 @@ static int uclogic_probe(struct hid_device *hdev,
 
 			rc = uclogic_button_enable(hdev);
 			drvdata->has_virtual_pad_interface = !rc;
+		} else {
+			drvdata->ignore_pen_usage = true;
+		}
+		break;
+	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
+		/* If this is the pen interface */
+		if (intf->cur_altsetting->desc.bInterfaceNumber == 1) {
+			rc = uclogic_tablet_enable(hdev);
+			if (rc) {
+				hid_err(hdev, "tablet enabling failed\n");
+				return rc;
+			}
+			drvdata->invert_pen_inrange = true;
 		} else {
 			drvdata->ignore_pen_usage = true;
 		}
