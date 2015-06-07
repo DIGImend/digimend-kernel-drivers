@@ -676,6 +676,12 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 	__u8 iface_num = iface->cur_altsetting->desc.bInterfaceNumber;
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 
+	if (drvdata->rdesc != NULL) {
+		rdesc = drvdata->rdesc;
+		*rsize = drvdata->rsize;
+		return rdesc;
+	}
+
 	switch (hdev->product) {
 	case USB_DEVICE_ID_UCLOGIC_TABLET_PF1209:
 		if (*rsize == PF1209_RDESC_ORIG_SIZE) {
@@ -745,11 +751,6 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 			break;
 		}
 		break;
-	default:
-		if (drvdata->rdesc != NULL) {
-			rdesc = drvdata->rdesc;
-			*rsize = drvdata->rsize;
-		}
 	}
 
 	return rdesc;
