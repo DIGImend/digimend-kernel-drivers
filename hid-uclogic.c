@@ -983,7 +983,7 @@ static int uclogic_probe(struct hid_device *hdev,
 {
 	int rc;
 	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-	struct usb_device *udev = to_usb_device(intf->usb_dev);
+	struct usb_device *udev = hid_to_usb_dev(hdev);
 	struct uclogic_drvdata *drvdata;
 
 	/*
