@@ -8,41 +8,8 @@ users to test new drivers before we contribute them to the mainline kernel.
 
 This package supersedes the huion-driver package.
 
-Model support is as follows:
-
-    Original                    Rebranded as            Status*             Upstream in
-
-       Huion 540                                        works               3.17
-             580                                        likely works        3.11
-             H420               osu!tablet              works               3.17
-             H610                                       works               3.17
-             H610 Pro                                   works               3.17
-             H690                                       works               3.17
-             K58                                        works               3.11
-             W58                                        likely works        3.11
-             W58L                                       works               3.11
-             other                                      possibly works      3.17
-
-     Yiynova MSP19U                                     works
-             MSP19U+                                    works
-             MVP22U+                                    works
-             MVP10U                                     works (t)
-             MVP10U IPS                                 works (t)
-             MVP10U HD IPS                              works (t)
-             DP10U                                      works (t)
-             DP10U+                                     works (t)
-
-         KYE MousePen i608X v2  Genius MousePen i608X   works
-
-    Polostar PT-1001            Leogics PT-1001         works
-
-    * "works"           - tested, works
-      "likely works"    - not tested, likely works (75% chance)
-      "possibly works"  - not tested, possibly works (50% chance)
-
-    (t) concerns only the input part of this display tablet, output (display)
-        support is not provided by this package and should be verified
-        separately
+See the [list of supported tablets](http://digimend.github.io/drivers/digimend/tablets/)
+on the [project website](http://digimend.github.io/).
 
 Please send your testing results to DIGImend-devel@lists.sourceforge.net, or
 do a pull request with updates.
