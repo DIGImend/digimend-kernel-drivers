@@ -11,8 +11,7 @@ This package supersedes the huion-driver package.
 See the [list of supported tablets](http://digimend.github.io/drivers/digimend/tablets/)
 on the [project website](http://digimend.github.io/).
 
-Please send your testing results to DIGImend-devel@lists.sourceforge.net, or
-do a pull request with updates.
+Please send your testing results to DIGImend-devel@lists.sourceforge.net.
 
 Installing
 ----------
