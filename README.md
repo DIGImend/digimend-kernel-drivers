@@ -6,8 +6,6 @@ and maintained by the DIGImend project. We maintain this package to provide
 newer drivers for older kernel versions which don't have them, and to allow
 users to test new drivers before we contribute them to the mainline kernel.
 
-This package supersedes the huion-driver package.
-
 See the [list of supported tablets](http://digimend.github.io/drivers/digimend/tablets/)
 on the [project website](http://digimend.github.io/).
 
