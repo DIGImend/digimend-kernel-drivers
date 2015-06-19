@@ -1036,17 +1036,21 @@ static int uclogic_probe(struct hid_device *hdev,
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60:
 		/*
-		 * If it is the pen interface of the three-interface version,
-		 * which is known to respond to initialization.
+		 * If it is the three-interface version, which is known to
+		 * respond to initialization.
 		 */
-		if (udev->config->desc.bNumInterfaces == 3 &&
-		    intf->cur_altsetting->desc.bInterfaceNumber == 0) {
-			rc = uclogic_tablet_enable(hdev);
-			if (rc) {
-				hid_err(hdev, "tablet enabling failed\n");
-				return rc;
+		if (udev->config->desc.bNumInterfaces == 3) {
+			/* If it is the pen interface */
+			if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
+				rc = uclogic_tablet_enable(hdev);
+				if (rc) {
+					hid_err(hdev, "tablet enabling failed\n");
+					return rc;
+				}
+				drvdata->invert_pen_inrange = true;
+			} else {
+				drvdata->ignore_pen_usage = true;
 			}
-			drvdata->invert_pen_inrange = true;
 		}
 		break;
 	}
