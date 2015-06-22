@@ -1048,6 +1048,9 @@ static int uclogic_probe(struct hid_device *hdev,
 					return rc;
 				}
 				drvdata->invert_pen_inrange = true;
+
+				rc = uclogic_button_enable(hdev);
+				drvdata->has_virtual_pad_interface = !rc;
 			} else {
 				drvdata->ignore_pen_usage = true;
 			}
