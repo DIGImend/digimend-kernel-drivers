@@ -6,8 +6,8 @@ and maintained by the DIGImend project. We maintain this package to provide
 newer drivers for older kernel versions which don't have them, and to allow
 users to test new drivers before we contribute them to the mainline kernel.
 
-See the [list of supported tablets](http://digimend.github.io/drivers/digimend/tablets/)
-on the [project website](http://digimend.github.io/).
+See the [list of supported tablets][supported_tablets] on the [project
+website][website].
 
 Please send your testing results to DIGImend-devel@lists.sourceforge.net.
 
@@ -21,10 +21,29 @@ On Debian-derived systems (such as Ubuntu and Mint) headers can be obtained by
 installing appropriate version of `linux-headers` package. On Red Hat and
 derived distributions the package name is `kernel-headers`.
 
-Download one of the releases from the [releases
-page](https://github.com/DIGImend/digimend-kernel-drivers/releases). The
-"Download ZIP" link on the right of the GitHub page leads to the current
-development version, use it only if you know what you're doing.
+Download appropriate files for one of the releases from the [releases
+page][releases]. The "Download ZIP" link on the right of the GitHub page leads
+to the source of the current development version, use it only if you know what
+you're doing.
+
+### Installing Debian package ###
+
+If you're using Debian or a derived distro, such as Ubuntu, please try using
+the experimental .deb package. If it works for you, this will remove the need
+to reinstall the driver after each kernel upgrade. If it doesn't work, please
+[report the issue][report_issue].
+
+If you're not using a Debian-based distro, or the .deb package didn't work,
+you can try installing the driver using DKMS directly, if you know how, or
+manually as described below.
+
+### Installing source package with DKMS ###
+
+If you know how to use DKMS, you can try installing the package with it
+directly, employing the experimental DKMS support. Please [report
+issues][report_issue] if you find any.
+
+### Installing source package manually ###
 
 To build the drivers run `make` in the package's directory.
 
@@ -43,8 +62,13 @@ the following commands:
 
 and reconnect the tablet. Or simply reboot the machine.
 
+Note that if you built and installed the driver with `make` and `sudo make
+install` as described above, you will need to do that again after each kernel
+upgrade.
+
 See the DIGImend project [support page](http://digimend.github.io/support/)
-for further setup instructions.
+for further setup instructions. Please [report issues][report_issue] if you
+find any.
 
 Uninstalling
 ------------
@@ -57,3 +81,9 @@ Upgrading / downgrading
 
 If you've installed a version of this package before, please uninstall it
 before installing another one, using the sources you used for installation.
+
+
+[website]: http://digimend.github.io/
+[supported_tablets]: http://digimend.github.io/drivers/digimend/tablets/
+[releases]: https://github.com/DIGImend/digimend-kernel-drivers/releases
+[report_issue]: https://github.com/DIGImend/digimend-kernel-drivers/issues/new
