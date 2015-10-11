@@ -566,4 +566,4 @@ static struct hid_driver kye_driver = {
 module_hid_driver(kye_driver);
 
 MODULE_LICENSE("GPL");
-MODULE_VERSION("6");
+MODULE_VERSION("7");

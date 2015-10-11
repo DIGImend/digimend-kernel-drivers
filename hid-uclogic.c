@@ -1105,4 +1105,4 @@ module_driver(uclogic_driver, hid_register_driver, hid_unregister_driver);
 MODULE_AUTHOR("Martin Rusko");
 MODULE_AUTHOR("Nikolai Kondrashov");
 MODULE_LICENSE("GPL");
-MODULE_VERSION("6");
+MODULE_VERSION("7");
