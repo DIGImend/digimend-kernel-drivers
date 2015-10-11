@@ -73,14 +73,19 @@ find any.
 Uninstalling
 ------------
 
-To uninstall the package execute `make uninstall` as root in the package
-source directory.
+### Manually-installed package ###
+
+To uninstall a manually-installed package execute `make uninstall` as root in
+the package source directory.
 
 Upgrading / downgrading
 -----------------------
 
-If you've installed a version of this package before, please uninstall it
-before installing another one, using the sources you used for installation.
+### Manually-installed package ###
+
+If you've manually installed a version of this package before, please
+uninstall it before installing another one, using the sources you used for
+installation.
 
 
 [website]: http://digimend.github.io/
