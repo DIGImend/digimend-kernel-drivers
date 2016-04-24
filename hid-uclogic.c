@@ -20,6 +20,7 @@
 #include "usbhid/usbhid.h"
 #include "hid-ids.h"
 #include "compat.h"
+#include <linux/version.h>
 
 /* Size of the original descriptor of WPXXXXU tablets */
 #define WPXXXXU_RDESC_ORIG_SIZE	212
@@ -744,8 +745,15 @@ static int uclogic_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 	return 0;
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 4, 0)
+#define RETURN_SUCCESS return
 static void uclogic_input_configured(struct hid_device *hdev,
 		struct hid_input *hi)
+#else
+#define RETURN_SUCCESS return 0
+static int uclogic_input_configured(struct hid_device *hdev,
+		struct hid_input *hi)
+#endif
 {
 	char *name;
 	const char *suffix = NULL;
@@ -754,7 +762,7 @@ static void uclogic_input_configured(struct hid_device *hdev,
 
 	/* no report associated (HID_QUIRK_MULTI_INPUT not set) */
 	if (!hi->report)
-		return;
+		RETURN_SUCCESS;
 
 	field = hi->report->field[0];
 
@@ -787,7 +795,9 @@ static void uclogic_input_configured(struct hid_device *hdev,
 			hi->input->name = name;
 		}
 	}
+	RETURN_SUCCESS;
 }
+#undef RETURN_SUCCESS
 
 /**
  * Enable fully-functional tablet mode and determine device parameters.
