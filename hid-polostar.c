@@ -208,7 +208,7 @@ static struct hid_driver polostar_driver = {
 	.probe = polostar_probe,
 	.report_fixup = polostar_report_fixup,
 };
-module_driver(polostar_driver, hid_register_driver, hid_unregister_driver);
+module_hid_driver(polostar_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_VERSION("7");

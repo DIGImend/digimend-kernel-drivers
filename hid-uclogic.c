@@ -1110,7 +1110,7 @@ static struct hid_driver uclogic_driver = {
 	.input_mapping = uclogic_input_mapping,
 	.input_configured = uclogic_input_configured,
 };
-module_driver(uclogic_driver, hid_register_driver, hid_unregister_driver);
+module_hid_driver(uclogic_driver);
 
 MODULE_AUTHOR("Martin Rusko");
 MODULE_AUTHOR("Nikolai Kondrashov");
