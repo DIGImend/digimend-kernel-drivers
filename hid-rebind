@@ -23,6 +23,8 @@
 
 set -e -u
 
+export PATH="/sbin:/usr/sbin:$PATH"
+
 progname=`basename "$0"`
 
 # Write a string to a file, ignoring ENODEV.
