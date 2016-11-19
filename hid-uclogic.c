@@ -1109,6 +1109,34 @@ static int uclogic_probe(struct hid_device *hdev,
 	return 0;
 }
 
+#ifdef CONFIG_PM
+static int uclogic_resume(struct hid_device *hdev)
+{
+	int rc;
+	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
+
+	/* Re-enable tablet, if needed */
+	if (drvdata->tablet_enabled) {
+		__le16 *buf = NULL;
+		rc = uclogic_enable_tablet(hdev, &buf);
+		kfree(buf);
+		if (rc != 0) {
+			return rc;
+		}
+	}
+
+	/* Re-enable buttons, if needed */
+	if (drvdata->buttons_enabled) {
+		rc = uclogic_enable_buttons(hdev);
+		if (rc != 0) {
+			return rc;
+		}
+	}
+
+	return 0;
+}
+#endif
+
 static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 			u8 *data, int size)
 {
@@ -1162,6 +1190,10 @@ static struct hid_driver uclogic_driver = {
 	.raw_event = uclogic_raw_event,
 	.input_mapping = uclogic_input_mapping,
 	.input_configured = uclogic_input_configured,
+#ifdef CONFIG_PM
+	.resume	          = uclogic_resume,
+	.reset_resume     = uclogic_resume,
+#endif
 };
 module_hid_driver(uclogic_driver);
 
