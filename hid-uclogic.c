@@ -802,11 +802,12 @@ static int uclogic_input_configured(struct hid_device *hdev,
 #undef RETURN_SUCCESS
 
 /**
- * Enable fully-functional tablet mode and determine device parameters.
+ * Enable fully-functional tablet mode, retrieve device parameters and
+ * generate corresponding report descriptor.
  *
  * @hdev:	HID device
  */
-static int uclogic_tablet_enable(struct hid_device *hdev)
+static int uclogic_probe_tablet(struct hid_device *hdev)
 {
 	int rc;
 	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
@@ -898,11 +899,11 @@ cleanup:
 }
 
 /**
- * Enable actual button mode.
+ * Enable generic button mode, and substitute corresponding report descriptor.
  *
  * @hdev:	HID device
  */
-static int uclogic_button_enable(struct hid_device *hdev)
+static int uclogic_probe_buttons(struct hid_device *hdev)
 {
 	int rc;
 	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
@@ -990,14 +991,14 @@ static int uclogic_probe(struct hid_device *hdev,
 	case USB_DEVICE_ID_UGEE_TABLET_45:
 		/* If this is the pen interface */
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
-			rc = uclogic_tablet_enable(hdev);
+			rc = uclogic_probe_tablet(hdev);
 			if (rc) {
 				hid_err(hdev, "tablet enabling failed\n");
 				return rc;
 			}
 			drvdata->invert_pen_inrange = true;
 
-			rc = uclogic_button_enable(hdev);
+			rc = uclogic_probe_buttons(hdev);
 			drvdata->has_virtual_pad_interface = !rc;
 		} else {
 			drvdata->ignore_pen_usage = true;
@@ -1006,7 +1007,7 @@ static int uclogic_probe(struct hid_device *hdev,
 	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
 		/* If this is the pen interface */
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 1) {
-			rc = uclogic_tablet_enable(hdev);
+			rc = uclogic_probe_tablet(hdev);
 			if (rc) {
 				hid_err(hdev, "tablet enabling failed\n");
 				return rc;
@@ -1024,14 +1025,14 @@ static int uclogic_probe(struct hid_device *hdev,
 		if (udev->config->desc.bNumInterfaces == 3) {
 			/* If it is the pen interface */
 			if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
-				rc = uclogic_tablet_enable(hdev);
+				rc = uclogic_probe_tablet(hdev);
 				if (rc) {
 					hid_err(hdev, "tablet enabling failed\n");
 					return rc;
 				}
 				drvdata->invert_pen_inrange = true;
 
-				rc = uclogic_button_enable(hdev);
+				rc = uclogic_probe_buttons(hdev);
 				drvdata->has_virtual_pad_interface = !rc;
 			} else {
 				drvdata->ignore_pen_usage = true;
