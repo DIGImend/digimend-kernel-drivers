@@ -640,6 +640,8 @@ enum uclogic_prm {
 struct uclogic_drvdata {
 	__u8 *rdesc;
 	unsigned int rsize;
+	bool tablet_enabled;
+	bool buttons_enabled;
 	bool invert_pen_inrange;
 	bool ignore_pen_usage;
 	bool has_virtual_pad_interface;
@@ -801,23 +803,21 @@ static int uclogic_input_configured(struct hid_device *hdev,
 }
 #undef RETURN_SUCCESS
 
+
 /**
- * Enable fully-functional tablet mode, retrieve device parameters and
- * generate corresponding report descriptor.
+ * Enable fully-functional tablet mode and retrieve device parameters.
  *
  * @hdev:	HID device
+ * @pbuf:	Location for the kmalloc'ed parameter array with
+ * 		UCLOGIC_PRM_NUM elements.
  */
-static int uclogic_probe_tablet(struct hid_device *hdev)
+static int uclogic_enable_tablet(struct hid_device *hdev, __le16 **pbuf)
 {
 	int rc;
 	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 	__le16 *buf = NULL;
 	size_t len;
-	s32 params[UCLOGIC_PH_ID_NUM];
-	s32 resolution;
-	__u8 *p;
-	s32 v;
 
 	/*
 	 * Read string descriptor containing tablet parameters. The specific
@@ -847,6 +847,38 @@ static int uclogic_probe_tablet(struct hid_device *hdev)
 	} else if (rc != len) {
 		hid_err(hdev, "invalid device parameters\n");
 		rc = -ENODEV;
+		goto cleanup;
+	}
+
+	drvdata->tablet_enabled = true;
+	*pbuf = buf;
+	buf = NULL;
+	rc = 0;
+
+cleanup:
+	kfree(buf);
+	return rc;
+}
+
+/**
+ * Enable fully-functional tablet mode, retrieve device parameters and
+ * generate corresponding report descriptor.
+ *
+ * @hdev:	HID device
+ */
+static int uclogic_probe_tablet(struct hid_device *hdev)
+{
+	int rc;
+	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
+	__le16 *buf = NULL;
+	s32 params[UCLOGIC_PH_ID_NUM];
+	s32 resolution;
+	__u8 *p;
+	s32 v;
+
+	/* Enable tablet mode and get raw device parameters */
+	rc = uclogic_enable_tablet(hdev, &buf);
+	if (rc != 0) {
 		goto cleanup;
 	}
 
@@ -899,19 +931,17 @@ cleanup:
 }
 
 /**
- * Enable generic button mode, and substitute corresponding report descriptor.
+ * Enable generic button mode.
  *
  * @hdev:	HID device
  */
-static int uclogic_probe_buttons(struct hid_device *hdev)
+static int uclogic_enable_buttons(struct hid_device *hdev)
 {
 	int rc;
 	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 	char *str_buf;
 	size_t str_len = 16;
-	unsigned char *rdesc;
-	size_t rdesc_len;
 
 	str_buf = kzalloc(str_len, GFP_KERNEL);
 	if (str_buf == NULL) {
@@ -919,7 +949,6 @@ static int uclogic_probe_buttons(struct hid_device *hdev)
 		goto cleanup;
 	}
 
-	/* Enable abstract keyboard mode */
 	rc = usb_string(usb_dev, 0x7b, str_buf, str_len);
 	if (rc == -EPIPE) {
 		hid_info(hdev, "button mode setting not found\n");
@@ -932,6 +961,31 @@ static int uclogic_probe_buttons(struct hid_device *hdev)
 		hid_info(hdev, "invalid answer when requesting buttons: '%s'\n",
 			str_buf);
 		rc = -EINVAL;
+		goto cleanup;
+	}
+
+	drvdata->buttons_enabled = true;
+	rc = 0;
+cleanup:
+	kfree(str_buf);
+	return rc;
+}
+
+/**
+ * Enable generic button mode, and substitute corresponding report descriptor.
+ *
+ * @hdev:	HID device
+ */
+static int uclogic_probe_buttons(struct hid_device *hdev)
+{
+	int rc;
+	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
+	unsigned char *rdesc;
+	size_t rdesc_len;
+
+	/* Enable generic button mode */
+	rc = uclogic_enable_buttons(hdev);
+	if (rc != 0) {
 		goto cleanup;
 	}
 
@@ -957,7 +1011,6 @@ static int uclogic_probe_buttons(struct hid_device *hdev)
 	rc = 0;
 
 cleanup:
-	kfree(str_buf);
 	return rc;
 }
 
