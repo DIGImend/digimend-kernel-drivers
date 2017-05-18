@@ -49,5 +49,7 @@
 /* XP-Pen Technology CO. */
 #define USB_VENDOR_ID_XPPEN			0x28bd
 #define USB_DEVICE_ID_XPPEN_TABLET_G540		0x0075
+#define USB_VENDOR_ID_XPPEN			0x28bd
+#define USB_DEVICE_ID_XPPEN_STAR_05		0x0071
 
 #endif
