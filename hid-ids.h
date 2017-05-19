@@ -45,8 +45,8 @@
 #define USB_VENDOR_ID_UGTIZER			0x2179
 #define USB_DEVICE_ID_UGTIZER_TABLET_GP0610	0x0053
 
-/* XP-Pen Technology CO. */
-#define USB_VENDOR_ID_XPPEN			0x28bd
-#define USB_DEVICE_ID_XPPEN_TABLET_G540		0x0075
+/* Ugee Technology / XP-Pen Technology CO. */
+#define USB_VENDOR_ID_UGEE			0x28bd
+#define USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540	0x0075
 
 #endif
