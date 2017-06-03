@@ -1072,6 +1072,23 @@ static int uclogic_probe(struct hid_device *hdev,
 			drvdata->ignore_pen_usage = true;
 		}
 		break;
+	        /*
+		*XP-PEN STAR 05			
+		*/
+		
+	case USB_DEVICE_ID_XPPEN_STAR_05:	
+		if (intf->cur_altsetting->desc.bInterfaceNumber == 1) {
+			rc = uclogic_probe_tablet(hdev);
+			if (rc) {
+				hid_err(hdev, "tablet enabling failed\n");
+				return rc;
+			}
+			drvdata->invert_pen_inrange = true;
+		} else {
+			drvdata->ignore_pen_usage = true;
+		}
+		break;
+			
 	case USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60:
 		/*
 		 * If it is the three-interface version, which is known to
