@@ -217,6 +217,9 @@ static __u8 wp8060u_rdesc_fixed[] = {
 	0xC0                /*  End Collection                      */
 };
 
+/* Size of the original descriptor of the new WP5540U tablet */
+#define WP5540U_V2_RDESC_ORIG_SIZE	232
+
 /* Size of the original descriptor of WP1062 tablet */
 #define WP1062_RDESC_ORIG_SIZE	254
 
@@ -1092,6 +1095,18 @@ static int uclogic_probe(struct hid_device *hdev,
 			} else {
 				drvdata->ignore_pen_usage = true;
 			}
+		}
+		break;
+	case USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U:
+		/* If this is the pen interface of WP5540U v2 */
+		if (hdev->dev_rsize == WP5540U_V2_RDESC_ORIG_SIZE &&
+		    intf->cur_altsetting->desc.bInterfaceNumber == 0) {
+			rc = uclogic_probe_tablet(hdev);
+			if (rc) {
+				hid_err(hdev, "tablet enabling failed\n");
+				return rc;
+			}
+			drvdata->invert_pen_inrange = true;
 		}
 		break;
 	}
