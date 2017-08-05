@@ -592,6 +592,189 @@ static const __u8 uclogic_tablet_rdesc_template[] = {
 	0xC0                    /*  End Collection                          */
 };
 
+/* Fixed uclogic  xp-pen artist 22 HD report descriptor interface 0 */
+static __u8 uclogic_xppen_artist22HD_rdesc0[] = {
+	0x05, 0x0D,                     /*  Usage Page (Digitizer),                         */
+	0x09, 0x02,                     /*  Usage (Pen),                                    */
+	0xA1, 0x01,                     /*  Collection (Application),                       */
+	0x85, 0x07,                     /*      Report ID (7),                              */
+	0x09, 0x20,                     /*      Usage (Stylus),                             */
+	0xA1, 0x00,                     /*      Collection (Physical),                      */
+	0x09, 0x42,                     /*          Usage (Tip Switch),                     */
+	0x09, 0x44,                     /*          Usage (Barrel Switch),                  */
+	0x09, 0x45,                     /*          Usage (Eraser),                         */
+	0x09, 0x3C,                     /*          Usage (Invert),                         */
+	0x09, 0x43,                     /*          Usage (Secondary Tip Switch),           */
+	0x09, 0x44,                     /*          Usage (Barrel Switch),                  */
+	0x15, 0x00,                     /*          Logical Minimum (0),                    */
+	0x25, 0x01,                     /*          Logical Maximum (1),                    */
+	0x75, 0x01,                     /*          Report Size (1),                        */
+	0x95, 0x06,                     /*          Report Count (6),                       */
+	0x81, 0x02,                     /*          Input (Variable),                       */
+	0x09, 0x32,                     /*          Usage (In Range),                       */
+	0x75, 0x01,                     /*          Report Size (1),                        */
+	0x95, 0x01,                     /*          Report Count (1),                       */
+	0x81, 0x02,                     /*          Input (Variable),                       */
+	0x81, 0x03,                     /*          Input (Constant, Variable),             */
+	0x05, 0x01,                     /*          Usage Page (Desktop),                   */
+	0x09, 0x30,                     /*          Usage (X),                              */
+	0x75, 0x10,                     /*          Report Size (16),                       */
+	0x95, 0x01,                     /*          Report Count (1),                       */
+	0xA4,                           /*          Push,                                   */
+	0x55, 0x0D,                     /*          Unit Exponent (13),                     */
+	0x65, 0x13,                     /*          Unit (Inch),                            */
+	0x35, 0x00,                     /*          Physical Minimum (0),                   */
+	0x46, 0x5C, 0x49,               /*          Physical Maximum (18780),               */
+	0x27, 0xB8, 0x92, 0x00, 0x00,   /*          Logical Maximum (37560),                */
+	0x81, 0x02,                     /*          Input (Variable),                       */
+	0x09, 0x31,                     /*          Usage (Y),                              */
+	0x46, 0x40, 0x29,               /*          Physical Maximum (10560),               */
+	0x26, 0x80, 0x52,               /*          Logical Maximum (21120),                */
+	0x81, 0x02,                     /*          Input (Variable),                       */
+	0xB4,                           /*          Pop,                                    */
+	0x05, 0x0D,                     /*          Usage Page (Digitizer),                 */
+	0x09, 0x30,                     /*          Usage (Tip Pressure),                   */
+	0x26, 0xFF, 0x07,               /*          Logical Maximum (2047),                 */
+	0x46, 0xFF, 0x07,               /*          Physical Maximum (2047),                */
+	0x55, 0x00,                     /*          Unit Exponent (0),                      */
+	0x66, 0x11, 0xE1,               /*          Unit (Centimeter * Gram * Seconds^-2),  */
+	0x75, 0x10,                     /*          Report Size (16),                       */
+	0x81, 0x02,                     /*          Input (Variable),                       */
+	0xC0,                           /*      End Collection,                             */
+	0xC0,                           /*  End Collection,                                 */
+	0x05, 0x01,                     /*  Usage Page (Desktop),                           */
+	0x09, 0x02,                     /*  Usage (Mouse),                                  */
+	0xA1, 0x01,                     /*  Collection (Application),                       */
+	0x85, 0x09,                     /*      Report ID (9),                              */
+	0x09, 0x01,                     /*      Usage (Pointer),                            */
+	0xA1, 0x00,                     /*      Collection (Physical),                      */
+	0x05, 0x09,                     /*          Usage Page (Button),                    */
+	0x19, 0x01,                     /*          Usage Minimum (01h),                    */
+	0x29, 0x03,                     /*          Usage Maximum (03h),                    */
+	0x15, 0x00,                     /*          Logical Minimum (0),                    */
+	0x25, 0x01,                     /*          Logical Maximum (1),                    */
+	0x95, 0x03,                     /*          Report Count (3),                       */
+	0x75, 0x01,                     /*          Report Size (1),                        */
+	0x81, 0x02,                     /*          Input (Variable),                       */
+	0x95, 0x05,                     /*          Report Count (5),                       */
+	0x81, 0x01,                     /*          Input (Constant),                       */
+	0x05, 0x01,                     /*          Usage Page (Desktop),                   */
+	0x09, 0x30,                     /*          Usage (X),                              */
+	0x75, 0x10,                     /*          Report Size (16),                       */
+	0x95, 0x01,                     /*          Report Count (1),                       */
+	0xA4,                           /*          Push,                                   */
+	0x35, 0x00,                     /*          Physical Minimum (0),                   */
+	0x46, 0x00, 0x08,               /*          Physical Maximum (2048),                */
+	0x26, 0x00, 0x08,               /*          Logical Maximum (2048),                 */
+	0x81, 0x02,                     /*          Input (Variable),                       */
+	0x09, 0x31,                     /*          Usage (Y),                              */
+	0x46, 0x00, 0x08,               /*          Physical Maximum (2048),                */
+	0x26, 0x00, 0x08,               /*          Logical Maximum (2048),                 */
+	0x81, 0x02,                     /*          Input (Variable),                       */
+	0xB4,                           /*          Pop,                                    */
+	0x05, 0x0D,                     /*          Usage Page (Digitizer),                 */
+	0x09, 0x30,                     /*          Usage (Tip Pressure),                   */
+	0x26, 0xFF, 0x07,               /*          Logical Maximum (2047),                 */
+	0x46, 0xFF, 0x07,               /*          Physical Maximum (2047),                */
+	0x75, 0x10,                     /*          Report Size (16),                       */
+	0x81, 0x02,                     /*          Input (Variable),                       */
+	0xC0,                           /*      End Collection,                             */
+	0xC0                            /*  End Collection                                  */
+};
+
+/* fixed uclogic xppen artist 22HD report descriptor interface 1 */
+static __u8 uclogic_xppen_artist22HD_rdesc1[] = {
+	0x05, 0x01,         /*  Usage Page (Desktop),                   */
+	0x09, 0x02,         /*  Usage (Mouse),                          */
+	0xA1, 0x01,         /*  Collection (Application),               */
+	0x09, 0x01,         /*      Usage (Pointer),                    */
+	0xA1, 0x00,         /*      Collection (Physical),              */
+	0x85, 0x01,         /*          Report ID (1),                  */
+	0x05, 0x09,         /*          Usage Page (Button),            */
+	0x19, 0x01,         /*          Usage Minimum (01h),            */
+	0x29, 0x05,         /*          Usage Maximum (05h),            */
+	0x95, 0x05,         /*          Report Count (5),               */
+	0x75, 0x01,         /*          Report Size (1),                */
+	0x15, 0x00,         /*          Logical Minimum (0),            */
+	0x25, 0x01,         /*          Logical Maximum (1),            */
+	0x81, 0x02,         /*          Input (Variable),               */
+	0x95, 0x03,         /*          Report Count (3),               */
+	0x81, 0x01,         /*          Input (Constant),               */
+	0x05, 0x01,         /*          Usage Page (Desktop),           */
+	0x09, 0x30,         /*          Usage (X),                      */
+	0x09, 0x31,         /*          Usage (Y),                      */
+	0x95, 0x02,         /*          Report Count (2),               */
+	0x75, 0x10,         /*          Report Size (16),               */
+	0x16, 0x00, 0x80,   /*          Logical Minimum (-32768),       */
+	0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),        */
+	0x81, 0x06,         /*          Input (Variable, Relative),     */
+	0x09, 0x38,         /*          Usage (Wheel),                  */
+	0x15, 0x81,         /*          Logical Minimum (-127),         */
+	0x25, 0x7F,         /*          Logical Maximum (127),          */
+	0x95, 0x01,         /*          Report Count (1),               */
+	0x75, 0x08,         /*          Report Size (8),                */
+	0x81, 0x06,         /*          Input (Variable, Relative),     */
+	0x05, 0x0C,         /*          Usage Page (Consumer),          */
+	0x0A, 0x38, 0x02,   /*          Usage (AC Pan),                 */
+	0x95, 0x01,         /*          Report Count (1),               */
+	0x75, 0x08,         /*          Report Size (8),                */
+	0x81, 0x06,         /*          Input (Variable, Relative),     */
+	0xC0,               /*      End Collection,                     */
+	0xC0,               /*  End Collection,                         */
+	0x06, 0x01, 0xFF,   /*  Usage Page (FF01h),                     */
+	0x09, 0x00,         /*  Usage (00h),                            */
+	0xA1, 0x01,         /*  Collection (Application),               */
+	0x85, 0x08,         /*      Report ID (8),                      */
+	0x15, 0x00,         /*      Logical Minimum (0),                */
+	0x26, 0xFF, 0x00,   /*      Logical Maximum (255),              */
+	0x09, 0x00,         /*      Usage (00h),                        */
+	0x75, 0x08,         /*      Report Size (8),                    */
+	0x95, 0x05,         /*      Report Count (5),                   */
+	0xB1, 0x02,         /*      Feature (Variable),                 */
+	0xC0,               /*  End Collection,                         */
+	0x05, 0x0D,         /*  Usage Page (Digitizer),                 */
+	0x09, 0x02,         /*  Usage (Pen),                            */
+	0xA1, 0x01,         /*  Collection (Application),               */
+	0x85, 0x0A,         /*      Report ID (10),                     */
+	0x09, 0x20,         /*      Usage (Stylus),                     */
+	0xA1, 0x00,         /*      Collection (Physical),              */
+	0x09, 0x42,         /*          Usage (Tip Switch),             */
+	0x09, 0x44,         /*          Usage (Barrel Switch),          */
+	0x09, 0x45,         /*          Usage (Eraser),                 */
+	0x09, 0x3C,         /*          Usage (Invert),                 */
+	0x09, 0x43,         /*          Usage (Secondary Tip Switch),   */
+	0x09, 0x44,         /*          Usage (Barrel Switch),          */
+	0x15, 0x00,         /*          Logical Minimum (0),            */
+	0x25, 0x01,         /*          Logical Maximum (1),            */
+	0x75, 0x01,         /*          Report Size (1),                */
+	0x95, 0x06,         /*          Report Count (6),               */
+	0x81, 0x02,         /*          Input (Variable),               */
+	0x09, 0x32,         /*          Usage (In Range),               */
+	0x75, 0x01,         /*          Report Size (1),                */
+	0x95, 0x01,         /*          Report Count (1),               */
+	0x81, 0x02,         /*          Input (Variable),               */
+	0x81, 0x03,         /*          Input (Constant, Variable),     */
+	0x05, 0x01,         /*          Usage Page (Desktop),           */
+	0x09, 0x30,         /*          Usage (X),                      */
+	0x09, 0x31,         /*          Usage (Y),                      */
+	0x55, 0x0D,         /*          Unit Exponent (13),             */
+	0x65, 0x33,         /*          Unit (Inch^3),                  */
+	0x26, 0x00, 0x08,   /*          Logical Maximum (2048),         */
+	0x35, 0x00,         /*          Physical Minimum (0),           */
+	0x46, 0x00, 0x08,   /*          Physical Maximum (2048),        */
+	0x75, 0x10,         /*          Report Size (16),               */
+	0x95, 0x02,         /*          Report Count (2),               */
+	0x81, 0x02,         /*          Input (Variable),               */
+	0x05, 0x0D,         /*          Usage Page (Digitizer),         */
+	0x09, 0x30,         /*          Usage (Tip Pressure),           */
+	0x26, 0xFF, 0x07,   /*          Logical Maximum (2047),         */
+	0x75, 0x10,         /*          Report Size (16),               */
+	0x95, 0x01,         /*          Report Count (1),               */
+	0x81, 0x02,         /*          Input (Variable),               */
+	0xC0,               /*      End Collection,                     */
+	0xC0                /*  End Collection                          */
+};
+
 /* Fixed virtual pad report descriptor */
 static const __u8 uclogic_buttonpad_rdesc[] = {
 	0x05, 0x01,             /*  Usage Page (Desktop),                   */
@@ -729,6 +912,18 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 				rdesc = twha60_rdesc_fixed1;
 				*rsize = sizeof(twha60_rdesc_fixed1);
 			}
+			break;
+		}
+		break;
+	case USB_DEVICE_ID_UCLOGIC_XPPEN_ARTIST_22HD:
+		switch (iface_num) {
+		case 0:
+			rdesc = uclogic_xppen_artist22HD_rdesc0;
+			*rsize = sizeof(uclogic_xppen_artist22HD_rdesc0);
+			break;
+		case 1:
+			rdesc = uclogic_xppen_artist22HD_rdesc1;
+			*rsize = sizeof(uclogic_xppen_artist22HD_rdesc1);
 			break;
 		}
 		break;
@@ -1044,6 +1239,7 @@ static int uclogic_probe(struct hid_device *hdev,
 	case USB_DEVICE_ID_YIYNOVA_TABLET:
 	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_81:
 	case USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3:
+	case USB_DEVICE_ID_UCLOGIC_XPPEN_ARTIST_22HD:
 	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_45:
 		/* If this is the pen interface */
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
@@ -1197,6 +1393,7 @@ static const struct hid_device_id uclogic_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER, USB_DEVICE_ID_UGTIZER_TABLET_GP0610) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_TABLET_EX07S) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_XPPEN_ARTIST_22HD) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, uclogic_devices);
