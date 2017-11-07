@@ -948,6 +948,24 @@ cleanup:
 	return rc;
 }
 
+static void uclogic_fill_placeholders(__u8* prdesc, unsigned int rsize,
+				      s32* params, size_t params_len)
+{
+	__u8 *p;
+	s32 v;
+
+	for (p = prdesc; p <= prdesc + rsize - 4; ) {
+		if (p[0] == 0xFE && p[1] == 0xED && p[2] == 0x1D &&
+		    p[3] < params_len) {
+			v = params[p[3]];
+			put_unaligned(cpu_to_le32(v), (s32 *)p);
+			p += 4;
+		} else {
+			p++;
+		}
+	}
+}
+
 /**
  * Enable fully-functional tablet mode, retrieve device parameters and
  * generate corresponding report descriptor.
@@ -965,8 +983,6 @@ static int uclogic_probe_tablet(struct hid_device *hdev,
 	__le16 *buf = NULL;
 	s32 params[UCLOGIC_PH_ID_NUM];
 	s32 resolution;
-	__u8 *p;
-	s32 v;
 
 	/* Enable tablet mode and get raw device parameters */
 	rc = uclogic_enable_tablet(hdev, &buf);
@@ -1002,17 +1018,8 @@ static int uclogic_probe_tablet(struct hid_device *hdev,
 
 	/* Format fixed report descriptor */
 	memcpy(drvdata->rdesc, rdesc_template_ptr, drvdata->rsize);
-	for (p = drvdata->rdesc;
-	     p <= drvdata->rdesc + drvdata->rsize - 4;) {
-		if (p[0] == 0xFE && p[1] == 0xED && p[2] == 0x1D &&
-		    p[3] < ARRAY_SIZE(params)) {
-			v = params[p[3]];
-			put_unaligned(cpu_to_le32(v), (s32 *)p);
-			p += 4;
-		} else {
-			p++;
-		}
-	}
+	uclogic_fill_placeholders(drvdata->rdesc, drvdata->rsize,
+				  params, ARRAY_SIZE(params));
 
 	rc = 0;
 
