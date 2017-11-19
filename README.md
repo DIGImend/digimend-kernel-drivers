@@ -11,12 +11,6 @@ website][website].
 
 Please send your testing results to DIGImend-devel@lists.sourceforge.net.
 
-> **NOTE**: The driver developer is [leaving the DIGImend
-> project][wrapping_up] and is no longer supporting users. Members of the
-> community may still help with issues. All development is going to stop in
-> November 2016. However, outside patches will still be reviewed and accepted,
-> and anybody able is welcome to contact the developer and take over.
-
 Installing
 ----------
 
