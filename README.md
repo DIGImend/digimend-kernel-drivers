@@ -9,8 +9,6 @@ users to test new drivers before we contribute them to the mainline kernel.
 See the [list of supported tablets][supported_tablets] on the [project
 website][website].
 
-Please send your testing results to DIGImend-devel@lists.sourceforge.net.
-
 Installing
 ----------
 
