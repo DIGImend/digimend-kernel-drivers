@@ -1203,7 +1203,9 @@ cleanup:
  *
  * @hdev:	HID device
  */
-static int uclogic_probe_buttons(struct hid_device *hdev)
+static int uclogic_probe_buttons(struct hid_device *hdev,
+				 const __u8 *buttonpad_rdesc_ptr,
+				 size_t buttonpad_rdesc_len)
 {
 	int rc;
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
@@ -1217,7 +1219,7 @@ static int uclogic_probe_buttons(struct hid_device *hdev)
 	}
 
 	/* Re-allocate fixed report descriptor */
-	rdesc_len = drvdata->rsize + sizeof(uclogic_buttonpad_rdesc);
+	rdesc_len = drvdata->rsize + buttonpad_rdesc_len;
 	rdesc = devm_kzalloc(&hdev->dev, rdesc_len, GFP_KERNEL);
 	if (!rdesc) {
 		rc = -ENOMEM;
@@ -1227,8 +1229,8 @@ static int uclogic_probe_buttons(struct hid_device *hdev)
 	memcpy(rdesc, drvdata->rdesc, drvdata->rsize);
 
 	/* Append the buttonpad descriptor */
-	memcpy(rdesc + drvdata->rsize, uclogic_buttonpad_rdesc,
-	       sizeof(uclogic_buttonpad_rdesc));
+	memcpy(rdesc + drvdata->rsize, buttonpad_rdesc_ptr,
+	       buttonpad_rdesc_len);
 
 	/* clean up old rdesc and use the new one */
 	drvdata->rsize = rdesc_len;
@@ -1289,7 +1291,10 @@ static int uclogic_probe(struct hid_device *hdev,
 			}
 			drvdata->invert_pen_inrange = true;
 
-			rc = uclogic_probe_buttons(hdev);
+			rc = uclogic_probe_buttons(
+					hdev,
+					uclogic_buttonpad_rdesc,
+					sizeof(uclogic_buttonpad_rdesc));
 			drvdata->has_virtual_pad_interface = !rc;
 		} else {
 			drvdata->ignore_pen_usage = true;
@@ -1347,7 +1352,10 @@ static int uclogic_probe(struct hid_device *hdev,
 				}
 				drvdata->invert_pen_inrange = true;
 
-				rc = uclogic_probe_buttons(hdev);
+				rc = uclogic_probe_buttons(
+						hdev,
+						uclogic_buttonpad_rdesc,
+						sizeof(uclogic_buttonpad_rdesc));
 				drvdata->has_virtual_pad_interface = !rc;
 			} else {
 				drvdata->ignore_pen_usage = true;
