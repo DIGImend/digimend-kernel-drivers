@@ -1,4 +1,4 @@
-obj-m := hid-kye.o hid-uclogic.o hid-polostar.o
+obj-m := hid-kye.o hid-uclogic.o hid-polostar.o hid-viewsonic.o
 KVERSION := $(shell uname -r)
 KDIR := /lib/modules/$(KVERSION)/build
 PWD := $(shell pwd)
@@ -17,6 +17,7 @@ uninstall:
 	rm -vf $(UDEV_RULES) $(HID_REBIND) $(DEPMOD_CONF) \
 		/lib/modules/*/extra/hid-kye.ko \
 		/lib/modules/*/extra/hid-polostar.ko \
-		/lib/modules/*/extra/hid-uclogic.ko
+		/lib/modules/*/extra/hid-uclogic.ko \
+		/lib/modules/*/extra/hid-viewsonic.ko
 	udevadm control --reload
 	depmod -a
