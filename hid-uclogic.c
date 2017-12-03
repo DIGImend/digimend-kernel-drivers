@@ -775,6 +775,36 @@ static const __u8 uclogic_buttonpad_rdesc[] = {
 	0xC0                    /*  End Collection                          */
 };
 
+/* Fixed virtual pad report descriptor */
+static const __u8 uclogic_hires_buttonpad_rdesc[] = {
+	0x05, 0x01,             /*  Usage Page (Desktop),                   */
+	0x09, 0x07,             /*  Usage (Keypad),                         */
+	0xA1, 0x01,             /*  Collection (Application),               */
+	0x85, 0xF7,             /*      Report ID (247),                    */
+	0x05, 0x0D,             /*      Usage Page (Digitizer),             */
+	0x09, 0x39,             /*      Usage (Tablet Function Keys),       */
+	0xA0,                   /*      Collection (Physical),              */
+	0x05, 0x09,             /*          Usage Page (Button),            */
+	0x75, 0x08,             /*          Report Size (8),                */
+	0x95, 0x03,             /*          Report Count (3),               */
+	0x81, 0x03,             /*          Input (Constant, Variable),     */
+	0x75, 0x01,             /*          Report Size (1),                */
+	0x14,                   /*          Logical Minimum (0),            */
+	0x25, 0x01,             /*          Logical Maximum (1),            */
+	0x19, 0x01,             /*          Usage Minimum (01h),            */
+	0x29, 0x0C,             /*          Usage Maximum (0Ch),            */
+	0x95, 0x0C,             /*          Report Count (12),              */
+	0x81, 0x02,             /*          Input (Variable),               */
+	0x75, 0x01,             /*          Report Size (1),                */
+	0x95, 0x04,             /*          Report Count (4),               */
+	0x81, 0x03,             /*          Input (Constant, Variable),     */
+	0x75, 0x08,             /*          Report Size (8),                */
+	0x95, 0x06,             /*          Report Count (6),               */
+	0x81, 0x03,             /*          Input (Constant, Variable),     */
+	0xC0,                   /*      End Collection,                     */
+	0xC0                    /*  End Collection                          */
+};
+
 /* Parameter indices */
 enum uclogic_prm {
 	UCLOGIC_PRM_X_LM	= 1,
@@ -1272,34 +1302,46 @@ static int uclogic_probe(struct hid_device *hdev,
 	case USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3:
 	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_45:
 	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47:
-		/* If this is the pen interface */
-		if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
-			rc = uclogic_probe_tablet_hires(
-					hdev,
-					uclogic_tablet_hires_rdesc_template,
-					sizeof(uclogic_tablet_hires_rdesc_template));
-			drvdata->is_hires = !rc;
-			if (!drvdata->is_hires) {
-				rc = uclogic_probe_tablet(
-						hdev,
-						uclogic_tablet_rdesc_template,
-						sizeof(uclogic_tablet_rdesc_template));
-			}
-			if (rc) {
-				hid_err(hdev, "tablet enabling failed\n");
-				return rc;
-			}
+		/* If this is not the pen interface, ignore it. */
+		if (intf->cur_altsetting->desc.bInterfaceNumber != 0) {
+			drvdata->ignore_pen_usage = true;
+			break;
+		}
+
+		rc = uclogic_probe_tablet_hires(
+				hdev,
+				uclogic_tablet_hires_rdesc_template,
+				sizeof(uclogic_tablet_hires_rdesc_template));
+		if (!rc) {
+			drvdata->is_hires = true;
 			drvdata->invert_pen_inrange = true;
 
 			rc = uclogic_probe_buttons(
-					hdev,
-					uclogic_buttonpad_rdesc,
-					sizeof(uclogic_buttonpad_rdesc));
+					hdev, uclogic_hires_buttonpad_rdesc,
+					sizeof(uclogic_hires_buttonpad_rdesc));
+
 			drvdata->has_virtual_pad_interface = !rc;
-		} else {
-			drvdata->ignore_pen_usage = true;
+			break;
 		}
-		break;
+
+		rc = uclogic_probe_tablet(
+				hdev,
+				uclogic_tablet_rdesc_template,
+				sizeof(uclogic_tablet_rdesc_template));
+		if (!rc) {
+			drvdata->is_hires = false;
+			drvdata->invert_pen_inrange = true;
+
+			rc = uclogic_probe_buttons(
+					hdev, uclogic_buttonpad_rdesc,
+					sizeof(uclogic_buttonpad_rdesc));
+
+			drvdata->has_virtual_pad_interface = !rc;
+			break;
+		}
+
+		hid_err(hdev, "tablet enabling failed\n");
+		return rc;
 	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
 	case USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540:
 		/* If this is the pen interface */
