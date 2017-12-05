@@ -1,4 +1,5 @@
 obj-m := hid-kye.o hid-uclogic.o hid-polostar.o hid-viewsonic.o
+hid-uclogic-objs := hid-uclogic-rdescs.o
 KVERSION := $(shell uname -r)
 KDIR := /lib/modules/$(KVERSION)/build
 PWD := $(shell pwd)

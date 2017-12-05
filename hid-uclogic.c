@@ -18,702 +18,13 @@
 #include <linux/usb.h>
 #include <asm/unaligned.h>
 #include "usbhid/usbhid.h"
+#include "hid-uclogic-rdescs.h"
 
 #include "hid-ids.h"
 
 #include "compat.h"
 #include <linux/version.h>
 
-/* Size of the original descriptor of WPXXXXU tablets */
-#define WPXXXXU_RDESC_ORIG_SIZE	212
-
-/* Fixed WP4030U report descriptor */
-static __u8 wp4030u_rdesc_fixed[] = {
-	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
-	0x09, 0x02,         /*  Usage (Pen),                        */
-	0xA1, 0x01,         /*  Collection (Application),           */
-	0x85, 0x09,         /*      Report ID (9),                  */
-	0x09, 0x20,         /*      Usage (Stylus),                 */
-	0xA0,               /*      Collection (Physical),          */
-	0x75, 0x01,         /*          Report Size (1),            */
-	0x09, 0x42,         /*          Usage (Tip Switch),         */
-	0x09, 0x44,         /*          Usage (Barrel Switch),      */
-	0x09, 0x46,         /*          Usage (Tablet Pick),        */
-	0x14,               /*          Logical Minimum (0),        */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x95, 0x03,         /*          Report Count (3),           */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x95, 0x05,         /*          Report Count (5),           */
-	0x81, 0x01,         /*          Input (Constant),           */
-	0x75, 0x10,         /*          Report Size (16),           */
-	0x95, 0x01,         /*          Report Count (1),           */
-	0x14,               /*          Logical Minimum (0),        */
-	0xA4,               /*          Push,                       */
-	0x05, 0x01,         /*          Usage Page (Desktop),       */
-	0x55, 0xFD,         /*          Unit Exponent (-3),         */
-	0x65, 0x13,         /*          Unit (Inch),                */
-	0x34,               /*          Physical Minimum (0),       */
-	0x09, 0x30,         /*          Usage (X),                  */
-	0x46, 0xA0, 0x0F,   /*          Physical Maximum (4000),    */
-	0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),    */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x09, 0x31,         /*          Usage (Y),                  */
-	0x46, 0xB8, 0x0B,   /*          Physical Maximum (3000),    */
-	0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),    */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0xB4,               /*          Pop,                        */
-	0x09, 0x30,         /*          Usage (Tip Pressure),       */
-	0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0xC0,               /*      End Collection,                 */
-	0xC0                /*  End Collection                      */
-};
-
-/* Fixed WP5540U report descriptor */
-static __u8 wp5540u_rdesc_fixed[] = {
-	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
-	0x09, 0x02,         /*  Usage (Pen),                        */
-	0xA1, 0x01,         /*  Collection (Application),           */
-	0x85, 0x09,         /*      Report ID (9),                  */
-	0x09, 0x20,         /*      Usage (Stylus),                 */
-	0xA0,               /*      Collection (Physical),          */
-	0x75, 0x01,         /*          Report Size (1),            */
-	0x09, 0x42,         /*          Usage (Tip Switch),         */
-	0x09, 0x44,         /*          Usage (Barrel Switch),      */
-	0x09, 0x46,         /*          Usage (Tablet Pick),        */
-	0x14,               /*          Logical Minimum (0),        */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x95, 0x03,         /*          Report Count (3),           */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x95, 0x05,         /*          Report Count (5),           */
-	0x81, 0x01,         /*          Input (Constant),           */
-	0x75, 0x10,         /*          Report Size (16),           */
-	0x95, 0x01,         /*          Report Count (1),           */
-	0x14,               /*          Logical Minimum (0),        */
-	0xA4,               /*          Push,                       */
-	0x05, 0x01,         /*          Usage Page (Desktop),       */
-	0x55, 0xFD,         /*          Unit Exponent (-3),         */
-	0x65, 0x13,         /*          Unit (Inch),                */
-	0x34,               /*          Physical Minimum (0),       */
-	0x09, 0x30,         /*          Usage (X),                  */
-	0x46, 0x7C, 0x15,   /*          Physical Maximum (5500),    */
-	0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),    */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x09, 0x31,         /*          Usage (Y),                  */
-	0x46, 0xA0, 0x0F,   /*          Physical Maximum (4000),    */
-	0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),    */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0xB4,               /*          Pop,                        */
-	0x09, 0x30,         /*          Usage (Tip Pressure),       */
-	0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0xC0,               /*      End Collection,                 */
-	0xC0,               /*  End Collection,                     */
-	0x05, 0x01,         /*  Usage Page (Desktop),               */
-	0x09, 0x02,         /*  Usage (Mouse),                      */
-	0xA1, 0x01,         /*  Collection (Application),           */
-	0x85, 0x08,         /*      Report ID (8),                  */
-	0x09, 0x01,         /*      Usage (Pointer),                */
-	0xA0,               /*      Collection (Physical),          */
-	0x75, 0x01,         /*          Report Size (1),            */
-	0x05, 0x09,         /*          Usage Page (Button),        */
-	0x19, 0x01,         /*          Usage Minimum (01h),        */
-	0x29, 0x03,         /*          Usage Maximum (03h),        */
-	0x14,               /*          Logical Minimum (0),        */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x95, 0x03,         /*          Report Count (3),           */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x95, 0x05,         /*          Report Count (5),           */
-	0x81, 0x01,         /*          Input (Constant),           */
-	0x05, 0x01,         /*          Usage Page (Desktop),       */
-	0x75, 0x08,         /*          Report Size (8),            */
-	0x09, 0x30,         /*          Usage (X),                  */
-	0x09, 0x31,         /*          Usage (Y),                  */
-	0x15, 0x81,         /*          Logical Minimum (-127),     */
-	0x25, 0x7F,         /*          Logical Maximum (127),      */
-	0x95, 0x02,         /*          Report Count (2),           */
-	0x81, 0x06,         /*          Input (Variable, Relative), */
-	0x09, 0x38,         /*          Usage (Wheel),              */
-	0x15, 0xFF,         /*          Logical Minimum (-1),       */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x95, 0x01,         /*          Report Count (1),           */
-	0x81, 0x06,         /*          Input (Variable, Relative), */
-	0x81, 0x01,         /*          Input (Constant),           */
-	0xC0,               /*      End Collection,                 */
-	0xC0                /*  End Collection                      */
-};
-
-/* Fixed WP8060U report descriptor */
-static __u8 wp8060u_rdesc_fixed[] = {
-	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
-	0x09, 0x02,         /*  Usage (Pen),                        */
-	0xA1, 0x01,         /*  Collection (Application),           */
-	0x85, 0x09,         /*      Report ID (9),                  */
-	0x09, 0x20,         /*      Usage (Stylus),                 */
-	0xA0,               /*      Collection (Physical),          */
-	0x75, 0x01,         /*          Report Size (1),            */
-	0x09, 0x42,         /*          Usage (Tip Switch),         */
-	0x09, 0x44,         /*          Usage (Barrel Switch),      */
-	0x09, 0x46,         /*          Usage (Tablet Pick),        */
-	0x14,               /*          Logical Minimum (0),        */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x95, 0x03,         /*          Report Count (3),           */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x95, 0x05,         /*          Report Count (5),           */
-	0x81, 0x01,         /*          Input (Constant),           */
-	0x75, 0x10,         /*          Report Size (16),           */
-	0x95, 0x01,         /*          Report Count (1),           */
-	0x14,               /*          Logical Minimum (0),        */
-	0xA4,               /*          Push,                       */
-	0x05, 0x01,         /*          Usage Page (Desktop),       */
-	0x55, 0xFD,         /*          Unit Exponent (-3),         */
-	0x65, 0x13,         /*          Unit (Inch),                */
-	0x34,               /*          Physical Minimum (0),       */
-	0x09, 0x30,         /*          Usage (X),                  */
-	0x46, 0x40, 0x1F,   /*          Physical Maximum (8000),    */
-	0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),    */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x09, 0x31,         /*          Usage (Y),                  */
-	0x46, 0x70, 0x17,   /*          Physical Maximum (6000),    */
-	0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),    */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0xB4,               /*          Pop,                        */
-	0x09, 0x30,         /*          Usage (Tip Pressure),       */
-	0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0xC0,               /*      End Collection,                 */
-	0xC0,               /*  End Collection,                     */
-	0x05, 0x01,         /*  Usage Page (Desktop),               */
-	0x09, 0x02,         /*  Usage (Mouse),                      */
-	0xA1, 0x01,         /*  Collection (Application),           */
-	0x85, 0x08,         /*      Report ID (8),                  */
-	0x09, 0x01,         /*      Usage (Pointer),                */
-	0xA0,               /*      Collection (Physical),          */
-	0x75, 0x01,         /*          Report Size (1),            */
-	0x05, 0x09,         /*          Usage Page (Button),        */
-	0x19, 0x01,         /*          Usage Minimum (01h),        */
-	0x29, 0x03,         /*          Usage Maximum (03h),        */
-	0x14,               /*          Logical Minimum (0),        */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x95, 0x03,         /*          Report Count (3),           */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x95, 0x05,         /*          Report Count (5),           */
-	0x81, 0x01,         /*          Input (Constant),           */
-	0x05, 0x01,         /*          Usage Page (Desktop),       */
-	0x75, 0x08,         /*          Report Size (8),            */
-	0x09, 0x30,         /*          Usage (X),                  */
-	0x09, 0x31,         /*          Usage (Y),                  */
-	0x15, 0x81,         /*          Logical Minimum (-127),     */
-	0x25, 0x7F,         /*          Logical Maximum (127),      */
-	0x95, 0x02,         /*          Report Count (2),           */
-	0x81, 0x06,         /*          Input (Variable, Relative), */
-	0x09, 0x38,         /*          Usage (Wheel),              */
-	0x15, 0xFF,         /*          Logical Minimum (-1),       */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x95, 0x01,         /*          Report Count (1),           */
-	0x81, 0x06,         /*          Input (Variable, Relative), */
-	0x81, 0x01,         /*          Input (Constant),           */
-	0xC0,               /*      End Collection,                 */
-	0xC0                /*  End Collection                      */
-};
-
-/* Size of the original descriptor of the new WP5540U tablet */
-#define WP5540U_V2_RDESC_ORIG_SIZE	232
-
-/* Size of the original descriptor of WP1062 tablet */
-#define WP1062_RDESC_ORIG_SIZE	254
-
-/* Fixed WP1062 report descriptor */
-static __u8 wp1062_rdesc_fixed[] = {
-	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
-	0x09, 0x02,         /*  Usage (Pen),                        */
-	0xA1, 0x01,         /*  Collection (Application),           */
-	0x85, 0x09,         /*      Report ID (9),                  */
-	0x09, 0x20,         /*      Usage (Stylus),                 */
-	0xA0,               /*      Collection (Physical),          */
-	0x75, 0x01,         /*          Report Size (1),            */
-	0x09, 0x42,         /*          Usage (Tip Switch),         */
-	0x09, 0x44,         /*          Usage (Barrel Switch),      */
-	0x09, 0x46,         /*          Usage (Tablet Pick),        */
-	0x14,               /*          Logical Minimum (0),        */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x95, 0x03,         /*          Report Count (3),           */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x95, 0x04,         /*          Report Count (4),           */
-	0x81, 0x01,         /*          Input (Constant),           */
-	0x09, 0x32,         /*          Usage (In Range),           */
-	0x95, 0x01,         /*          Report Count (1),           */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x75, 0x10,         /*          Report Size (16),           */
-	0x95, 0x01,         /*          Report Count (1),           */
-	0x14,               /*          Logical Minimum (0),        */
-	0xA4,               /*          Push,                       */
-	0x05, 0x01,         /*          Usage Page (Desktop),       */
-	0x55, 0xFD,         /*          Unit Exponent (-3),         */
-	0x65, 0x13,         /*          Unit (Inch),                */
-	0x34,               /*          Physical Minimum (0),       */
-	0x09, 0x30,         /*          Usage (X),                  */
-	0x46, 0x10, 0x27,   /*          Physical Maximum (10000),   */
-	0x26, 0x20, 0x4E,   /*          Logical Maximum (20000),    */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x09, 0x31,         /*          Usage (Y),                  */
-	0x46, 0xB7, 0x19,   /*          Physical Maximum (6583),    */
-	0x26, 0x6E, 0x33,   /*          Logical Maximum (13166),    */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0xB4,               /*          Pop,                        */
-	0x09, 0x30,         /*          Usage (Tip Pressure),       */
-	0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0xC0,               /*      End Collection,                 */
-	0xC0                /*  End Collection                      */
-};
-
-/* Size of the original descriptor of PF1209 tablet */
-#define PF1209_RDESC_ORIG_SIZE	234
-
-/* Fixed PF1209 report descriptor */
-static __u8 pf1209_rdesc_fixed[] = {
-	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
-	0x09, 0x02,         /*  Usage (Pen),                        */
-	0xA1, 0x01,         /*  Collection (Application),           */
-	0x85, 0x09,         /*      Report ID (9),                  */
-	0x09, 0x20,         /*      Usage (Stylus),                 */
-	0xA0,               /*      Collection (Physical),          */
-	0x75, 0x01,         /*          Report Size (1),            */
-	0x09, 0x42,         /*          Usage (Tip Switch),         */
-	0x09, 0x44,         /*          Usage (Barrel Switch),      */
-	0x09, 0x46,         /*          Usage (Tablet Pick),        */
-	0x14,               /*          Logical Minimum (0),        */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x95, 0x03,         /*          Report Count (3),           */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x95, 0x05,         /*          Report Count (5),           */
-	0x81, 0x01,         /*          Input (Constant),           */
-	0x75, 0x10,         /*          Report Size (16),           */
-	0x95, 0x01,         /*          Report Count (1),           */
-	0x14,               /*          Logical Minimum (0),        */
-	0xA4,               /*          Push,                       */
-	0x05, 0x01,         /*          Usage Page (Desktop),       */
-	0x55, 0xFD,         /*          Unit Exponent (-3),         */
-	0x65, 0x13,         /*          Unit (Inch),                */
-	0x34,               /*          Physical Minimum (0),       */
-	0x09, 0x30,         /*          Usage (X),                  */
-	0x46, 0xE0, 0x2E,   /*          Physical Maximum (12000),   */
-	0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),    */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x09, 0x31,         /*          Usage (Y),                  */
-	0x46, 0x28, 0x23,   /*          Physical Maximum (9000),    */
-	0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),    */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0xB4,               /*          Pop,                        */
-	0x09, 0x30,         /*          Usage (Tip Pressure),       */
-	0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0xC0,               /*      End Collection,                 */
-	0xC0,               /*  End Collection,                     */
-	0x05, 0x01,         /*  Usage Page (Desktop),               */
-	0x09, 0x02,         /*  Usage (Mouse),                      */
-	0xA1, 0x01,         /*  Collection (Application),           */
-	0x85, 0x08,         /*      Report ID (8),                  */
-	0x09, 0x01,         /*      Usage (Pointer),                */
-	0xA0,               /*      Collection (Physical),          */
-	0x75, 0x01,         /*          Report Size (1),            */
-	0x05, 0x09,         /*          Usage Page (Button),        */
-	0x19, 0x01,         /*          Usage Minimum (01h),        */
-	0x29, 0x03,         /*          Usage Maximum (03h),        */
-	0x14,               /*          Logical Minimum (0),        */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x95, 0x03,         /*          Report Count (3),           */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x95, 0x05,         /*          Report Count (5),           */
-	0x81, 0x01,         /*          Input (Constant),           */
-	0x05, 0x01,         /*          Usage Page (Desktop),       */
-	0x75, 0x08,         /*          Report Size (8),            */
-	0x09, 0x30,         /*          Usage (X),                  */
-	0x09, 0x31,         /*          Usage (Y),                  */
-	0x15, 0x81,         /*          Logical Minimum (-127),     */
-	0x25, 0x7F,         /*          Logical Maximum (127),      */
-	0x95, 0x02,         /*          Report Count (2),           */
-	0x81, 0x06,         /*          Input (Variable, Relative), */
-	0x09, 0x38,         /*          Usage (Wheel),              */
-	0x15, 0xFF,         /*          Logical Minimum (-1),       */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x95, 0x01,         /*          Report Count (1),           */
-	0x81, 0x06,         /*          Input (Variable, Relative), */
-	0x81, 0x01,         /*          Input (Constant),           */
-	0xC0,               /*      End Collection,                 */
-	0xC0                /*  End Collection                      */
-};
-
-/* Size of the original descriptors of TWHL850 tablet */
-#define TWHL850_RDESC_ORIG_SIZE0	182
-#define TWHL850_RDESC_ORIG_SIZE1	161
-#define TWHL850_RDESC_ORIG_SIZE2	92
-
-/* Fixed PID 0522 tablet report descriptor, interface 0 (stylus) */
-static __u8 twhl850_rdesc_fixed0[] = {
-	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
-	0x09, 0x02,         /*  Usage (Pen),                        */
-	0xA1, 0x01,         /*  Collection (Application),           */
-	0x85, 0x09,         /*      Report ID (9),                  */
-	0x09, 0x20,         /*      Usage (Stylus),                 */
-	0xA0,               /*      Collection (Physical),          */
-	0x14,               /*          Logical Minimum (0),        */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x75, 0x01,         /*          Report Size (1),            */
-	0x95, 0x03,         /*          Report Count (3),           */
-	0x09, 0x42,         /*          Usage (Tip Switch),         */
-	0x09, 0x44,         /*          Usage (Barrel Switch),      */
-	0x09, 0x46,         /*          Usage (Tablet Pick),        */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x81, 0x03,         /*          Input (Constant, Variable), */
-	0x95, 0x01,         /*          Report Count (1),           */
-	0x09, 0x32,         /*          Usage (In Range),           */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x81, 0x03,         /*          Input (Constant, Variable), */
-	0x75, 0x10,         /*          Report Size (16),           */
-	0xA4,               /*          Push,                       */
-	0x05, 0x01,         /*          Usage Page (Desktop),       */
-	0x65, 0x13,         /*          Unit (Inch),                */
-	0x55, 0xFD,         /*          Unit Exponent (-3),         */
-	0x34,               /*          Physical Minimum (0),       */
-	0x09, 0x30,         /*          Usage (X),                  */
-	0x46, 0x40, 0x1F,   /*          Physical Maximum (8000),    */
-	0x26, 0x00, 0x7D,   /*          Logical Maximum (32000),    */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x09, 0x31,         /*          Usage (Y),                  */
-	0x46, 0x88, 0x13,   /*          Physical Maximum (5000),    */
-	0x26, 0x20, 0x4E,   /*          Logical Maximum (20000),    */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0xB4,               /*          Pop,                        */
-	0x09, 0x30,         /*          Usage (Tip Pressure),       */
-	0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0xC0,               /*      End Collection,                 */
-	0xC0                /*  End Collection                      */
-};
-
-/* Fixed PID 0522 tablet report descriptor, interface 1 (mouse) */
-static __u8 twhl850_rdesc_fixed1[] = {
-	0x05, 0x01,         /*  Usage Page (Desktop),               */
-	0x09, 0x02,         /*  Usage (Mouse),                      */
-	0xA1, 0x01,         /*  Collection (Application),           */
-	0x85, 0x01,         /*      Report ID (1),                  */
-	0x09, 0x01,         /*      Usage (Pointer),                */
-	0xA0,               /*      Collection (Physical),          */
-	0x05, 0x09,         /*          Usage Page (Button),        */
-	0x75, 0x01,         /*          Report Size (1),            */
-	0x95, 0x03,         /*          Report Count (3),           */
-	0x19, 0x01,         /*          Usage Minimum (01h),        */
-	0x29, 0x03,         /*          Usage Maximum (03h),        */
-	0x14,               /*          Logical Minimum (0),        */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x95, 0x05,         /*          Report Count (5),           */
-	0x81, 0x03,         /*          Input (Constant, Variable), */
-	0x05, 0x01,         /*          Usage Page (Desktop),       */
-	0x09, 0x30,         /*          Usage (X),                  */
-	0x09, 0x31,         /*          Usage (Y),                  */
-	0x16, 0x00, 0x80,   /*          Logical Minimum (-32768),   */
-	0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),    */
-	0x75, 0x10,         /*          Report Size (16),           */
-	0x95, 0x02,         /*          Report Count (2),           */
-	0x81, 0x06,         /*          Input (Variable, Relative), */
-	0x09, 0x38,         /*          Usage (Wheel),              */
-	0x15, 0xFF,         /*          Logical Minimum (-1),       */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x95, 0x01,         /*          Report Count (1),           */
-	0x75, 0x08,         /*          Report Size (8),            */
-	0x81, 0x06,         /*          Input (Variable, Relative), */
-	0x81, 0x03,         /*          Input (Constant, Variable), */
-	0xC0,               /*      End Collection,                 */
-	0xC0                /*  End Collection                      */
-};
-
-/* Fixed PID 0522 tablet report descriptor, interface 2 (frame buttons) */
-static __u8 twhl850_rdesc_fixed2[] = {
-	0x05, 0x01,         /*  Usage Page (Desktop),               */
-	0x09, 0x06,         /*  Usage (Keyboard),                   */
-	0xA1, 0x01,         /*  Collection (Application),           */
-	0x85, 0x03,         /*      Report ID (3),                  */
-	0x05, 0x07,         /*      Usage Page (Keyboard),          */
-	0x14,               /*      Logical Minimum (0),            */
-	0x19, 0xE0,         /*      Usage Minimum (KB Leftcontrol), */
-	0x29, 0xE7,         /*      Usage Maximum (KB Right GUI),   */
-	0x25, 0x01,         /*      Logical Maximum (1),            */
-	0x75, 0x01,         /*      Report Size (1),                */
-	0x95, 0x08,         /*      Report Count (8),               */
-	0x81, 0x02,         /*      Input (Variable),               */
-	0x18,               /*      Usage Minimum (None),           */
-	0x29, 0xFF,         /*      Usage Maximum (FFh),            */
-	0x26, 0xFF, 0x00,   /*      Logical Maximum (255),          */
-	0x75, 0x08,         /*      Report Size (8),                */
-	0x95, 0x06,         /*      Report Count (6),               */
-	0x80,               /*      Input,                          */
-	0xC0                /*  End Collection                      */
-};
-
-/* Size of the original descriptors of TWHA60 tablet */
-#define TWHA60_RDESC_ORIG_SIZE0 254
-#define TWHA60_RDESC_ORIG_SIZE1 139
-
-/* Fixed TWHA60 report descriptor, interface 0 (stylus) */
-static __u8 twha60_rdesc_fixed0[] = {
-	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
-	0x09, 0x02,         /*  Usage (Pen),                        */
-	0xA1, 0x01,         /*  Collection (Application),           */
-	0x85, 0x09,         /*      Report ID (9),                  */
-	0x09, 0x20,         /*      Usage (Stylus),                 */
-	0xA0,               /*      Collection (Physical),          */
-	0x75, 0x01,         /*          Report Size (1),            */
-	0x09, 0x42,         /*          Usage (Tip Switch),         */
-	0x09, 0x44,         /*          Usage (Barrel Switch),      */
-	0x09, 0x46,         /*          Usage (Tablet Pick),        */
-	0x14,               /*          Logical Minimum (0),        */
-	0x25, 0x01,         /*          Logical Maximum (1),        */
-	0x95, 0x03,         /*          Report Count (3),           */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x95, 0x04,         /*          Report Count (4),           */
-	0x81, 0x01,         /*          Input (Constant),           */
-	0x09, 0x32,         /*          Usage (In Range),           */
-	0x95, 0x01,         /*          Report Count (1),           */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x75, 0x10,         /*          Report Size (16),           */
-	0x95, 0x01,         /*          Report Count (1),           */
-	0x14,               /*          Logical Minimum (0),        */
-	0xA4,               /*          Push,                       */
-	0x05, 0x01,         /*          Usage Page (Desktop),       */
-	0x55, 0xFD,         /*          Unit Exponent (-3),         */
-	0x65, 0x13,         /*          Unit (Inch),                */
-	0x34,               /*          Physical Minimum (0),       */
-	0x09, 0x30,         /*          Usage (X),                  */
-	0x46, 0x10, 0x27,   /*          Physical Maximum (10000),   */
-	0x27, 0x3F, 0x9C,
-		0x00, 0x00, /*          Logical Maximum (39999),    */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0x09, 0x31,         /*          Usage (Y),                  */
-	0x46, 0x6A, 0x18,   /*          Physical Maximum (6250),    */
-	0x26, 0xA7, 0x61,   /*          Logical Maximum (24999),    */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0xB4,               /*          Pop,                        */
-	0x09, 0x30,         /*          Usage (Tip Pressure),       */
-	0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
-	0x81, 0x02,         /*          Input (Variable),           */
-	0xC0,               /*      End Collection,                 */
-	0xC0                /*  End Collection                      */
-};
-
-/* Fixed TWHA60 report descriptor, interface 1 (frame buttons) */
-static __u8 twha60_rdesc_fixed1[] = {
-	0x05, 0x01, /*  Usage Page (Desktop),       */
-	0x09, 0x06, /*  Usage (Keyboard),           */
-	0xA1, 0x01, /*  Collection (Application),   */
-	0x85, 0x05, /*      Report ID (5),          */
-	0x05, 0x07, /*      Usage Page (Keyboard),  */
-	0x14,       /*      Logical Minimum (0),    */
-	0x25, 0x01, /*      Logical Maximum (1),    */
-	0x75, 0x01, /*      Report Size (1),        */
-	0x95, 0x08, /*      Report Count (8),       */
-	0x81, 0x01, /*      Input (Constant),       */
-	0x95, 0x0C, /*      Report Count (12),      */
-	0x19, 0x3A, /*      Usage Minimum (KB F1),  */
-	0x29, 0x45, /*      Usage Maximum (KB F12), */
-	0x81, 0x02, /*      Input (Variable),       */
-	0x95, 0x0C, /*      Report Count (12),      */
-	0x19, 0x68, /*      Usage Minimum (KB F13), */
-	0x29, 0x73, /*      Usage Maximum (KB F24), */
-	0x81, 0x02, /*      Input (Variable),       */
-	0x95, 0x08, /*      Report Count (8),       */
-	0x81, 0x01, /*      Input (Constant),       */
-	0xC0        /*  End Collection              */
-};
-
-/* Report descriptor template placeholder head */
-#define UCLOGIC_PH_HEAD	0xFE, 0xED, 0x1D
-
-/* Report descriptor template placeholder IDs */
-enum uclogic_ph_id {
-	UCLOGIC_PH_ID_X_LM,
-	UCLOGIC_PH_ID_X_PM,
-	UCLOGIC_PH_ID_Y_LM,
-	UCLOGIC_PH_ID_Y_PM,
-	UCLOGIC_PH_ID_PRESSURE_LM,
-	UCLOGIC_PH_ID_NUM
-};
-
-/* Report descriptor template placeholder */
-#define UCLOGIC_PH(_ID) UCLOGIC_PH_HEAD, UCLOGIC_PH_ID_##_ID
-#define UCLOGIC_PEN_REPORT_ID	0x07
-
-/* Fixed report descriptor template */
-static const __u8 uclogic_tablet_rdesc_template[] = {
-	0x05, 0x0D,             /*  Usage Page (Digitizer),                 */
-	0x09, 0x02,             /*  Usage (Pen),                            */
-	0xA1, 0x01,             /*  Collection (Application),               */
-	0x85, 0x07,             /*      Report ID (7),                      */
-	0x09, 0x20,             /*      Usage (Stylus),                     */
-	0xA0,                   /*      Collection (Physical),              */
-	0x14,                   /*          Logical Minimum (0),            */
-	0x25, 0x01,             /*          Logical Maximum (1),            */
-	0x75, 0x01,             /*          Report Size (1),                */
-	0x09, 0x42,             /*          Usage (Tip Switch),             */
-	0x09, 0x44,             /*          Usage (Barrel Switch),          */
-	0x09, 0x46,             /*          Usage (Tablet Pick),            */
-	0x95, 0x03,             /*          Report Count (3),               */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0x95, 0x03,             /*          Report Count (3),               */
-	0x81, 0x03,             /*          Input (Constant, Variable),     */
-	0x09, 0x32,             /*          Usage (In Range),               */
-	0x95, 0x01,             /*          Report Count (1),               */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0x95, 0x01,             /*          Report Count (1),               */
-	0x81, 0x03,             /*          Input (Constant, Variable),     */
-	0x75, 0x10,             /*          Report Size (16),               */
-	0x95, 0x01,             /*          Report Count (1),               */
-	0xA4,                   /*          Push,                           */
-	0x05, 0x01,             /*          Usage Page (Desktop),           */
-	0x65, 0x13,             /*          Unit (Inch),                    */
-	0x55, 0xFD,             /*          Unit Exponent (-3),             */
-	0x34,                   /*          Physical Minimum (0),           */
-	0x09, 0x30,             /*          Usage (X),                      */
-	0x27, UCLOGIC_PH(X_LM), /*          Logical Maximum (PLACEHOLDER),  */
-	0x47, UCLOGIC_PH(X_PM), /*          Physical Maximum (PLACEHOLDER), */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0x09, 0x31,             /*          Usage (Y),                      */
-	0x27, UCLOGIC_PH(Y_LM), /*          Logical Maximum (PLACEHOLDER),  */
-	0x47, UCLOGIC_PH(Y_PM), /*          Physical Maximum (PLACEHOLDER), */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0xB4,                   /*          Pop,                            */
-	0x09, 0x30,             /*          Usage (Tip Pressure),           */
-	0x27,
-	UCLOGIC_PH(PRESSURE_LM),/*          Logical Maximum (PLACEHOLDER),  */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0xC0,                   /*      End Collection,                     */
-	0xC0                    /*  End Collection                          */
-};
-
-/* Fixed report descriptor template for Ugee EX07 */
-static const __u8 ugee_ex07_rdesc_template[] = {
-	0x05, 0x0D,             /*  Usage Page (Digitizer),                 */
-	0x09, 0x02,             /*  Usage (Pen),                            */
-	0xA1, 0x01,             /*  Collection (Application),               */
-	0x85, 0x07,             /*      Report ID (7),                      */
-	0x09, 0x20,             /*      Usage (Stylus),                     */
-	0xA0,                   /*      Collection (Physical),              */
-	0x14,                   /*          Logical Minimum (0),            */
-	0x25, 0x01,             /*          Logical Maximum (1),            */
-	0x75, 0x01,             /*          Report Size (1),                */
-	0x09, 0x42,             /*          Usage (Tip Switch),             */
-	0x09, 0x44,             /*          Usage (Barrel Switch),          */
-	0x09, 0x46,             /*          Usage (Tablet Pick),            */
-	0x95, 0x03,             /*          Report Count (3),               */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0x95, 0x03,             /*          Report Count (3),               */
-	0x81, 0x03,             /*          Input (Constant, Variable),     */
-	0x09, 0x32,             /*          Usage (In Range),               */
-	0x95, 0x01,             /*          Report Count (1),               */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0x95, 0x01,             /*          Report Count (1),               */
-	0x81, 0x03,             /*          Input (Constant, Variable),     */
-	0x75, 0x10,             /*          Report Size (16),               */
-	0x95, 0x01,             /*          Report Count (1),               */
-	0xA4,                   /*          Push,                           */
-	0x05, 0x01,             /*          Usage Page (Desktop),           */
-	0x65, 0x13,             /*          Unit (Inch),                    */
-	0x55, 0xFD,             /*          Unit Exponent (-3),             */
-	0x34,                   /*          Physical Minimum (0),           */
-	0x09, 0x30,             /*          Usage (X),                      */
-	0x27, UCLOGIC_PH(X_LM), /*          Logical Maximum (PLACEHOLDER),  */
-	0x47, UCLOGIC_PH(X_PM), /*          Physical Maximum (PLACEHOLDER), */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0x09, 0x31,             /*          Usage (Y),                      */
-	0x27, UCLOGIC_PH(Y_LM), /*          Logical Maximum (PLACEHOLDER),  */
-	0x47, UCLOGIC_PH(Y_PM), /*          Physical Maximum (PLACEHOLDER), */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0xB4,                   /*          Pop,                            */
-	0x09, 0x30,             /*          Usage (Tip Pressure),           */
-	0x27,
-	UCLOGIC_PH(PRESSURE_LM),/*          Logical Maximum (PLACEHOLDER),  */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0xC0,                   /*      End Collection,                     */
-	0xC0,                   /*  End Collection                          */
-	0x05, 0x01,             /*  Usage Page (Desktop),                   */
-	0x09, 0x07,             /*  Usage (Keypad),                         */
-	0xA1, 0x01,             /*  Collection (Application),               */
-	0x85, 0x06,             /*      Report ID (6),                      */
-	0x05, 0x0D,             /*      Usage Page (Digitizer),             */
-	0x09, 0x39,             /*      Usage (Tablet Function Keys),       */
-	0xA0,                   /*      Collection (Physical),              */
-	0x05, 0x09,             /*          Usage Page (Button),            */
-	0x75, 0x01,             /*          Report Size (1),                */
-	0x19, 0x03,             /*          Usage Minimum (03h),            */
-	0x29, 0x06,             /*          Usage Maximum (06h),            */
-	0x95, 0x04,             /*          Report Count (4),               */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0x95, 0x1A,             /*          Report Count (26),              */
-	0x81, 0x03,             /*          Input (Constant, Variable),     */
-	0x19, 0x01,             /*          Usage Minimum (01h),            */
-	0x29, 0x02,             /*          Usage Maximum (02h),            */
-	0x95, 0x02,             /*          Report Count (2),               */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0x05, 0x0D,             /*          Usage Page (Digitizer),         */
-	0x09, 0x20,             /*          Usage (Stylus),                 */
-	0x14,                   /*          Logical Minimum (0),            */
-	0x25, 0x01,             /*          Logical Maximum (1),            */
-	0x09, 0x44,             /*          Usage (Barrel Switch),          */
-	0x95, 0x01,             /*          Report Count (1),               */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0x05, 0x01,             /*          Usage Page (Desktop),           */
-	0x09, 0x30,             /*          Usage (X),                      */
-	0x09, 0x31,             /*          Usage (Y),                      */
-	0x95, 0x02,             /*          Report Count (2),               */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0x05, 0x0D,             /*          Usage Page (Digitizer),         */
-	0x09, 0xFF,             /*          Usage (FFh),                    */
-	0x75, 0x05,             /*          Report Size (5),                */
-	0x95, 0x01,             /*          Report Count (1),               */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0xC0,                   /*      End Collection,                     */
-	0xC0                    /*  End Collection                          */
-};
-
-/* Fixed virtual pad report descriptor */
-static const __u8 uclogic_buttonpad_rdesc[] = {
-	0x05, 0x01,             /*  Usage Page (Desktop),                   */
-	0x09, 0x07,             /*  Usage (Keypad),                         */
-	0xA1, 0x01,             /*  Collection (Application),               */
-	0x85, 0xF7,             /*      Report ID (247),                    */
-	0x05, 0x0D,             /*      Usage Page (Digitizers),            */
-	0x09, 0x39,             /*      Usage (Tablet Function Keys),       */
-	0xA0,                   /*      Collection (Physical),              */
-	0x05, 0x09,             /*          Usage Page (Button),            */
-	0x75, 0x01,             /*          Report Size (1),                */
-	0x95, 0x18,             /*          Report Count (24),              */
-	0x81, 0x03,             /*          Input (Constant, Variable),     */
-	0x19, 0x01,             /*          Usage Minimum (01h),            */
-	0x29, 0x08,             /*          Usage Maximum (08h),            */
-	0x95, 0x08,             /*          Report Count (8),               */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0x05, 0x0D,             /*          Usage Page (Digitizers),        */
-	0x09, 0x20,             /*          Usage (Stylus),                 */
-	0x14,                   /*          Logical Minimum (0),            */
-	0x25, 0x01,             /*          Logical Maximum (1),            */
-	0x09, 0x44,             /*          Usage (Barrel Switch),          */
-	0x95, 0x01,             /*          Report Count (1),               */
-	0x81, 0x02,             /*          Input (Data,Var,Abs),           */
-	0x05, 0x01,             /*          Usage Page (Generic Desktop),   */
-	0x09, 0x30,             /*          Usage (X),                      */
-	0x09, 0x31,             /*          Usage (Y),                      */
-	0x95, 0x02,             /*          Report Count (2),               */
-	0x81, 0x02,             /*          Input (Data,Var,Abs),           */
-	0x05, 0x0D,             /*          Usage Page (Digitizers),        */
-	0x09, 0xFF,             /*          Usage (Vendor Usage 0xff),      */
-	0x75, 0x05,             /*          Report Size (5),                */
-	0x95, 0x01,             /*          Report Count (1),               */
-	0x81, 0x02,             /*          Input (Data,Var,Abs),           */
-	0xC0,                   /*      End Collection                      */
-	0xC0                    /*  End Collection                          */
-};
 
 /* Parameter indices */
 enum uclogic_prm {
@@ -750,53 +61,53 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 
 	switch (hdev->product) {
 	case USB_DEVICE_ID_UCLOGIC_TABLET_PF1209:
-		if (*rsize == PF1209_RDESC_ORIG_SIZE) {
-			rdesc = pf1209_rdesc_fixed;
-			*rsize = sizeof(pf1209_rdesc_fixed);
+		if (*rsize == UCLOGIC_PF1209_RDESC_ORIG_SIZE) {
+			rdesc = uclogic_pf1209_rdesc_fixed;
+			*rsize = sizeof(uclogic_pf1209_rdesc_fixed);
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U:
-		if (*rsize == WPXXXXU_RDESC_ORIG_SIZE) {
-			rdesc = wp4030u_rdesc_fixed;
-			*rsize = sizeof(wp4030u_rdesc_fixed);
+		if (*rsize == UCLOGIC_WPXXXXU_RDESC_ORIG_SIZE) {
+			rdesc = uclogic_wp4030u_rdesc_fixed;
+			*rsize = sizeof(uclogic_wp4030u_rdesc_fixed);
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U:
-		if (*rsize == WPXXXXU_RDESC_ORIG_SIZE) {
-			rdesc = wp5540u_rdesc_fixed;
-			*rsize = sizeof(wp5540u_rdesc_fixed);
+		if (*rsize == UCLOGIC_WPXXXXU_RDESC_ORIG_SIZE) {
+			rdesc = uclogic_wp5540u_rdesc_fixed;
+			*rsize = sizeof(uclogic_wp5540u_rdesc_fixed);
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U:
-		if (*rsize == WPXXXXU_RDESC_ORIG_SIZE) {
-			rdesc = wp8060u_rdesc_fixed;
-			*rsize = sizeof(wp8060u_rdesc_fixed);
+		if (*rsize == UCLOGIC_WPXXXXU_RDESC_ORIG_SIZE) {
+			rdesc = uclogic_wp8060u_rdesc_fixed;
+			*rsize = sizeof(uclogic_wp8060u_rdesc_fixed);
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP1062:
-		if (*rsize == WP1062_RDESC_ORIG_SIZE) {
-			rdesc = wp1062_rdesc_fixed;
-			*rsize = sizeof(wp1062_rdesc_fixed);
+		if (*rsize == UCLOGIC_WP1062_RDESC_ORIG_SIZE) {
+			rdesc = uclogic_wp1062_rdesc_fixed;
+			*rsize = sizeof(uclogic_wp1062_rdesc_fixed);
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850:
 		switch (iface_num) {
 		case 0:
-			if (*rsize == TWHL850_RDESC_ORIG_SIZE0) {
-				rdesc = twhl850_rdesc_fixed0;
-				*rsize = sizeof(twhl850_rdesc_fixed0);
+			if (*rsize == UCLOGIC_TWHL850_RDESC_ORIG_SIZE0) {
+				rdesc = uclogic_twhl850_rdesc_fixed0;
+				*rsize = sizeof(uclogic_twhl850_rdesc_fixed0);
 			}
 			break;
 		case 1:
-			if (*rsize == TWHL850_RDESC_ORIG_SIZE1) {
-				rdesc = twhl850_rdesc_fixed1;
-				*rsize = sizeof(twhl850_rdesc_fixed1);
+			if (*rsize == UCLOGIC_TWHL850_RDESC_ORIG_SIZE1) {
+				rdesc = uclogic_twhl850_rdesc_fixed1;
+				*rsize = sizeof(uclogic_twhl850_rdesc_fixed1);
 			}
 			break;
 		case 2:
-			if (*rsize == TWHL850_RDESC_ORIG_SIZE2) {
-				rdesc = twhl850_rdesc_fixed2;
-				*rsize = sizeof(twhl850_rdesc_fixed2);
+			if (*rsize == UCLOGIC_TWHL850_RDESC_ORIG_SIZE2) {
+				rdesc = uclogic_twhl850_rdesc_fixed2;
+				*rsize = sizeof(uclogic_twhl850_rdesc_fixed2);
 			}
 			break;
 		}
@@ -804,15 +115,15 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 	case USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60:
 		switch (iface_num) {
 		case 0:
-			if (*rsize == TWHA60_RDESC_ORIG_SIZE0) {
-				rdesc = twha60_rdesc_fixed0;
-				*rsize = sizeof(twha60_rdesc_fixed0);
+			if (*rsize == UCLOGIC_TWHA60_RDESC_ORIG_SIZE0) {
+				rdesc = uclogic_twha60_rdesc_fixed0;
+				*rsize = sizeof(uclogic_twha60_rdesc_fixed0);
 			}
 			break;
 		case 1:
-			if (*rsize == TWHA60_RDESC_ORIG_SIZE1) {
-				rdesc = twha60_rdesc_fixed1;
-				*rsize = sizeof(twha60_rdesc_fixed1);
+			if (*rsize == UCLOGIC_TWHA60_RDESC_ORIG_SIZE1) {
+				rdesc = uclogic_twha60_rdesc_fixed1;
+				*rsize = sizeof(uclogic_twha60_rdesc_fixed1);
 			}
 			break;
 		}
@@ -1174,8 +485,8 @@ static int uclogic_probe(struct hid_device *hdev,
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 1) {
 			rc = uclogic_probe_tablet(
 					hdev,
-					ugee_ex07_rdesc_template,
-					sizeof(ugee_ex07_rdesc_template));
+					uclogic_ugee_ex07_rdesc_template,
+					sizeof(uclogic_ugee_ex07_rdesc_template));
 			if (rc) {
 				hid_err(hdev, "tablet enabling failed\n");
 				return rc;
@@ -1213,7 +524,7 @@ static int uclogic_probe(struct hid_device *hdev,
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U:
 		/* If this is the pen interface of WP5540U v2 */
-		if (hdev->dev_rsize == WP5540U_V2_RDESC_ORIG_SIZE &&
+		if (hdev->dev_rsize == UCLOGIC_WP5540U_V2_RDESC_ORIG_SIZE &&
 		    intf->cur_altsetting->desc.bInterfaceNumber == 0) {
 			rc = uclogic_probe_tablet(
 					hdev,
