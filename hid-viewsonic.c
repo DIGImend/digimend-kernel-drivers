@@ -37,13 +37,13 @@ static __u8 pd1011_rdesc_fixed[] = {
 	0x55, 0xFD,             /*          Unit Exponent (-3),         */
 	0x34,                   /*          Physical Minimum (0),       */
 	0x09, 0x30,             /*          Usage (X),                  */
-	0x46, 0xB1, 0x21,       /*          Physical Maximum (8625),    */
-	0x27, 0x2C, 0xAB,
-		0x00, 0x00,     /*          Logical Maximum (43820),    */
+	0x46, 0x5D, 0x21,       /*          Physical Maximum (8541),    */
+	0x27, 0x80, 0xA9,
+		0x00, 0x00,     /*          Logical Maximum (43392),    */
 	0x81, 0x02,             /*          Input (Variable),           */
 	0x09, 0x31,             /*          Usage (Y),                  */
-	0x46, 0x0E, 0x15,       /*          Physical Maximum (5390),    */
-	0x26, 0xF6, 0x6A,       /*          Logical Maximum (27382),    */
+	0x46, 0xDA, 0x14,       /*          Physical Maximum (5338),    */
+	0x26, 0xF0, 0x69,       /*          Logical Maximum (27120),    */
 	0x81, 0x02,             /*          Input (Variable),           */
 	0xB4,                   /*          Pop,                        */
 	0x14,                   /*          Logical Minimum (0),        */
