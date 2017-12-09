@@ -53,6 +53,6 @@
 
 /* ViewSonic Corporation */
 #define USB_VENDOR_ID_VIEWSONIC			0x0543
-#define USB_DEVICE_ID_VIEWSONIC_PID_E621	0xe621
+#define USB_DEVICE_ID_VIEWSONIC_PD1011		0xe621
 
 #endif

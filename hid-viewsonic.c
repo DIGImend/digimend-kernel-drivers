@@ -18,11 +18,11 @@
 
 #include "hid-ids.h"
 
-/* Size of the original descriptor of tablet with PID e621 */
-#define PID_E621_RDESC_ORIG_SIZE	408
+/* Size of the original descriptor of PD1011 signature pad */
+#define PD1011_RDESC_ORIG_SIZE	408
 
-/* Fixed report descriptor of tablet with PID e621 */
-static __u8 pid_e621_rdesc_fixed[] = {
+/* Fixed report descriptor of PD1011 signature pad */
+static __u8 pd1011_rdesc_fixed[] = {
 	0x05, 0x0D,             /*  Usage Page (Digitizer),             */
 	0x09, 0x02,             /*  Usage (Pen),                        */
 	0xA1, 0x01,             /*  Collection (Application),           */
@@ -73,10 +73,10 @@ static __u8 *viewsonic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 				    unsigned int *rsize)
 {
 	switch (hdev->product) {
-	case USB_DEVICE_ID_VIEWSONIC_PID_E621:
-		if (*rsize == PID_E621_RDESC_ORIG_SIZE) {
-			rdesc = pid_e621_rdesc_fixed;
-			*rsize = sizeof(pid_e621_rdesc_fixed);
+	case USB_DEVICE_ID_VIEWSONIC_PD1011:
+		if (*rsize == PD1011_RDESC_ORIG_SIZE) {
+			rdesc = pd1011_rdesc_fixed;
+			*rsize = sizeof(pd1011_rdesc_fixed);
 		}
 		break;
 	}
@@ -108,7 +108,7 @@ static int viewsonic_probe(struct hid_device *hdev,
 
 static const struct hid_device_id viewsonic_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_VIEWSONIC,
-				USB_DEVICE_ID_VIEWSONIC_PID_E621) },
+				USB_DEVICE_ID_VIEWSONIC_PD1011) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, viewsonic_devices);
