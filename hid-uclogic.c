@@ -29,9 +29,10 @@ static inline s32 le24_to_cpu(const __u8* ptr)
 	return ptr[0] | (ptr[1] << 8UL) | (ptr[2] << 16UL);
 }
 
-#define UCLOGIC_RDESC_ID (0x64)
-#define UCLOGIC_HIRES_RDESC_ID (0xC8)
-#define UCLOGIC_HIRES_RDESC_LENGTH (18)
+#define UCLOGIC_PRM_STR_ID (0x64)
+#define UCLOGIC_HIRES_PRM_STR_ID (0xC8)
+#define UCLOGIC_PRM_STR_LENGTH (UCLOGIC_PRM_NUM * sizeof(__le16))
+#define UCLOGIC_HIRES_PRM_STR_LENGTH (18)
 
 /* Size of the original descriptor of WPXXXXU tablets */
 #define WPXXXXU_RDESC_ORIG_SIZE	212
@@ -966,13 +967,12 @@ static int uclogic_input_configured(struct hid_device *hdev,
  * @pbuf:	Location for the kmalloc'ed parameter array with
  * 		UCLOGIC_PRM_NUM elements.
  */
-static int uclogic_enable_tablet(struct hid_device *hdev, __u8 rdescid, __u8 **pbuf)
+static int uclogic_enable_tablet(struct hid_device *hdev, __u8 rdescid, __u8 **pbuf, size_t len)
 {
 	int rc;
 	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 	__u8 *buf = NULL;
-	size_t len;
 
 	/*
 	 * Read string descriptor containing tablet parameters. The specific
@@ -980,11 +980,6 @@ static int uclogic_enable_tablet(struct hid_device *hdev, __u8 rdescid, __u8 **p
 	 * driver traffic.
 	 * NOTE: This enables fully-functional tablet mode.
 	 */
-	if (rdescid == UCLOGIC_HIRES_RDESC_ID) {
-		len = UCLOGIC_HIRES_RDESC_LENGTH;
-	} else {
-		len = UCLOGIC_PRM_NUM * sizeof(__le16);
-	}
 	buf = kmalloc(len, GFP_KERNEL);
 	if (buf == NULL) {
 		rc = -ENOMEM;
@@ -1010,23 +1005,26 @@ static int uclogic_enable_tablet(struct hid_device *hdev, __u8 rdescid, __u8 **p
 	}
 
 	drvdata->tablet_enabled = true;
-	*pbuf = buf;
-	buf = NULL;
+	if (pbuf) {
+		*pbuf = buf;
+		buf = NULL;
+	}
 	rc = 0;
 
 cleanup:
+
 	kfree(buf);
 	return rc;
 }
 
-static void uclogic_fill_placeholders(__u8* prdesc, unsigned int rsize, s32* params)
+static void uclogic_fill_placeholders(__u8* prdesc, unsigned int rsize, s32* params, size_t param_count)
 {
 	__u8 *p;
 	s32 v;
 	for (p = prdesc;
 	     p <= prdesc + rsize -4;) {
 		if (p[0] == 0xFE && p[1] == 0xED && p[2] == 0x1D &&
-		    p[3] < UCLOGIC_PH_ID_NUM) {
+		    p[3] < param_count) {
 			v = params[p[3]];
 			put_unaligned(cpu_to_le32(v), (s32 *)p);
 			p += 4;
@@ -1056,11 +1054,10 @@ static int uclogic_probe_tablet(struct hid_device *hdev,
 	s32 resolution;
 
 	/* Enable tablet mode and get raw device parameters */
-	rc = uclogic_enable_tablet(hdev, UCLOGIC_RDESC_ID, &bbuf);
+	rc = uclogic_enable_tablet(hdev, UCLOGIC_PRM_STR_ID, &bbuf, UCLOGIC_PRM_STR_LENGTH);
 	if (rc != 0) {
 		goto cleanup;
 	}
-
 	buf = (__le16*)bbuf;
 
 	/* Extract device parameters */
@@ -1091,7 +1088,7 @@ static int uclogic_probe_tablet(struct hid_device *hdev,
 
 	/* Format fixed report descriptor */
 	memcpy(drvdata->rdesc, rdesc_template_ptr, drvdata->rsize);
-	uclogic_fill_placeholders(drvdata->rdesc, drvdata->rsize, params);
+	uclogic_fill_placeholders(drvdata->rdesc, drvdata->rsize, params, sizeof(params)/sizeof(*params));
 
 	rc = 0;
 
@@ -1111,7 +1108,7 @@ static int uclogic_probe_tablet_hires(struct hid_device *hdev,
 	s32 resolution;
 
 	/* Enable tablet mode and get raw device parameters */
-	rc = uclogic_enable_tablet(hdev, UCLOGIC_HIRES_RDESC_ID, &buf);
+	rc = uclogic_enable_tablet(hdev, UCLOGIC_HIRES_PRM_STR_ID, &buf, UCLOGIC_HIRES_PRM_STR_LENGTH);
 	if (rc != 0) {
 		goto cleanup;
 	}
@@ -1143,8 +1140,7 @@ static int uclogic_probe_tablet_hires(struct hid_device *hdev,
 
 	/* Format fixed report descriptor */
 	memcpy(drvdata->rdesc, rdesc_template_ptr, drvdata->rsize);
-	uclogic_fill_placeholders(drvdata->rdesc, drvdata->rsize, params);
-
+	uclogic_fill_placeholders(drvdata->rdesc, drvdata->rsize, params, sizeof(params)/sizeof(*params));
 	rc = 0;
 
 cleanup:
@@ -1271,7 +1267,7 @@ static int uclogic_probe(struct hid_device *hdev,
 					uclogic_tablet_hires_rdesc_template,
 					sizeof(uclogic_tablet_hires_rdesc_template));
 			drvdata->is_hires = !rc;
-			if (rc) {
+			if (!drvdata->is_hires) {
 				rc = uclogic_probe_tablet(
 						hdev,
 						uclogic_tablet_rdesc_template,
@@ -1388,12 +1384,12 @@ static int uclogic_resume(struct hid_device *hdev)
 
 	/* Re-enable tablet, if needed */
 	if (drvdata->tablet_enabled) {
-		__u8 *buf = NULL;
-		if (drvdata->is_hires)
-			rc = uclogic_enable_tablet(hdev, UCLOGIC_HIRES_RDESC_ID, &buf);
-		else
-			rc = uclogic_enable_tablet(hdev, UCLOGIC_RDESC_ID, &buf);
-		kfree(buf);
+		if (drvdata->is_hires) {
+			rc = uclogic_enable_tablet(hdev, UCLOGIC_HIRES_PRM_STR_ID, NULL, UCLOGIC_HIRES_PRM_STR_LENGTH);
+		}
+		else {
+			rc = uclogic_enable_tablet(hdev, UCLOGIC_PRM_STR_ID, NULL, UCLOGIC_PRM_STR_LENGTH);
+		}
 		if (rc != 0) {
 			return rc;
 		}
