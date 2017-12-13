@@ -16,6 +16,7 @@ include /usr/share/dpkg/default.mk
 # package maintainers to append LDFLAGS
 #export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 
+version := $(shell dpkg-parsechangelog --show-field Version | cut -d'-' -f1)
 
 # main packaging script based on dh7 syntax
 %:
@@ -35,6 +36,6 @@ override_dh_dkms:
 	dh_dkms -p digimend-dkms -V -- dkms.conf
 
 override_dh_install:
-	dh_install Makefile *.c *.h usbhid usr/src/digimend-6/
+	dh_install Makefile *.c *.h usbhid usr/src/digimend-${version}/
 	dh_install 90-hid-rebind.rules lib/udev/rules.d/
 	dh_install hid-rebind sbin/
