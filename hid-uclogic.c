@@ -1314,7 +1314,7 @@ static int uclogic_probe(struct hid_device *hdev,
 				sizeof(uclogic_tablet_hires_rdesc_template));
 		if (!rc) {
 			drvdata->is_hires = true;
-			drvdata->invert_pen_inrange = true;
+			drvdata->invert_pen_inrange = false;
 
 			rc = uclogic_probe_buttons(
 					hdev, uclogic_hires_buttonpad_rdesc,
