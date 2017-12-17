@@ -898,14 +898,16 @@ static int uclogic_input_configured(struct hid_device *hdev,
  * @hdev:	HID device
  * @pbuf:	Location for the kmalloc'ed parameter array with
  * 		UCLOGIC_PRM_NUM elements.
+ * @len:	The amount of memory (in bytes) that needs to be allocated
+ *		for @pbuf
  */
-static int uclogic_enable_tablet(struct hid_device *hdev, __le16 **pbuf)
+static int uclogic_enable_tablet(struct hid_device *hdev,
+				 __u8 **pbuf, size_t len)
 {
 	int rc;
 	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
-	__le16 *buf = NULL;
-	size_t len;
+	__u8 *buf;
 
 	/*
 	 * Read string descriptor containing tablet parameters. The specific
@@ -913,12 +915,10 @@ static int uclogic_enable_tablet(struct hid_device *hdev, __le16 **pbuf)
 	 * driver traffic.
 	 * NOTE: This enables fully-functional tablet mode.
 	 */
-	len = UCLOGIC_PRM_NUM * sizeof(*buf);
 	buf = kmalloc(len, GFP_KERNEL);
-	if (buf == NULL) {
-		rc = -ENOMEM;
-		goto cleanup;
-	}
+	if (buf == NULL)
+		return -ENOMEM;
+
 	rc = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
 				USB_REQ_GET_DESCRIPTOR, USB_DIR_IN,
 				(USB_DT_STRING << 8) + 0x64,
@@ -940,8 +940,7 @@ static int uclogic_enable_tablet(struct hid_device *hdev, __le16 **pbuf)
 
 	drvdata->tablet_enabled = true;
 	*pbuf = buf;
-	buf = NULL;
-	rc = 0;
+	return 0;
 
 cleanup:
 	kfree(buf);
@@ -980,15 +979,18 @@ static int uclogic_probe_tablet(struct hid_device *hdev,
 {
 	int rc;
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
+	__u8 *bbuf = NULL;
 	__le16 *buf = NULL;
 	s32 params[UCLOGIC_PH_ID_NUM];
 	s32 resolution;
 
 	/* Enable tablet mode and get raw device parameters */
-	rc = uclogic_enable_tablet(hdev, &buf);
+	rc = uclogic_enable_tablet(hdev, &bbuf,
+				   UCLOGIC_PRM_NUM * sizeof(__le16));
 	if (rc != 0) {
 		goto cleanup;
 	}
+	buf = (__le16 *)bbuf;
 
 	/* Extract device parameters */
 	params[UCLOGIC_PH_ID_X_LM] = le16_to_cpu(buf[UCLOGIC_PRM_X_LM]);
@@ -1258,8 +1260,10 @@ static int uclogic_resume(struct hid_device *hdev)
 
 	/* Re-enable tablet, if needed */
 	if (drvdata->tablet_enabled) {
-		__le16 *buf = NULL;
-		rc = uclogic_enable_tablet(hdev, &buf);
+		__u8 *buf = NULL;
+
+		rc = uclogic_enable_tablet(hdev, &buf,
+					   UCLOGIC_PRM_NUM * sizeof(__le16));
 		kfree(buf);
 		if (rc != 0) {
 			return rc;
