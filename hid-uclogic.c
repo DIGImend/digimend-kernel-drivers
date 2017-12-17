@@ -897,7 +897,8 @@ static int uclogic_input_configured(struct hid_device *hdev,
  *
  * @hdev:	HID device
  * @pbuf:	Location for the kmalloc'ed parameter array with
- * 		UCLOGIC_PRM_NUM elements.
+ * 		UCLOGIC_PRM_NUM elements, or NULL if the caller doesn't
+ *		want that data.
  * @len:	The amount of memory (in bytes) that needs to be allocated
  *		for @pbuf
  */
@@ -939,7 +940,11 @@ static int uclogic_enable_tablet(struct hid_device *hdev,
 	}
 
 	drvdata->tablet_enabled = true;
-	*pbuf = buf;
+	if (pbuf)
+		*pbuf = buf;
+	else
+		kfree(buf);
+
 	return 0;
 
 cleanup:
@@ -1260,11 +1265,8 @@ static int uclogic_resume(struct hid_device *hdev)
 
 	/* Re-enable tablet, if needed */
 	if (drvdata->tablet_enabled) {
-		__u8 *buf = NULL;
-
-		rc = uclogic_enable_tablet(hdev, &buf,
+		rc = uclogic_enable_tablet(hdev, NULL,
 					   UCLOGIC_PRM_NUM * sizeof(__le16));
-		kfree(buf);
 		if (rc != 0) {
 			return rc;
 		}
