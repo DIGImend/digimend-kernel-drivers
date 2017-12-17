@@ -24,6 +24,9 @@
 #include "compat.h"
 #include <linux/version.h>
 
+#define UCLOGIC_PRM_STR_ID 0x64
+#define UCLOGIC_PRM_STR_LENGTH (UCLOGIC_PRM_NUM * sizeof(__le16))
+
 /* Size of the original descriptor of WPXXXXU tablets */
 #define WPXXXXU_RDESC_ORIG_SIZE	212
 
@@ -902,7 +905,7 @@ static int uclogic_input_configured(struct hid_device *hdev,
  * @len:	The amount of memory (in bytes) that needs to be allocated
  *		for @pbuf
  */
-static int uclogic_enable_tablet(struct hid_device *hdev,
+static int uclogic_enable_tablet(struct hid_device *hdev, __u8 rdescid,
 				 __u8 **pbuf, size_t len)
 {
 	int rc;
@@ -922,7 +925,7 @@ static int uclogic_enable_tablet(struct hid_device *hdev,
 
 	rc = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
 				USB_REQ_GET_DESCRIPTOR, USB_DIR_IN,
-				(USB_DT_STRING << 8) + 0x64,
+				(USB_DT_STRING << 8) + rdescid,
 				0x0409, buf, len,
 				USB_CTRL_GET_TIMEOUT);
 	if (rc == -EPIPE) {
@@ -990,8 +993,8 @@ static int uclogic_probe_tablet(struct hid_device *hdev,
 	s32 resolution;
 
 	/* Enable tablet mode and get raw device parameters */
-	rc = uclogic_enable_tablet(hdev, &bbuf,
-				   UCLOGIC_PRM_NUM * sizeof(__le16));
+	rc = uclogic_enable_tablet(hdev, UCLOGIC_PRM_STR_ID,
+				   &bbuf, UCLOGIC_PRM_STR_LENGTH);
 	if (rc != 0) {
 		goto cleanup;
 	}
@@ -1265,8 +1268,8 @@ static int uclogic_resume(struct hid_device *hdev)
 
 	/* Re-enable tablet, if needed */
 	if (drvdata->tablet_enabled) {
-		rc = uclogic_enable_tablet(hdev, NULL,
-					   UCLOGIC_PRM_NUM * sizeof(__le16));
+		rc = uclogic_enable_tablet(hdev, UCLOGIC_PRM_STR_ID,
+					   NULL, UCLOGIC_PRM_STR_LENGTH);
 		if (rc != 0) {
 			return rc;
 		}
