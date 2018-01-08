@@ -24,6 +24,16 @@
 #include "compat.h"
 #include <linux/version.h>
 
+static inline s32 le24_to_cpu(const __u8* ptr)
+{
+	return ptr[0] | (ptr[1] << 8UL) | (ptr[2] << 16UL);
+}
+
+#define UCLOGIC_PRM_STR_ID 0x64
+#define UCLOGIC_PRM_STR_LENGTH (UCLOGIC_PRM_NUM * sizeof(__le16))
+#define UCLOGIC_HIRES_PRM_STR_ID 0xC8
+#define UCLOGIC_HIRES_PRM_STR_LENGTH 18
+
 /* Size of the original descriptor of WPXXXXU tablets */
 #define WPXXXXU_RDESC_ORIG_SIZE	212
 
@@ -543,7 +553,8 @@ enum uclogic_ph_id {
 
 /* Report descriptor template placeholder */
 #define UCLOGIC_PH(_ID) UCLOGIC_PH_HEAD, UCLOGIC_PH_ID_##_ID
-#define UCLOGIC_PEN_REPORT_ID	0x07
+#define UCLOGIC_PEN_REPORT_ID		0x07
+#define UCLOGIC_HIRES_PEN_REPORT_ID	0x08
 
 /* Fixed report descriptor template */
 static const __u8 uclogic_tablet_rdesc_template[] = {
@@ -587,6 +598,55 @@ static const __u8 uclogic_tablet_rdesc_template[] = {
 	0x09, 0x30,             /*          Usage (Tip Pressure),           */
 	0x27,
 	UCLOGIC_PH(PRESSURE_LM),/*          Logical Maximum (PLACEHOLDER),  */
+	0x81, 0x02,             /*          Input (Variable),               */
+	0xC0,                   /*      End Collection,                     */
+	0xC0                    /*  End Collection                          */
+};
+
+/* Fixed report descriptor template */
+static const __u8 uclogic_tablet_hires_rdesc_template[] = {
+	0x05, 0x0D,             /*  Usage Page (Digitizer),                 */
+	0x09, 0x02,             /*  Usage (Pen),                            */
+	0xA1, 0x01,             /*  Collection (Application),               */
+	0x85, 0x08,             /*      Report ID (8),                      */
+	0x09, 0x20,             /*      Usage (Stylus),                     */
+	0xA0,                   /*      Collection (Physical),              */
+	0x14,                   /*          Logical Minimum (0),            */
+	0x25, 0x01,             /*          Logical Maximum (1),            */
+	0x75, 0x01,             /*          Report Size (1),                */
+	0x09, 0x42,             /*          Usage (Tip Switch),             */
+	0x09, 0x44,             /*          Usage (Barrel Switch),          */
+	0x09, 0x46,             /*          Usage (Tablet Pick),            */
+	0x95, 0x03,             /*          Report Count (3),               */
+	0x81, 0x02,             /*          Input (Variable),               */
+	0x95, 0x03,             /*          Report Count (3),               */
+	0x81, 0x03,             /*          Input (Constant, Variable),     */
+	0x09, 0x32,             /*          Usage (In Range),               */
+	0x95, 0x01,             /*          Report Count (1),               */
+	0x81, 0x02,             /*          Input (Variable),               */
+	0x95, 0x01,             /*          Report Count (1),               */
+	0x81, 0x03,             /*          Input (Constant, Variable),     */
+	0x75, 0x10,             /*          Report Size (16),               */
+	0x95, 0x01,             /*          Report Count (1),               */
+	0xA4,                   /*          Push,                           */
+	0x05, 0x01,             /*          Usage Page (Desktop),           */
+	0x65, 0x13,             /*          Unit (Inch),                    */
+	0x55, 0xFD,             /*          Unit Exponent (-3),             */
+	0x34,                   /*          Physical Minimum (0),           */
+	0x09, 0x30,             /*          Usage (X),                      */
+	0x27, UCLOGIC_PH(X_LM), /*          Logical Maximum (PLACEHOLDER),  */
+	0x47, UCLOGIC_PH(X_PM), /*          Physical Maximum (PLACEHOLDER), */
+	0x81, 0x02,             /*          Input (Variable),               */
+	0x09, 0x31,             /*          Usage (Y),                      */
+	0x27, UCLOGIC_PH(Y_LM), /*          Logical Maximum (PLACEHOLDER),  */
+	0x47, UCLOGIC_PH(Y_PM), /*          Physical Maximum (PLACEHOLDER), */
+	0x81, 0x02,             /*          Input (Variable),               */
+	0xB4,                   /*          Pop,                            */
+	0x09, 0x30,             /*          Usage (Tip Pressure),           */
+	0x27,
+	UCLOGIC_PH(PRESSURE_LM),/*          Logical Maximum (PLACEHOLDER),  */
+	0x81, 0x02,             /*          Input (Variable),               */
+	0x95, 0x02,             /*          Report Count (2),               */
 	0x81, 0x02,             /*          Input (Variable),               */
 	0xC0,                   /*      End Collection,                     */
 	0xC0                    /*  End Collection                          */
@@ -715,6 +775,36 @@ static const __u8 uclogic_buttonpad_rdesc[] = {
 	0xC0                    /*  End Collection                          */
 };
 
+/* Fixed virtual pad report descriptor */
+static const __u8 uclogic_hires_buttonpad_rdesc[] = {
+	0x05, 0x01,             /*  Usage Page (Desktop),                   */
+	0x09, 0x07,             /*  Usage (Keypad),                         */
+	0xA1, 0x01,             /*  Collection (Application),               */
+	0x85, 0xF7,             /*      Report ID (247),                    */
+	0x05, 0x0D,             /*      Usage Page (Digitizer),             */
+	0x09, 0x39,             /*      Usage (Tablet Function Keys),       */
+	0xA0,                   /*      Collection (Physical),              */
+	0x05, 0x09,             /*          Usage Page (Button),            */
+	0x75, 0x08,             /*          Report Size (8),                */
+	0x95, 0x03,             /*          Report Count (3),               */
+	0x81, 0x03,             /*          Input (Constant, Variable),     */
+	0x75, 0x01,             /*          Report Size (1),                */
+	0x14,                   /*          Logical Minimum (0),            */
+	0x25, 0x01,             /*          Logical Maximum (1),            */
+	0x19, 0x01,             /*          Usage Minimum (01h),            */
+	0x29, 0x0C,             /*          Usage Maximum (0Ch),            */
+	0x95, 0x0C,             /*          Report Count (12),              */
+	0x81, 0x02,             /*          Input (Variable),               */
+	0x75, 0x01,             /*          Report Size (1),                */
+	0x95, 0x04,             /*          Report Count (4),               */
+	0x81, 0x03,             /*          Input (Constant, Variable),     */
+	0x75, 0x08,             /*          Report Size (8),                */
+	0x95, 0x06,             /*          Report Count (6),               */
+	0x81, 0x03,             /*          Input (Constant, Variable),     */
+	0xC0,                   /*      End Collection,                     */
+	0xC0                    /*  End Collection                          */
+};
+
 /* Parameter indices */
 enum uclogic_prm {
 	UCLOGIC_PRM_X_LM	= 1,
@@ -722,6 +812,13 @@ enum uclogic_prm {
 	UCLOGIC_PRM_PRESSURE_LM	= 4,
 	UCLOGIC_PRM_RESOLUTION	= 5,
 	UCLOGIC_PRM_NUM
+};
+
+enum uclogic_hires_prm_offset {
+	UCLOGIC_HIRES_PRM_OFS_X_LM = 2,
+	UCLOGIC_HIRES_PRM_OFS_Y_LM = 5,
+	UCLOGIC_HIRES_PRM_OFS_PRESSURE_LM = 8,
+	UCLOGIC_HIRES_PRM_OFS_RESOLUTION = 10
 };
 
 /* Driver data */
@@ -733,6 +830,7 @@ struct uclogic_drvdata {
 	bool invert_pen_inrange;
 	bool ignore_pen_usage;
 	bool has_virtual_pad_interface;
+	bool is_hires;
 };
 
 static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
@@ -897,15 +995,18 @@ static int uclogic_input_configured(struct hid_device *hdev,
  *
  * @hdev:	HID device
  * @pbuf:	Location for the kmalloc'ed parameter array with
- * 		UCLOGIC_PRM_NUM elements.
+ * 		UCLOGIC_PRM_NUM elements, or NULL if the caller doesn't
+ *		want that data.
+ * @len:	The amount of memory (in bytes) that needs to be allocated
+ *		for @pbuf
  */
-static int uclogic_enable_tablet(struct hid_device *hdev, __le16 **pbuf)
+static int uclogic_enable_tablet(struct hid_device *hdev, __u8 rdescid,
+				 __u8 **pbuf, size_t len)
 {
 	int rc;
 	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
-	__le16 *buf = NULL;
-	size_t len;
+	__u8 *buf;
 
 	/*
 	 * Read string descriptor containing tablet parameters. The specific
@@ -913,15 +1014,13 @@ static int uclogic_enable_tablet(struct hid_device *hdev, __le16 **pbuf)
 	 * driver traffic.
 	 * NOTE: This enables fully-functional tablet mode.
 	 */
-	len = UCLOGIC_PRM_NUM * sizeof(*buf);
 	buf = kmalloc(len, GFP_KERNEL);
-	if (buf == NULL) {
-		rc = -ENOMEM;
-		goto cleanup;
-	}
+	if (buf == NULL)
+		return -ENOMEM;
+
 	rc = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
 				USB_REQ_GET_DESCRIPTOR, USB_DIR_IN,
-				(USB_DT_STRING << 8) + 0x64,
+				(USB_DT_STRING << 8) + rdescid,
 				0x0409, buf, len,
 				USB_CTRL_GET_TIMEOUT);
 	if (rc == -EPIPE) {
@@ -939,13 +1038,34 @@ static int uclogic_enable_tablet(struct hid_device *hdev, __le16 **pbuf)
 	}
 
 	drvdata->tablet_enabled = true;
-	*pbuf = buf;
-	buf = NULL;
-	rc = 0;
+	if (pbuf)
+		*pbuf = buf;
+	else
+		kfree(buf);
+
+	return 0;
 
 cleanup:
 	kfree(buf);
 	return rc;
+}
+
+static void uclogic_fill_placeholders(__u8* prdesc, unsigned int rsize,
+				      s32* params, size_t params_len)
+{
+	__u8 *p;
+	s32 v;
+
+	for (p = prdesc; p <= prdesc + rsize - 4; ) {
+		if (p[0] == 0xFE && p[1] == 0xED && p[2] == 0x1D &&
+		    p[3] < params_len) {
+			v = params[p[3]];
+			put_unaligned(cpu_to_le32(v), (s32 *)p);
+			p += 4;
+		} else {
+			p++;
+		}
+	}
 }
 
 /**
@@ -962,17 +1082,18 @@ static int uclogic_probe_tablet(struct hid_device *hdev,
 {
 	int rc;
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
+	__u8 *bbuf = NULL;
 	__le16 *buf = NULL;
 	s32 params[UCLOGIC_PH_ID_NUM];
 	s32 resolution;
-	__u8 *p;
-	s32 v;
 
 	/* Enable tablet mode and get raw device parameters */
-	rc = uclogic_enable_tablet(hdev, &buf);
+	rc = uclogic_enable_tablet(hdev, UCLOGIC_PRM_STR_ID,
+				   &bbuf, UCLOGIC_PRM_STR_LENGTH);
 	if (rc != 0) {
 		goto cleanup;
 	}
+	buf = (__le16 *)bbuf;
 
 	/* Extract device parameters */
 	params[UCLOGIC_PH_ID_X_LM] = le16_to_cpu(buf[UCLOGIC_PRM_X_LM]);
@@ -1002,18 +1123,63 @@ static int uclogic_probe_tablet(struct hid_device *hdev,
 
 	/* Format fixed report descriptor */
 	memcpy(drvdata->rdesc, rdesc_template_ptr, drvdata->rsize);
-	for (p = drvdata->rdesc;
-	     p <= drvdata->rdesc + drvdata->rsize - 4;) {
-		if (p[0] == 0xFE && p[1] == 0xED && p[2] == 0x1D &&
-		    p[3] < ARRAY_SIZE(params)) {
-			v = params[p[3]];
-			put_unaligned(cpu_to_le32(v), (s32 *)p);
-			p += 4;
-		} else {
-			p++;
-		}
+	uclogic_fill_placeholders(drvdata->rdesc, drvdata->rsize,
+				  params, ARRAY_SIZE(params));
+
+	rc = 0;
+
+cleanup:
+	kfree(buf);
+	return rc;
+}
+
+static int uclogic_probe_tablet_hires(struct hid_device *hdev,
+				      const __u8 *rdesc_template_ptr,
+				      size_t rdesc_template_len)
+{
+	int rc;
+	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
+	__u8 *buf = NULL;
+	s32 params[UCLOGIC_PH_ID_NUM];
+	s32 resolution;
+
+	/* Enable tablet mode and get raw device parameters */
+	rc = uclogic_enable_tablet(hdev, UCLOGIC_HIRES_PRM_STR_ID,
+				   &buf, UCLOGIC_HIRES_PRM_STR_LENGTH);
+	if (rc != 0) {
+		goto cleanup;
 	}
 
+	/* Extract device parameters */
+	params[UCLOGIC_PH_ID_X_LM] = le24_to_cpu(buf + UCLOGIC_HIRES_PRM_OFS_X_LM);
+	params[UCLOGIC_PH_ID_Y_LM] = le24_to_cpu(buf + UCLOGIC_HIRES_PRM_OFS_Y_LM);
+	params[UCLOGIC_PH_ID_PRESSURE_LM] =
+		le16_to_cpu(*(__le16*)(buf + UCLOGIC_HIRES_PRM_OFS_PRESSURE_LM));
+	resolution = le16_to_cpu(*(__le16*)(buf + UCLOGIC_HIRES_PRM_OFS_RESOLUTION));
+	if (resolution == 0) {
+		params[UCLOGIC_PH_ID_X_PM] = 0;
+		params[UCLOGIC_PH_ID_Y_PM] = 0;
+	} else {
+		params[UCLOGIC_PH_ID_X_PM] = params[UCLOGIC_PH_ID_X_LM] *
+						1000 / resolution;
+		params[UCLOGIC_PH_ID_Y_PM] = params[UCLOGIC_PH_ID_Y_LM] *
+						1000 / resolution;
+	}
+
+	/* Allocate fixed report descriptor */
+	drvdata->rdesc = devm_kzalloc(&hdev->dev,
+				rdesc_template_len,
+				GFP_KERNEL);
+	if (drvdata->rdesc == NULL) {
+		rc = -ENOMEM;
+		goto cleanup;
+	}
+	drvdata->rsize = rdesc_template_len;
+
+	/* Format fixed report descriptor */
+	memcpy(drvdata->rdesc, rdesc_template_ptr, drvdata->rsize);
+	uclogic_fill_placeholders(drvdata->rdesc, drvdata->rsize,
+				  params, sizeof(params)/sizeof(*params));
 	rc = 0;
 
 cleanup:
@@ -1067,7 +1233,9 @@ cleanup:
  *
  * @hdev:	HID device
  */
-static int uclogic_probe_buttons(struct hid_device *hdev)
+static int uclogic_probe_buttons(struct hid_device *hdev,
+				 const __u8 *buttonpad_rdesc_ptr,
+				 size_t buttonpad_rdesc_len)
 {
 	int rc;
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
@@ -1081,7 +1249,7 @@ static int uclogic_probe_buttons(struct hid_device *hdev)
 	}
 
 	/* Re-allocate fixed report descriptor */
-	rdesc_len = drvdata->rsize + sizeof(uclogic_buttonpad_rdesc);
+	rdesc_len = drvdata->rsize + buttonpad_rdesc_len;
 	rdesc = devm_kzalloc(&hdev->dev, rdesc_len, GFP_KERNEL);
 	if (!rdesc) {
 		rc = -ENOMEM;
@@ -1091,8 +1259,8 @@ static int uclogic_probe_buttons(struct hid_device *hdev)
 	memcpy(rdesc, drvdata->rdesc, drvdata->rsize);
 
 	/* Append the buttonpad descriptor */
-	memcpy(rdesc + drvdata->rsize, uclogic_buttonpad_rdesc,
-	       sizeof(uclogic_buttonpad_rdesc));
+	memcpy(rdesc + drvdata->rsize, buttonpad_rdesc_ptr,
+	       buttonpad_rdesc_len);
 
 	/* clean up old rdesc and use the new one */
 	drvdata->rsize = rdesc_len;
@@ -1134,24 +1302,46 @@ static int uclogic_probe(struct hid_device *hdev,
 	case USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3:
 	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_45:
 	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47:
-		/* If this is the pen interface */
-		if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
-			rc = uclogic_probe_tablet(
-					hdev,
-					uclogic_tablet_rdesc_template,
-					sizeof(uclogic_tablet_rdesc_template));
-			if (rc) {
-				hid_err(hdev, "tablet enabling failed\n");
-				return rc;
-			}
+		/* If this is not the pen interface, ignore it. */
+		if (intf->cur_altsetting->desc.bInterfaceNumber != 0) {
+			drvdata->ignore_pen_usage = true;
+			break;
+		}
+
+		rc = uclogic_probe_tablet_hires(
+				hdev,
+				uclogic_tablet_hires_rdesc_template,
+				sizeof(uclogic_tablet_hires_rdesc_template));
+		if (!rc) {
+			drvdata->is_hires = true;
+			drvdata->invert_pen_inrange = false;
+
+			rc = uclogic_probe_buttons(
+					hdev, uclogic_hires_buttonpad_rdesc,
+					sizeof(uclogic_hires_buttonpad_rdesc));
+
+			drvdata->has_virtual_pad_interface = !rc;
+			break;
+		}
+
+		rc = uclogic_probe_tablet(
+				hdev,
+				uclogic_tablet_rdesc_template,
+				sizeof(uclogic_tablet_rdesc_template));
+		if (!rc) {
+			drvdata->is_hires = false;
 			drvdata->invert_pen_inrange = true;
 
-			rc = uclogic_probe_buttons(hdev);
+			rc = uclogic_probe_buttons(
+					hdev, uclogic_buttonpad_rdesc,
+					sizeof(uclogic_buttonpad_rdesc));
+
 			drvdata->has_virtual_pad_interface = !rc;
-		} else {
-			drvdata->ignore_pen_usage = true;
+			break;
 		}
-		break;
+
+		hid_err(hdev, "tablet enabling failed\n");
+		return rc;
 	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
 	case USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540:
 		/* If this is the pen interface */
@@ -1204,7 +1394,10 @@ static int uclogic_probe(struct hid_device *hdev,
 				}
 				drvdata->invert_pen_inrange = true;
 
-				rc = uclogic_probe_buttons(hdev);
+				rc = uclogic_probe_buttons(
+						hdev,
+						uclogic_buttonpad_rdesc,
+						sizeof(uclogic_buttonpad_rdesc));
 				drvdata->has_virtual_pad_interface = !rc;
 			} else {
 				drvdata->ignore_pen_usage = true;
@@ -1251,9 +1444,15 @@ static int uclogic_resume(struct hid_device *hdev)
 
 	/* Re-enable tablet, if needed */
 	if (drvdata->tablet_enabled) {
-		__le16 *buf = NULL;
-		rc = uclogic_enable_tablet(hdev, &buf);
-		kfree(buf);
+		if (drvdata->is_hires) {
+			rc = uclogic_enable_tablet(
+					hdev, UCLOGIC_HIRES_PRM_STR_ID,
+					NULL, UCLOGIC_HIRES_PRM_STR_LENGTH);
+		} else {
+			rc = uclogic_enable_tablet(
+					hdev, UCLOGIC_PRM_STR_ID,
+					NULL, UCLOGIC_PRM_STR_LENGTH);
+		}
 		if (rc != 0) {
 			return rc;
 		}
@@ -1277,7 +1476,8 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 
 	if ((report->type == HID_INPUT_REPORT) &&
-	    (report->id == UCLOGIC_PEN_REPORT_ID) &&
+	    (report->id == UCLOGIC_PEN_REPORT_ID ||
+	     report->id == UCLOGIC_HIRES_PEN_REPORT_ID) &&
 	    (size >= 2)) {
 		if (drvdata->has_virtual_pad_interface && (data[1] & 0x20))
 			/* Change to virtual frame button report ID */
