@@ -9,6 +9,9 @@ users to test new drivers before we contribute them to the mainline kernel.
 See the [list of supported tablets][supported_tablets] on the [project
 website][website].
 
+Consider [becoming a patron][patreon_pledge] of the [project
+maintainer][patreon_profile] to help make more tablets work with Linux.
+
 Installing
 ----------
 
@@ -91,3 +94,5 @@ installation.
 [releases]: https://github.com/DIGImend/digimend-kernel-drivers/releases
 [report_issue]: https://github.com/DIGImend/digimend-kernel-drivers/issues/new
 [wrapping_up]: http://spbnick.github.io/2016/07/31/Wrapping-up-DIGImend-work.html
+[patreon_profile]: https://www.patreon.com/spbnick
+[patreon_pledge]: https://www.patreon.com/bePatron?c=930980
