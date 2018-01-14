@@ -361,9 +361,9 @@ static const size_t uclogic_rdesc_pf1209_fixed_size =
 			sizeof(uclogic_rdesc_pf1209_fixed_arr);
 
 /* Size of the original descriptors of TWHL850 tablet */
-#define UCLOGIC_RDESC_TWHL850_ORIG_SIZE0	182
-#define UCLOGIC_RDESC_TWHL850_ORIG_SIZE1	161
-#define UCLOGIC_RDESC_TWHL850_ORIG_SIZE2	92
+#define UCLOGIC_RDESC_TWHL850_ORIG0_SIZE	182
+#define UCLOGIC_RDESC_TWHL850_ORIG1_SIZE	161
+#define UCLOGIC_RDESC_TWHL850_ORIG2_SIZE	92
 
 /* Fixed PID 0522 tablet report descriptor, interface 0 (stylus) */
 static __u8 uclogic_rdesc_twhl850_fixed0_arr[] = {
@@ -478,8 +478,8 @@ static const size_t uclogic_rdesc_twhl850_fixed2_size =
 			sizeof(uclogic_rdesc_twhl850_fixed2_arr);
 
 /* Size of the original descriptors of TWHA60 tablet */
-#define UCLOGIC_RDESC_TWHA60_ORIG_SIZE0 254
-#define UCLOGIC_RDESC_TWHA60_ORIG_SIZE1 139
+#define UCLOGIC_RDESC_TWHA60_ORIG0_SIZE 254
+#define UCLOGIC_RDESC_TWHA60_ORIG1_SIZE 139
 
 /* Fixed TWHA60 report descriptor, interface 0 (stylus) */
 static __u8 uclogic_rdesc_twha60_fixed0_arr[] = {
@@ -831,19 +831,19 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 	case USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850:
 		switch (iface_num) {
 		case 0:
-			if (*rsize == UCLOGIC_RDESC_TWHL850_ORIG_SIZE0) {
+			if (*rsize == UCLOGIC_RDESC_TWHL850_ORIG0_SIZE) {
 				rdesc = uclogic_rdesc_twhl850_fixed0_arr;
 				*rsize = uclogic_rdesc_twhl850_fixed0_size;
 			}
 			break;
 		case 1:
-			if (*rsize == UCLOGIC_RDESC_TWHL850_ORIG_SIZE1) {
+			if (*rsize == UCLOGIC_RDESC_TWHL850_ORIG1_SIZE) {
 				rdesc = uclogic_rdesc_twhl850_fixed1_arr;
 				*rsize = uclogic_rdesc_twhl850_fixed1_size;
 			}
 			break;
 		case 2:
-			if (*rsize == UCLOGIC_RDESC_TWHL850_ORIG_SIZE2) {
+			if (*rsize == UCLOGIC_RDESC_TWHL850_ORIG2_SIZE) {
 				rdesc = uclogic_rdesc_twhl850_fixed2_arr;
 				*rsize = uclogic_rdesc_twhl850_fixed2_size;
 			}
@@ -853,13 +853,13 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 	case USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60:
 		switch (iface_num) {
 		case 0:
-			if (*rsize == UCLOGIC_RDESC_TWHA60_ORIG_SIZE0) {
+			if (*rsize == UCLOGIC_RDESC_TWHA60_ORIG0_SIZE) {
 				rdesc = uclogic_rdesc_twha60_fixed0_arr;
 				*rsize = uclogic_rdesc_twha60_fixed0_size;
 			}
 			break;
 		case 1:
-			if (*rsize == UCLOGIC_RDESC_TWHA60_ORIG_SIZE1) {
+			if (*rsize == UCLOGIC_RDESC_TWHA60_ORIG1_SIZE) {
 				rdesc = uclogic_rdesc_twha60_fixed1_arr;
 				*rsize = uclogic_rdesc_twha60_fixed1_size;
 			}
