@@ -28,7 +28,7 @@
 #define UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE	212
 
 /* Fixed WP4030U report descriptor */
-static __u8 uclogic_rdesc_wp4030u_fixed[] = {
+static __u8 uclogic_rdesc_wp4030u_fixed_arr[] = {
 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
 	0x09, 0x02,         /*  Usage (Pen),                        */
 	0xA1, 0x01,         /*  Collection (Application),           */
@@ -69,8 +69,11 @@ static __u8 uclogic_rdesc_wp4030u_fixed[] = {
 	0xC0                /*  End Collection                      */
 };
 
+static const size_t uclogic_rdesc_wp4030u_fixed_size =
+			sizeof(uclogic_rdesc_wp4030u_fixed_arr);
+
 /* Fixed WP5540U report descriptor */
-static __u8 uclogic_rdesc_wp5540u_fixed[] = {
+static __u8 uclogic_rdesc_wp5540u_fixed_arr[] = {
 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
 	0x09, 0x02,         /*  Usage (Pen),                        */
 	0xA1, 0x01,         /*  Collection (Application),           */
@@ -143,8 +146,11 @@ static __u8 uclogic_rdesc_wp5540u_fixed[] = {
 	0xC0                /*  End Collection                      */
 };
 
+static const size_t uclogic_rdesc_wp5540u_fixed_size =
+			sizeof(uclogic_rdesc_wp5540u_fixed_arr);
+
 /* Fixed WP8060U report descriptor */
-static __u8 uclogic_rdesc_wp8060u_fixed[] = {
+static __u8 uclogic_rdesc_wp8060u_fixed_arr[] = {
 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
 	0x09, 0x02,         /*  Usage (Pen),                        */
 	0xA1, 0x01,         /*  Collection (Application),           */
@@ -217,6 +223,9 @@ static __u8 uclogic_rdesc_wp8060u_fixed[] = {
 	0xC0                /*  End Collection                      */
 };
 
+static const size_t uclogic_rdesc_wp8060u_fixed_size =
+			sizeof(uclogic_rdesc_wp8060u_fixed_arr);
+
 /* Size of the original descriptor of the new WP5540U tablet */
 #define UCLOGIC_RDESC_WP5540U_V2_ORIG_SIZE	232
 
@@ -224,7 +233,7 @@ static __u8 uclogic_rdesc_wp8060u_fixed[] = {
 #define UCLOGIC_RDESC_WP1062_ORIG_SIZE	254
 
 /* Fixed WP1062 report descriptor */
-static __u8 uclogic_rdesc_wp1062_fixed[] = {
+static __u8 uclogic_rdesc_wp1062_fixed_arr[] = {
 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
 	0x09, 0x02,         /*  Usage (Pen),                        */
 	0xA1, 0x01,         /*  Collection (Application),           */
@@ -268,11 +277,14 @@ static __u8 uclogic_rdesc_wp1062_fixed[] = {
 	0xC0                /*  End Collection                      */
 };
 
+static const size_t uclogic_rdesc_wp1062_fixed_size =
+			sizeof(uclogic_rdesc_wp1062_fixed_arr);
+
 /* Size of the original descriptor of PF1209 tablet */
 #define UCLOGIC_RDESC_PF1209_ORIG_SIZE	234
 
 /* Fixed PF1209 report descriptor */
-static __u8 uclogic_rdesc_pf1209_fixed[] = {
+static __u8 uclogic_rdesc_pf1209_fixed_arr[] = {
 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
 	0x09, 0x02,         /*  Usage (Pen),                        */
 	0xA1, 0x01,         /*  Collection (Application),           */
@@ -345,13 +357,16 @@ static __u8 uclogic_rdesc_pf1209_fixed[] = {
 	0xC0                /*  End Collection                      */
 };
 
+static const size_t uclogic_rdesc_pf1209_fixed_size =
+			sizeof(uclogic_rdesc_pf1209_fixed_arr);
+
 /* Size of the original descriptors of TWHL850 tablet */
 #define UCLOGIC_RDESC_TWHL850_ORIG_SIZE0	182
 #define UCLOGIC_RDESC_TWHL850_ORIG_SIZE1	161
 #define UCLOGIC_RDESC_TWHL850_ORIG_SIZE2	92
 
 /* Fixed PID 0522 tablet report descriptor, interface 0 (stylus) */
-static __u8 uclogic_rdesc_twhl850_fixed0[] = {
+static __u8 uclogic_rdesc_twhl850_fixed0_arr[] = {
 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
 	0x09, 0x02,         /*  Usage (Pen),                        */
 	0xA1, 0x01,         /*  Collection (Application),           */
@@ -393,8 +408,11 @@ static __u8 uclogic_rdesc_twhl850_fixed0[] = {
 	0xC0                /*  End Collection                      */
 };
 
+static const size_t uclogic_rdesc_twhl850_fixed0_size =
+			sizeof(uclogic_rdesc_twhl850_fixed0_arr);
+
 /* Fixed PID 0522 tablet report descriptor, interface 1 (mouse) */
-static __u8 uclogic_rdesc_twhl850_fixed1[] = {
+static __u8 uclogic_rdesc_twhl850_fixed1_arr[] = {
 	0x05, 0x01,         /*  Usage Page (Desktop),               */
 	0x09, 0x02,         /*  Usage (Mouse),                      */
 	0xA1, 0x01,         /*  Collection (Application),           */
@@ -430,8 +448,11 @@ static __u8 uclogic_rdesc_twhl850_fixed1[] = {
 	0xC0                /*  End Collection                      */
 };
 
+static const size_t uclogic_rdesc_twhl850_fixed1_size =
+			sizeof(uclogic_rdesc_twhl850_fixed1_arr);
+
 /* Fixed PID 0522 tablet report descriptor, interface 2 (frame buttons) */
-static __u8 uclogic_rdesc_twhl850_fixed2[] = {
+static __u8 uclogic_rdesc_twhl850_fixed2_arr[] = {
 	0x05, 0x01,         /*  Usage Page (Desktop),               */
 	0x09, 0x06,         /*  Usage (Keyboard),                   */
 	0xA1, 0x01,         /*  Collection (Application),           */
@@ -453,12 +474,15 @@ static __u8 uclogic_rdesc_twhl850_fixed2[] = {
 	0xC0                /*  End Collection                      */
 };
 
+static const size_t uclogic_rdesc_twhl850_fixed2_size =
+			sizeof(uclogic_rdesc_twhl850_fixed2_arr);
+
 /* Size of the original descriptors of TWHA60 tablet */
 #define UCLOGIC_RDESC_TWHA60_ORIG_SIZE0 254
 #define UCLOGIC_RDESC_TWHA60_ORIG_SIZE1 139
 
 /* Fixed TWHA60 report descriptor, interface 0 (stylus) */
-static __u8 uclogic_rdesc_twha60_fixed0[] = {
+static __u8 uclogic_rdesc_twha60_fixed0_arr[] = {
 	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
 	0x09, 0x02,         /*  Usage (Pen),                        */
 	0xA1, 0x01,         /*  Collection (Application),           */
@@ -503,8 +527,11 @@ static __u8 uclogic_rdesc_twha60_fixed0[] = {
 	0xC0                /*  End Collection                      */
 };
 
+static const size_t uclogic_rdesc_twha60_fixed0_size =
+			sizeof(uclogic_rdesc_twha60_fixed0_arr);
+
 /* Fixed TWHA60 report descriptor, interface 1 (frame buttons) */
-static __u8 uclogic_rdesc_twha60_fixed1[] = {
+static __u8 uclogic_rdesc_twha60_fixed1_arr[] = {
 	0x05, 0x01, /*  Usage Page (Desktop),       */
 	0x09, 0x06, /*  Usage (Keyboard),           */
 	0xA1, 0x01, /*  Collection (Application),   */
@@ -528,6 +555,9 @@ static __u8 uclogic_rdesc_twha60_fixed1[] = {
 	0xC0        /*  End Collection              */
 };
 
+static const size_t uclogic_rdesc_twha60_fixed1_size =
+			sizeof(uclogic_rdesc_twha60_fixed1_arr);
+
 /* Report descriptor template placeholder head */
 #define UCLOGIC_RDESC_PH_HEAD	0xFE, 0xED, 0x1D
 
@@ -546,7 +576,7 @@ enum uclogic_rdesc_ph_id {
 #define UCLOGIC_PEN_REPORT_ID	0x07
 
 /* Fixed report descriptor template */
-static const __u8 uclogic_rdesc_tablet_template[] = {
+static const __u8 uclogic_rdesc_tablet_template_arr[] = {
 	0x05, 0x0D,             /*  Usage Page (Digitizer),                 */
 	0x09, 0x02,             /*  Usage (Pen),                            */
 	0xA1, 0x01,             /*  Collection (Application),               */
@@ -597,8 +627,11 @@ static const __u8 uclogic_rdesc_tablet_template[] = {
 	0xC0                    /*  End Collection                          */
 };
 
+static const size_t uclogic_rdesc_tablet_template_size =
+			sizeof(uclogic_rdesc_tablet_template_arr);
+
 /* Fixed report descriptor template for Ugee EX07 */
-static const __u8 uclogic_rdesc_ugee_ex07_template[] = {
+static const __u8 uclogic_rdesc_ugee_ex07_template_arr[] = {
 	0x05, 0x0D,             /*  Usage Page (Digitizer),                 */
 	0x09, 0x02,             /*  Usage (Pen),                            */
 	0xA1, 0x01,             /*  Collection (Application),               */
@@ -687,8 +720,11 @@ static const __u8 uclogic_rdesc_ugee_ex07_template[] = {
 	0xC0                    /*  End Collection                          */
 };
 
+static const size_t uclogic_rdesc_ugee_ex07_template_size =
+			sizeof(uclogic_rdesc_ugee_ex07_template_arr);
+
 /* Fixed virtual pad report descriptor */
-static const __u8 uclogic_rdesc_buttonpad[] = {
+static const __u8 uclogic_rdesc_buttonpad_arr[] = {
 	0x05, 0x01,             /*  Usage Page (Desktop),                   */
 	0x09, 0x07,             /*  Usage (Keypad),                         */
 	0xA1, 0x01,             /*  Collection (Application),               */
@@ -724,6 +760,9 @@ static const __u8 uclogic_rdesc_buttonpad[] = {
 	0xC0,                   /*      End Collection                      */
 	0xC0                    /*  End Collection                          */
 };
+
+static const size_t uclogic_rdesc_buttonpad_size =
+			sizeof(uclogic_rdesc_buttonpad_arr);
 
 /* Parameter indices */
 enum uclogic_prm {
@@ -761,52 +800,52 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 	switch (hdev->product) {
 	case USB_DEVICE_ID_UCLOGIC_TABLET_PF1209:
 		if (*rsize == UCLOGIC_RDESC_PF1209_ORIG_SIZE) {
-			rdesc = uclogic_rdesc_pf1209_fixed;
-			*rsize = sizeof(uclogic_rdesc_pf1209_fixed);
+			rdesc = uclogic_rdesc_pf1209_fixed_arr;
+			*rsize = uclogic_rdesc_pf1209_fixed_size;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U:
 		if (*rsize == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
-			rdesc = uclogic_rdesc_wp4030u_fixed;
-			*rsize = sizeof(uclogic_rdesc_wp4030u_fixed);
+			rdesc = uclogic_rdesc_wp4030u_fixed_arr;
+			*rsize = uclogic_rdesc_wp4030u_fixed_size;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U:
 		if (*rsize == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
-			rdesc = uclogic_rdesc_wp5540u_fixed;
-			*rsize = sizeof(uclogic_rdesc_wp5540u_fixed);
+			rdesc = uclogic_rdesc_wp5540u_fixed_arr;
+			*rsize = uclogic_rdesc_wp5540u_fixed_size;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U:
 		if (*rsize == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
-			rdesc = uclogic_rdesc_wp8060u_fixed;
-			*rsize = sizeof(uclogic_rdesc_wp8060u_fixed);
+			rdesc = uclogic_rdesc_wp8060u_fixed_arr;
+			*rsize = uclogic_rdesc_wp8060u_fixed_size;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP1062:
 		if (*rsize == UCLOGIC_RDESC_WP1062_ORIG_SIZE) {
-			rdesc = uclogic_rdesc_wp1062_fixed;
-			*rsize = sizeof(uclogic_rdesc_wp1062_fixed);
+			rdesc = uclogic_rdesc_wp1062_fixed_arr;
+			*rsize = uclogic_rdesc_wp1062_fixed_size;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850:
 		switch (iface_num) {
 		case 0:
 			if (*rsize == UCLOGIC_RDESC_TWHL850_ORIG_SIZE0) {
-				rdesc = uclogic_rdesc_twhl850_fixed0;
-				*rsize = sizeof(uclogic_rdesc_twhl850_fixed0);
+				rdesc = uclogic_rdesc_twhl850_fixed0_arr;
+				*rsize = uclogic_rdesc_twhl850_fixed0_size;
 			}
 			break;
 		case 1:
 			if (*rsize == UCLOGIC_RDESC_TWHL850_ORIG_SIZE1) {
-				rdesc = uclogic_rdesc_twhl850_fixed1;
-				*rsize = sizeof(uclogic_rdesc_twhl850_fixed1);
+				rdesc = uclogic_rdesc_twhl850_fixed1_arr;
+				*rsize = uclogic_rdesc_twhl850_fixed1_size;
 			}
 			break;
 		case 2:
 			if (*rsize == UCLOGIC_RDESC_TWHL850_ORIG_SIZE2) {
-				rdesc = uclogic_rdesc_twhl850_fixed2;
-				*rsize = sizeof(uclogic_rdesc_twhl850_fixed2);
+				rdesc = uclogic_rdesc_twhl850_fixed2_arr;
+				*rsize = uclogic_rdesc_twhl850_fixed2_size;
 			}
 			break;
 		}
@@ -815,14 +854,14 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 		switch (iface_num) {
 		case 0:
 			if (*rsize == UCLOGIC_RDESC_TWHA60_ORIG_SIZE0) {
-				rdesc = uclogic_rdesc_twha60_fixed0;
-				*rsize = sizeof(uclogic_rdesc_twha60_fixed0);
+				rdesc = uclogic_rdesc_twha60_fixed0_arr;
+				*rsize = uclogic_rdesc_twha60_fixed0_size;
 			}
 			break;
 		case 1:
 			if (*rsize == UCLOGIC_RDESC_TWHA60_ORIG_SIZE1) {
-				rdesc = uclogic_rdesc_twha60_fixed1;
-				*rsize = sizeof(uclogic_rdesc_twha60_fixed1);
+				rdesc = uclogic_rdesc_twha60_fixed1_arr;
+				*rsize = uclogic_rdesc_twha60_fixed1_size;
 			}
 			break;
 		}
@@ -1091,7 +1130,7 @@ static int uclogic_probe_buttons(struct hid_device *hdev)
 	}
 
 	/* Re-allocate fixed report descriptor */
-	rdesc_len = drvdata->rsize + sizeof(uclogic_rdesc_buttonpad);
+	rdesc_len = drvdata->rsize + uclogic_rdesc_buttonpad_size;
 	rdesc = devm_kzalloc(&hdev->dev, rdesc_len, GFP_KERNEL);
 	if (!rdesc) {
 		rc = -ENOMEM;
@@ -1101,8 +1140,8 @@ static int uclogic_probe_buttons(struct hid_device *hdev)
 	memcpy(rdesc, drvdata->rdesc, drvdata->rsize);
 
 	/* Append the buttonpad descriptor */
-	memcpy(rdesc + drvdata->rsize, uclogic_rdesc_buttonpad,
-	       sizeof(uclogic_rdesc_buttonpad));
+	memcpy(rdesc + drvdata->rsize, uclogic_rdesc_buttonpad_arr,
+	       uclogic_rdesc_buttonpad_size);
 
 	/* clean up old rdesc and use the new one */
 	drvdata->rsize = rdesc_len;
@@ -1148,8 +1187,8 @@ static int uclogic_probe(struct hid_device *hdev,
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
 			rc = uclogic_probe_tablet(
 					hdev,
-					uclogic_rdesc_tablet_template,
-					sizeof(uclogic_rdesc_tablet_template));
+					uclogic_rdesc_tablet_template_arr,
+					uclogic_rdesc_tablet_template_size);
 			if (rc) {
 				hid_err(hdev, "tablet enabling failed\n");
 				return rc;
@@ -1168,8 +1207,8 @@ static int uclogic_probe(struct hid_device *hdev,
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 1) {
 			rc = uclogic_probe_tablet(
 					hdev,
-					uclogic_rdesc_tablet_template,
-					sizeof(uclogic_rdesc_tablet_template));
+					uclogic_rdesc_tablet_template_arr,
+					uclogic_rdesc_tablet_template_size);
 			if (rc) {
 				hid_err(hdev, "tablet enabling failed\n");
 				return rc;
@@ -1184,8 +1223,8 @@ static int uclogic_probe(struct hid_device *hdev,
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 1) {
 			rc = uclogic_probe_tablet(
 					hdev,
-					uclogic_rdesc_ugee_ex07_template,
-					sizeof(uclogic_rdesc_ugee_ex07_template));
+					uclogic_rdesc_ugee_ex07_template_arr,
+					uclogic_rdesc_ugee_ex07_template_size);
 			if (rc) {
 				hid_err(hdev, "tablet enabling failed\n");
 				return rc;
@@ -1206,8 +1245,8 @@ static int uclogic_probe(struct hid_device *hdev,
 			if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
 				rc = uclogic_probe_tablet(
 					hdev,
-					uclogic_rdesc_tablet_template,
-					sizeof(uclogic_rdesc_tablet_template));
+					uclogic_rdesc_tablet_template_arr,
+					uclogic_rdesc_tablet_template_size);
 				if (rc) {
 					hid_err(hdev, "tablet enabling failed\n");
 					return rc;
@@ -1227,8 +1266,8 @@ static int uclogic_probe(struct hid_device *hdev,
 		    intf->cur_altsetting->desc.bInterfaceNumber == 0) {
 			rc = uclogic_probe_tablet(
 					hdev,
-					uclogic_rdesc_tablet_template,
-					sizeof(uclogic_rdesc_tablet_template));
+					uclogic_rdesc_tablet_template_arr,
+					uclogic_rdesc_tablet_template_size);
 			if (rc) {
 				hid_err(hdev, "tablet enabling failed\n");
 				return rc;
