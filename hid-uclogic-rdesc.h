@@ -19,7 +19,7 @@
 #include <linux/usb.h>
 
 /* Size of the original descriptor of WPXXXXU tablets */
-#define UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE	212
+#define UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE		212
 
 /* Fixed WP4030U report descriptor */
 extern __u8 uclogic_rdesc_wp4030u_fixed_arr[];
@@ -37,14 +37,14 @@ extern const size_t uclogic_rdesc_wp8060u_fixed_size;
 #define UCLOGIC_RDESC_WP5540U_V2_ORIG_SIZE	232
 
 /* Size of the original descriptor of WP1062 tablet */
-#define UCLOGIC_RDESC_WP1062_ORIG_SIZE	254
+#define UCLOGIC_RDESC_WP1062_ORIG_SIZE		254
 
 /* Fixed WP1062 report descriptor */
 extern __u8 uclogic_rdesc_wp1062_fixed_arr[];
 extern const size_t uclogic_rdesc_wp1062_fixed_size;
 
 /* Size of the original descriptor of PF1209 tablet */
-#define UCLOGIC_RDESC_PF1209_ORIG_SIZE	234
+#define UCLOGIC_RDESC_PF1209_ORIG_SIZE		234
 
 /* Fixed PF1209 report descriptor */
 extern __u8 uclogic_rdesc_pf1209_fixed_arr[];
@@ -68,8 +68,8 @@ extern __u8 uclogic_rdesc_twhl850_fixed2_arr[];
 extern const size_t uclogic_rdesc_twhl850_fixed2_size;
 
 /* Size of the original descriptors of TWHA60 tablet */
-#define UCLOGIC_RDESC_TWHA60_ORIG0_SIZE 254
-#define UCLOGIC_RDESC_TWHA60_ORIG1_SIZE 139
+#define UCLOGIC_RDESC_TWHA60_ORIG0_SIZE 	254
+#define UCLOGIC_RDESC_TWHA60_ORIG1_SIZE 	139
 
 /* Fixed TWHA60 report descriptor, interface 0 (stylus) */
 extern __u8 uclogic_rdesc_twha60_fixed0_arr[];
