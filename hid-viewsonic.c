@@ -74,6 +74,7 @@ static __u8 *viewsonic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 {
 	switch (hdev->product) {
 	case USB_DEVICE_ID_VIEWSONIC_PD1011:
+	case USB_DEVICE_ID_SIGNOTEC_VIEWSONIC_PD1011:
 		if (*rsize == PD1011_RDESC_ORIG_SIZE) {
 			rdesc = pd1011_rdesc_fixed;
 			*rsize = sizeof(pd1011_rdesc_fixed);
@@ -109,6 +110,8 @@ static int viewsonic_probe(struct hid_device *hdev,
 static const struct hid_device_id viewsonic_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_VIEWSONIC,
 				USB_DEVICE_ID_VIEWSONIC_PD1011) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_SIGNOTEC,
+				USB_DEVICE_ID_SIGNOTEC_VIEWSONIC_PD1011) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, viewsonic_devices);
