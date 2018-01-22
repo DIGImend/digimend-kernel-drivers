@@ -107,4 +107,8 @@ extern const size_t uclogic_rdesc_ugee_ex07_template_size;
 extern const __u8 uclogic_rdesc_buttonpad_arr[];
 extern const size_t uclogic_rdesc_buttonpad_size;
 
+/* Report descriptor for the newer high resolution tablets */
+extern const __u8 uclogic_rdesc_tablet_hires_template_arr[];
+extern const size_t uclogic_rdesc_tablet_hires_template_size;
+
 #endif /* _HID_UCLOGIC_RDESC_H */

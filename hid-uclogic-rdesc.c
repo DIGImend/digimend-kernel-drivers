@@ -717,3 +717,59 @@ const __u8 uclogic_rdesc_buttonpad_arr[] = {
 const size_t uclogic_rdesc_buttonpad_size =
 			sizeof(uclogic_rdesc_buttonpad_arr);
 
+/* Fixed report descriptor template */
+const __u8 uclogic_rdesc_tablet_hires_template_arr[] = {
+	0x05, 0x0D,             /*  Usage Page (Digitizer),                 */
+	0x09, 0x02,             /*  Usage (Pen),                            */
+	0xA1, 0x01,             /*  Collection (Application),               */
+	0x85, 0x08,             /*      Report ID (8),                      */
+	0x09, 0x20,             /*      Usage (Stylus),                     */
+	0xA0,                   /*      Collection (Physical),              */
+	0x14,                   /*          Logical Minimum (0),            */
+	0x25, 0x01,             /*          Logical Maximum (1),            */
+	0x75, 0x01,             /*          Report Size (1),                */
+	0x09, 0x42,             /*          Usage (Tip Switch),             */
+	0x09, 0x44,             /*          Usage (Barrel Switch),          */
+	0x09, 0x46,             /*          Usage (Tablet Pick),            */
+	0x95, 0x03,             /*          Report Count (3),               */
+	0x81, 0x02,             /*          Input (Variable),               */
+	0x95, 0x03,             /*          Report Count (3),               */
+	0x81, 0x03,             /*          Input (Constant, Variable),     */
+	0x09, 0x32,             /*          Usage (In Range),               */
+	0x95, 0x01,             /*          Report Count (1),               */
+	0x81, 0x02,             /*          Input (Variable),               */
+	0x95, 0x01,             /*          Report Count (1),               */
+	0x81, 0x03,             /*          Input (Constant, Variable),     */
+	0x75, 0x10,             /*          Report Size (16),               */
+	0x95, 0x01,             /*          Report Count (1),               */
+	0xA4,                   /*          Push,                           */
+	0x05, 0x01,             /*          Usage Page (Desktop),           */
+	0x65, 0x13,             /*          Unit (Inch),                    */
+	0x55, 0xFD,             /*          Unit Exponent (-3),             */
+	0x34,                   /*          Physical Minimum (0),           */
+	0x09, 0x30,             /*          Usage (X),                      */
+	0x27,
+	UCLOGIC_RDESC_PH(X_LM), /*          Logical Maximum (PLACEHOLDER),  */
+	0x47,
+	UCLOGIC_RDESC_PH(X_PM), /*          Physical Maximum (PLACEHOLDER), */
+	0x81, 0x02,             /*          Input (Variable),               */
+	0x09, 0x31,             /*          Usage (Y),                      */
+	0x27,
+	UCLOGIC_RDESC_PH(Y_LM), /*          Logical Maximum (PLACEHOLDER),  */
+	0x47,
+	UCLOGIC_RDESC_PH(Y_PM), /*          Physical Maximum (PLACEHOLDER), */
+	0x81, 0x02,             /*          Input (Variable),               */
+	0xB4,                   /*          Pop,                            */
+	0x09, 0x30,             /*          Usage (Tip Pressure),           */
+	0x27,
+	UCLOGIC_RDESC_PH(PRESSURE_LM),
+				/*          Logical Maximum (PLACEHOLDER),  */
+	0x81, 0x02,             /*          Input (Variable),               */
+	0x95, 0x02,             /*          Report Count (2),               */
+	0x81, 0x02,             /*          Input (Variable),               */
+	0xC0,                   /*      End Collection,                     */
+	0xC0                    /*  End Collection                          */
+};
+
+const size_t uclogic_rdesc_tablet_hires_template_size =
+			sizeof(uclogic_rdesc_tablet_hires_template_arr);
