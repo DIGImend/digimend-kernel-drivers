@@ -217,7 +217,6 @@ static int uclogic_input_configured(struct hid_device *hdev,
 }
 #undef RETURN_SUCCESS
 
-
 /**
  * Enable fully-functional tablet mode and retrieve device parameters.
  *
@@ -494,6 +493,32 @@ cleanup:
 	return rc;
 }
 
+static void uclogic_probe_model (const struct hid_device_id *id, struct hid_device *hdev)
+{
+	int rc;
+	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
+	const char *vendor = NULL;
+	char str_buf [64];
+
+	switch (id->vendor) {
+		case USB_VENDOR_ID_HUION:	vendor = "Huion"; break;
+		case USB_VENDOR_ID_KYE:		vendor = "Genius"; break;
+		case USB_VENDOR_ID_UCLOGIC:	vendor = "UC-Logic"; break;
+		case USB_VENDOR_ID_POLOSTAR:	vendor = "Polostar"; break;
+		case USB_VENDOR_ID_UGTIZER:	vendor = "UGTizer"; break;
+		case USB_VENDOR_ID_UGEE:	vendor = "Ugee"; break;
+	}
+
+	rc = usb_string(usb_dev, 0x79, str_buf, sizeof(str_buf));
+	if (rc >= 0) {
+		if (vendor)
+			snprintf(hdev->name, sizeof(hdev->name), "%s %s Tablet", vendor, str_buf);
+		else
+			snprintf(hdev->name, sizeof(hdev->name), "%s Tablet", str_buf);
+	} else if (vendor)
+		snprintf(hdev->name, sizeof(hdev->name), "%s Tablet", vendor);
+}
+
 static int uclogic_probe(struct hid_device *hdev,
 		const struct hid_device_id *id)
 {
@@ -623,6 +648,9 @@ static int uclogic_probe(struct hid_device *hdev,
 		}
 		break;
 	}
+
+	/* Give device a human-readable name rather than "HID xxxx:yyyy" */
+	uclogic_probe_model(id, hdev);
 
 	rc = hid_parse(hdev);
 	if (rc) {
