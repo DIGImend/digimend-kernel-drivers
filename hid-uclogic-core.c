@@ -19,6 +19,7 @@
 #include <asm/unaligned.h>
 #include "usbhid/usbhid.h"
 #include "hid-uclogic-rdesc.h"
+#include "hid-uclogic-proxemu.h"
 
 #include "hid-ids.h"
 
@@ -59,6 +60,7 @@ struct uclogic_drvdata {
 	bool ignore_pen_usage;
 	bool has_virtual_pad_interface;
 	bool is_hires;
+	struct proxemu_data proxemu;
 };
 
 static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
@@ -401,6 +403,11 @@ static int uclogic_probe_tablet_hires(struct hid_device *hdev,
 	memcpy(drvdata->rdesc, rdesc_template_ptr, drvdata->rsize);
 	uclogic_fill_placeholders(drvdata->rdesc, drvdata->rsize, params, sizeof(params)/sizeof(*params));
 
+	/* Emulate proximity-out events on this type of tablets.
+	 * Hardware proximity-out is not reported due to a firmware bug.
+	 */
+	uclogic_proxemu_init(&drvdata->proxemu, hdev);
+
 	rc = 0;
 
 cleanup:
@@ -569,12 +576,12 @@ static int uclogic_probe(struct hid_device *hdev,
 						hdev,
 						uclogic_rdesc_tablet_template_arr,
 						uclogic_rdesc_tablet_template_size);
+				drvdata->invert_pen_inrange = true;
 			}
 			if (rc) {
 				hid_err(hdev, "tablet enabling failed\n");
 				return rc;
 			}
-			drvdata->invert_pen_inrange = true;
 
 			rc = uclogic_probe_buttons(hdev);
 			drvdata->has_virtual_pad_interface = !rc;
@@ -676,6 +683,17 @@ static int uclogic_probe(struct hid_device *hdev,
 	return 0;
 }
 
+static void uclogic_remove(struct hid_device *hdev)
+{
+	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
+
+	hid_hw_stop(hdev);
+
+	uclogic_proxemu_stop (&drvdata->proxemu);
+
+	devm_kfree(&hdev->dev, drvdata);
+}
+
 #ifdef CONFIG_PM
 static int uclogic_resume(struct hid_device *hdev)
 {
@@ -721,6 +739,8 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 		else if (drvdata->invert_pen_inrange)
 			/* Invert the in-range bit */
 			data[1] ^= 0x40;
+
+		uclogic_proxemu_raw_event (&drvdata->proxemu, data, size);
 	}
 
 	return 0;
@@ -759,6 +779,7 @@ static struct hid_driver uclogic_driver = {
 	.name = "uclogic",
 	.id_table = uclogic_devices,
 	.probe = uclogic_probe,
+	.remove = uclogic_remove,
 	.report_fixup = uclogic_report_fixup,
 	.raw_event = uclogic_raw_event,
 	.input_mapping = uclogic_input_mapping,

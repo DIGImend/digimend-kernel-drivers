@@ -733,13 +733,11 @@ const __u8 uclogic_rdesc_tablet_hires_template_arr[] = {
 	0x09, 0x46,             /*          Usage (Tablet Pick),            */
 	0x95, 0x03,             /*          Report Count (3),               */
 	0x81, 0x02,             /*          Input (Variable),               */
-	0x95, 0x03,             /*          Report Count (3),               */
-	0x81, 0x03,             /*          Input (Constant, Variable),     */
+	0x95, 0x04,             /*          Report Count (4),               */
+	0x81, 0x01,             /*          Input (Constant),               */
 	0x09, 0x32,             /*          Usage (In Range),               */
 	0x95, 0x01,             /*          Report Count (1),               */
 	0x81, 0x02,             /*          Input (Variable),               */
-	0x95, 0x01,             /*          Report Count (1),               */
-	0x81, 0x03,             /*          Input (Constant, Variable),     */
 	0x75, 0x10,             /*          Report Size (16),               */
 	0x95, 0x01,             /*          Report Count (1),               */
 	0xA4,                   /*          Push,                           */
@@ -766,7 +764,7 @@ const __u8 uclogic_rdesc_tablet_hires_template_arr[] = {
 				/*          Logical Maximum (PLACEHOLDER),  */
 	0x81, 0x02,             /*          Input (Variable),               */
 	0x95, 0x02,             /*          Report Count (2),               */
-	0x81, 0x02,             /*          Input (Variable),               */
+	0x81, 0x01,             /*          Input (Constant),               */
 	0xC0,                   /*      End Collection,                     */
 	0xC0                    /*  End Collection                          */
 };
