@@ -25,13 +25,13 @@
 #include "compat.h"
 #include <linux/version.h>
 
-#define UCLOGIC_PEN_REPORT_ID	0x07
+#define UCLOGIC_PEN_REPORT_ID		0x07
 #define UCLOGIC_HIRES_PEN_REPORT_ID	0x08
 
-#define UCLOGIC_PRM_STR_ID (0x64)
-#define UCLOGIC_HIRES_PRM_STR_ID (0xC8)
-#define UCLOGIC_PRM_STR_LENGTH (UCLOGIC_PRM_NUM * sizeof(__le16))
-#define UCLOGIC_HIRES_PRM_STR_LENGTH (18)
+#define UCLOGIC_PRM_STR_ID		(0x64)
+#define UCLOGIC_HIRES_PRM_STR_ID	(0xC8)
+#define UCLOGIC_PRM_STR_LENGTH		(UCLOGIC_PRM_NUM * sizeof(__le16))
+#define UCLOGIC_HIRES_PRM_STR_LENGTH	(18)
 
 /* Parameter indices */
 enum uclogic_prm {
@@ -304,17 +304,15 @@ static int uclogic_probe_tablet(struct hid_device *hdev,
 {
 	int rc;
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
-	__u8 *bbuf = NULL;
 	__le16 *buf = NULL;
 	s32 params[UCLOGIC_RDESC_PH_ID_NUM];
 	s32 resolution;
 
 	/* Enable tablet mode and get raw device parameters */
-	rc = uclogic_enable_tablet(hdev, UCLOGIC_PRM_STR_ID, &bbuf, UCLOGIC_PRM_STR_LENGTH);
+	rc = uclogic_enable_tablet(hdev, UCLOGIC_PRM_STR_ID, (__u8 **)&buf, UCLOGIC_PRM_STR_LENGTH);
 	if (rc != 0) {
 		goto cleanup;
 	}
-	buf = (__le16*)bbuf;
 
 	/* Extract device parameters */
 	params[UCLOGIC_RDESC_PH_ID_X_LM] = le16_to_cpu(buf[UCLOGIC_PRM_X_LM]);
@@ -402,6 +400,7 @@ static int uclogic_probe_tablet_hires(struct hid_device *hdev,
 	/* Format fixed report descriptor */
 	memcpy(drvdata->rdesc, rdesc_template_ptr, drvdata->rsize);
 	uclogic_fill_placeholders(drvdata->rdesc, drvdata->rsize, params, sizeof(params)/sizeof(*params));
+
 	rc = 0;
 
 cleanup:
@@ -461,6 +460,8 @@ static int uclogic_probe_buttons(struct hid_device *hdev)
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 	unsigned char *rdesc;
 	size_t rdesc_len;
+	const void *pad_rdesc;
+	size_t pad_rdesc_len;
 
 	/* Enable generic button mode */
 	rc = uclogic_enable_buttons(hdev);
@@ -468,8 +469,17 @@ static int uclogic_probe_buttons(struct hid_device *hdev)
 		goto cleanup;
 	}
 
+	if (drvdata->is_hires) {
+		/* So far hi-res tablets are known to use 12 equivalent buttons */
+		pad_rdesc = uclogic_rdesc_buttonpad_hires_arr;
+		pad_rdesc_len = uclogic_rdesc_buttonpad_hires_size;
+	} else {
+		pad_rdesc = uclogic_rdesc_buttonpad_arr;
+		pad_rdesc_len = uclogic_rdesc_buttonpad_size;
+	}
+
 	/* Re-allocate fixed report descriptor */
-	rdesc_len = drvdata->rsize + uclogic_rdesc_buttonpad_size;
+	rdesc_len = drvdata->rsize + pad_rdesc_len;
 	rdesc = devm_kzalloc(&hdev->dev, rdesc_len, GFP_KERNEL);
 	if (!rdesc) {
 		rc = -ENOMEM;
@@ -479,8 +489,7 @@ static int uclogic_probe_buttons(struct hid_device *hdev)
 	memcpy(rdesc, drvdata->rdesc, drvdata->rsize);
 
 	/* Append the buttonpad descriptor */
-	memcpy(rdesc + drvdata->rsize, uclogic_rdesc_buttonpad_arr,
-	       uclogic_rdesc_buttonpad_size);
+	memcpy(rdesc + drvdata->rsize, pad_rdesc, pad_rdesc_len);
 
 	/* clean up old rdesc and use the new one */
 	drvdata->rsize = rdesc_len;

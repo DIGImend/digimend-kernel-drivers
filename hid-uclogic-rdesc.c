@@ -773,3 +773,31 @@ const __u8 uclogic_rdesc_tablet_hires_template_arr[] = {
 
 const size_t uclogic_rdesc_tablet_hires_template_size =
 			sizeof(uclogic_rdesc_tablet_hires_template_arr);
+
+/* Fixed virtual pad report descriptor for hi-res tablets */
+const __u8 uclogic_rdesc_buttonpad_hires_arr[] = {
+	0x05, 0x01,             /*  Usage Page (Desktop),               */
+	0x09, 0x07,             /*  Usage (Keypad),                     */
+	0xA1, 0x01,             /*  Collection (Application),           */
+	0x85, 0xF7,             /*      Report ID (247),                */
+	0x05, 0x0D,             /*      Usage Page (Digitizer),         */
+	0x09, 0x39,             /*      Usage (Tablet Function Keys),   */
+	0xA0,                   /*      Collection (Physical),          */
+	0x05, 0x09,             /*          Usage Page (Button),        */
+	0x14,                   /*          Logical Minimum (0),        */
+	0x25, 0x01,             /*          Logical Maximum (1),        */
+	0x75, 0x01,             /*          Report Size (1),            */
+	0x95, 0x18,             /*          Report Count (24),          */
+	0x81, 0x01,             /*          Input (Constant),           */
+	0x19, 0x01,             /*          Usage Minimum (01h),        */
+	0x29, 0x0C,             /*          Usage Maximum (0Ch),        */
+	0x95, 0x0C,             /*          Report Count (12),          */
+	0x81, 0x02,             /*          Input (Variable),           */
+	0x95, 0x34,             /*          Report Count (52),          */
+	0x81, 0x01,             /*          Input (Constant),           */
+	0xC0,                   /*      End Collection,                 */
+	0xC0                    /*  End Collection                      */
+};
+
+const size_t uclogic_rdesc_buttonpad_hires_size =
+			sizeof(uclogic_rdesc_buttonpad_hires_arr);
