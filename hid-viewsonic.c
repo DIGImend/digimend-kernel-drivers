@@ -60,6 +60,7 @@ static __u8 pd1011_rdesc_fixed[] = {
 	0x75, 0x10,             /*          Report Size (16),           */
 	0x95, 0x01,             /*          Report Count (1),           */
 	0x09, 0x30,             /*          Usage (Tip Pressure),       */
+	0x15, 0x05,             /*          Logical Minimum (5),        */
 	0x26, 0xFF, 0x07,       /*          Logical Maximum (2047),     */
 	0x81, 0x02,             /*          Input (Variable),           */
 	0x75, 0x10,             /*          Report Size (16),           */
