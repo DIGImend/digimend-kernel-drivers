@@ -1,6 +1,6 @@
 Source: digimend-dkms
 Section: kernel
-Priority: extra
+Priority: optional
 Maintainer: Nikolai Kondrashov <spbnick@gmail.com>
 Build-Depends: debhelper (>= 9), dkms
 Standards-Version: 3.9.5
