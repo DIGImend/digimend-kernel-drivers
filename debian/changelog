@@ -1,6 +1,18 @@
 digimend-dkms (7) unstable; urgency=low
 
-  * Update.
+  * Add support for building with v4.4 and newer kernels.
+  * Add support for KYE PenSketch M912. Thank you, Milan Plzik!
+  * Fix possible buffer overflow in hid-uclogic.c. Thank you, Dan Carpenter!
+  * Ensure hid-rebind looks for programs in /sbin and /usr/sbin. Fixes #49.
+  * Re-enable tablet on resume.
+    Fixes UC-Logic tablets not working after a suspend/resume cycle.
+  * Add support for KYE EasyPen M406XE. Thank you, Andrey Alekseenko!
+  * Add support for XP-Pen G540. Thank you, slawkis!
+  * Add support for Ugee EX07(S)/XP-Pen star05.
+  * Add support for Ugee M540, which reuses VID:PID of UC-Logic WP5540U.
+  * Add support for Ugee 2150. Thank you, Pierre-Marc Jobin!
+  * Add support for ViewSonic PD1011, aka Signotec Delta PD 10.1.
+  * Fix several issues with the Debian package. Thank you, Martin Owens!
 
  -- Nikolai Kondrashov <spbnick@gmail.com>  Sun, 11 Feb 2018 15:58:45 +0200
 
