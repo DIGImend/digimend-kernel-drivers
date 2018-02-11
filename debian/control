@@ -11,6 +11,6 @@ Vcs-Browser: https://github.com/DIGImend/digimend-kernel-drivers
 Package: digimend-dkms
 Architecture: all
 Depends: ${misc:Depends}
-Description: A collection of graphics tablet drivers by DIGImend project
+Description: Collection of graphics tablet drivers by DIGImend project
  This is a collection of graphics tablet drivers for the Linux kernel, produced
  and maintained by the DIGImend project.
