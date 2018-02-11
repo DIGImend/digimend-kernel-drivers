@@ -1,3 +1,9 @@
+digimend-dkms (7) unstable; urgency=low
+
+  * Update.
+
+ -- Nikolai Kondrashov <spbnick@gmail.com>  Sun, 11 Feb 2018 15:58:45 +0200
+
 digimend-dkms (6) unstable; urgency=low
 
   * Initial Release.
