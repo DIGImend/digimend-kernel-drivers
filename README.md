@@ -79,6 +79,17 @@ Uninstalling
 To uninstall a manually-installed package execute `make uninstall` as root in
 the package source directory.
 
+### Building Debian package ###
+
+If you're a developer, or simply want to install a development version of the
+drivers as a Debian package, make sure you have `dpkg-dev`, `debhelper`, and
+`dkms` packages installed, and run the following command in the source
+directory:
+
+    dpkg-buildpackage -b --no-sign
+
+The resulting package files will be written to the parent directory.
+
 Upgrading / downgrading
 -----------------------
 
