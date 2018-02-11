@@ -3,7 +3,7 @@ Section: kernel
 Priority: optional
 Maintainer: Nikolai Kondrashov <spbnick@gmail.com>
 Build-Depends: debhelper (>= 9), dkms
-Standards-Version: 3.9.5
+Standards-Version: 3.9.8
 Homepage: https://github.com/DIGImend/digimend-kernel-drivers
 Vcs-Git: https://github.com/DIGImend/digimend-kernel-drivers.git
 Vcs-Browser: https://github.com/DIGImend/digimend-kernel-drivers
