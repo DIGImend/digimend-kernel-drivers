@@ -44,6 +44,30 @@ If you know how to use DKMS, you can try installing the package with it
 directly, employing the experimental DKMS support. Please [report
 issues][report_issue] if you find any.
 
+### DKMS issue preventing correct installation ###
+
+If you're installing Debian packages, or installing source packages with DKMS
+directly, you might hit a bug in DKMS which prevents some of the driver
+modules from installing. If you do, you will see a message like this while
+trying to install the drivers:
+
+    hid-uclogic.ko:
+    Running module version sanity check.
+    Error! Module version 7 for hid-uclogic.ko
+    is not newer than what is already found in kernel 4.9.0-5-amd64 (7).
+    You may override by specifying --force.
+
+For details see [upstream pull-request fixing the issue][dkms_issue_pr].
+
+To fix that you can apply the patch linked above yourself, or execute the
+below command:
+
+    sudo sed -i -e 's/\<unset res$/res=()/' /usr/sbin/dkms
+
+Be aware that the operation the above command does is inexact, and might not
+work, or might break DKMS. You've been warned. In any case, simply reinstall
+DKMS to restore it if something goes wrong.
+
 ### Installing source package manually ###
 
 To build the drivers run `make` in the package's directory.
@@ -107,3 +131,4 @@ installation.
 [wrapping_up]: http://spbnick.github.io/2016/07/31/Wrapping-up-DIGImend-work.html
 [patreon_profile]: https://www.patreon.com/spbnick
 [patreon_pledge]: https://www.patreon.com/bePatron?c=930980
+[dkms_issue_pr]: https://github.com/dell/dkms/pull/47
