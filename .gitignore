@@ -4,3 +4,4 @@
 .*
 /Module.symvers
 /modules.order
+!.travis.yml
