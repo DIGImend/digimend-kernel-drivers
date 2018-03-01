@@ -1,0 +1,27 @@
+language: c
+sudo: required
+compiler:
+  - gcc
+os: linux
+before_install:
+- sudo apt-get -qq update
+- sudo apt-get install -y dpkg-dev debhelper dkms lintian
+- sudo apt-get install linux-headers-`uname -r`
+script:
+- make
+# Getting PACKAGE_VERSION release
+- PACKAGE_VERSION=`. dkms.conf; echo $PACKAGE_VERSION`
+# Testing add, build, install and remove dkms
+- sudo git checkout-index --all --prefix=/usr/src/digimend-$PACKAGE_VERSION/
+- sudo dkms add -m digimend -v $PACKAGE_VERSION
+- sudo dkms build -m digimend -v $PACKAGE_VERSION
+- sudo dkms install -m digimend -v $PACKAGE_VERSION
+- sudo dkms uninstall -m digimend -v $PACKAGE_VERSION
+# Testing Debian package installation, configuration, and uninstall
+- dpkg-buildpackage -b -uc
+# Checks Debian packages for common inconsistencies and errors
+- lintian -i -I --profile debian --show-overrides ../digimend-dkms_*.changes
+- sudo dpkg -i ../digimend-dkms_*_all.deb
+- sudo dpkg -r digimend-dkms
+- sudo make install
+- sudo make uninstall
