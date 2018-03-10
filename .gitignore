@@ -5,3 +5,4 @@
 /Module.symvers
 /modules.order
 !.travis.yml
+/cscope.out
