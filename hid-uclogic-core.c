@@ -40,7 +40,7 @@ enum uclogic_prm {
 struct uclogic_drvdata {
 	__u8 *rdesc;
 	unsigned int rsize;
-	bool tablet_enabled;
+	bool pen_enabled;
 	bool buttons_enabled;
 	bool invert_pen_inrange;
 	bool ignore_pen_usage;
@@ -205,13 +205,13 @@ static int uclogic_input_configured(struct hid_device *hdev,
 
 
 /**
- * Enable fully-functional tablet mode and retrieve device parameters.
+ * Enable fully-functional pen input mode and retrieve its parameters.
  *
  * @hdev:	HID device
  * @pbuf:	Location for the kmalloc'ed parameter array with
  * 		UCLOGIC_PRM_NUM elements.
  */
-static int uclogic_enable_tablet(struct hid_device *hdev, __le16 **pbuf)
+static int uclogic_enable_pen(struct hid_device *hdev, __le16 **pbuf)
 {
 	int rc;
 	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
@@ -220,10 +220,10 @@ static int uclogic_enable_tablet(struct hid_device *hdev, __le16 **pbuf)
 	size_t len;
 
 	/*
-	 * Read string descriptor containing tablet parameters. The specific
-	 * string descriptor and data were discovered by sniffing the Windows
-	 * driver traffic.
-	 * NOTE: This enables fully-functional tablet mode.
+	 * Read string descriptor containing pen input parameters. The
+	 * specific string descriptor and data were discovered by sniffing the
+	 * Windows driver traffic.
+	 * NOTE: This enables fully-functional pen input mode.
 	 */
 	len = UCLOGIC_PRM_NUM * sizeof(*buf);
 	buf = kmalloc(len, GFP_KERNEL);
@@ -237,20 +237,20 @@ static int uclogic_enable_tablet(struct hid_device *hdev, __le16 **pbuf)
 				0x0409, buf, len,
 				USB_CTRL_GET_TIMEOUT);
 	if (rc == -EPIPE) {
-		hid_err(hdev, "device parameters not found\n");
+		hid_err(hdev, "pen input parameters not found\n");
 		rc = -ENODEV;
 		goto cleanup;
 	} else if (rc < 0) {
-		hid_err(hdev, "failed to get device parameters: %d\n", rc);
+		hid_err(hdev, "failed to get pen input parameters: %d\n", rc);
 		rc = -ENODEV;
 		goto cleanup;
 	} else if (rc != len) {
-		hid_err(hdev, "invalid device parameters\n");
+		hid_err(hdev, "invalid pen input parameters\n");
 		rc = -ENODEV;
 		goto cleanup;
 	}
 
-	drvdata->tablet_enabled = true;
+	drvdata->pen_enabled = true;
 	*pbuf = buf;
 	buf = NULL;
 	rc = 0;
@@ -261,45 +261,49 @@ cleanup:
 }
 
 /**
- * Enable fully-functional tablet mode, retrieve device parameters and
+ * Enable fully-functional pen input mode, retrieve pen input parameters and
  * generate corresponding report descriptor.
  *
  * @hdev:		HID device
  * @rdesc_template_ptr	Report descriptor template pointer
  * @rdesc_template_len	Report descriptor template length
  */
-static int uclogic_probe_tablet(struct hid_device *hdev,
+static int uclogic_probe_pen(struct hid_device *hdev,
 				const __u8 *rdesc_template_ptr,
 				size_t rdesc_template_len)
 {
 	int rc;
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 	__le16 *buf = NULL;
-	s32 params[UCLOGIC_RDESC_PH_ID_NUM];
+	s32 params[UCLOGIC_RDESC_PEN_PH_ID_NUM];
 	s32 resolution;
 	__u8 *p;
 	s32 v;
 
-	/* Enable tablet mode and get raw device parameters */
-	rc = uclogic_enable_tablet(hdev, &buf);
+	/* Enable pen input and get raw parameters */
+	rc = uclogic_enable_pen(hdev, &buf);
 	if (rc != 0) {
 		goto cleanup;
 	}
 
-	/* Extract device parameters */
-	params[UCLOGIC_RDESC_PH_ID_X_LM] = le16_to_cpu(buf[UCLOGIC_PRM_X_LM]);
-	params[UCLOGIC_RDESC_PH_ID_Y_LM] = le16_to_cpu(buf[UCLOGIC_PRM_Y_LM]);
-	params[UCLOGIC_RDESC_PH_ID_PRESSURE_LM] =
+	/* Extract pen input parameters */
+	params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] =
+		le16_to_cpu(buf[UCLOGIC_PRM_X_LM]);
+	params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] =
+		le16_to_cpu(buf[UCLOGIC_PRM_Y_LM]);
+	params[UCLOGIC_RDESC_PEN_PH_ID_PRESSURE_LM] =
 		le16_to_cpu(buf[UCLOGIC_PRM_PRESSURE_LM]);
 	resolution = le16_to_cpu(buf[UCLOGIC_PRM_RESOLUTION]);
 	if (resolution == 0) {
-		params[UCLOGIC_RDESC_PH_ID_X_PM] = 0;
-		params[UCLOGIC_RDESC_PH_ID_Y_PM] = 0;
+		params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] = 0;
+		params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] = 0;
 	} else {
-		params[UCLOGIC_RDESC_PH_ID_X_PM] =
-			params[UCLOGIC_RDESC_PH_ID_X_LM] * 1000 / resolution;
-		params[UCLOGIC_RDESC_PH_ID_Y_PM] =
-			params[UCLOGIC_RDESC_PH_ID_Y_LM] * 1000 / resolution;
+		params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] =
+			params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] * 1000 /
+			resolution;
+		params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] =
+			params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] * 1000 /
+			resolution;
 	}
 
 	/* Allocate fixed report descriptor */
@@ -448,12 +452,12 @@ static int uclogic_probe(struct hid_device *hdev,
 	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47:
 		/* If this is the pen interface */
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
-			rc = uclogic_probe_tablet(
+			rc = uclogic_probe_pen(
 					hdev,
-					uclogic_rdesc_tablet_template_arr,
-					uclogic_rdesc_tablet_template_size);
+					uclogic_rdesc_pen_template_arr,
+					uclogic_rdesc_pen_template_size);
 			if (rc) {
-				hid_err(hdev, "tablet enabling failed\n");
+				hid_err(hdev, "pen enabling failed\n");
 				return rc;
 			}
 			drvdata->invert_pen_inrange = true;
@@ -468,12 +472,12 @@ static int uclogic_probe(struct hid_device *hdev,
 	case USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540:
 		/* If this is the pen interface */
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 1) {
-			rc = uclogic_probe_tablet(
+			rc = uclogic_probe_pen(
 					hdev,
-					uclogic_rdesc_tablet_template_arr,
-					uclogic_rdesc_tablet_template_size);
+					uclogic_rdesc_pen_template_arr,
+					uclogic_rdesc_pen_template_size);
 			if (rc) {
-				hid_err(hdev, "tablet enabling failed\n");
+				hid_err(hdev, "pen enabling failed\n");
 				return rc;
 			}
 			drvdata->invert_pen_inrange = true;
@@ -484,12 +488,12 @@ static int uclogic_probe(struct hid_device *hdev,
 	case USB_DEVICE_ID_UGEE_TABLET_EX07S:
 		/* If this is the pen interface */
 		if (intf->cur_altsetting->desc.bInterfaceNumber == 1) {
-			rc = uclogic_probe_tablet(
+			rc = uclogic_probe_pen(
 					hdev,
 					uclogic_rdesc_ugee_ex07_template_arr,
 					uclogic_rdesc_ugee_ex07_template_size);
 			if (rc) {
-				hid_err(hdev, "tablet enabling failed\n");
+				hid_err(hdev, "pen enabling failed\n");
 				return rc;
 			}
 			drvdata->invert_pen_inrange = true;
@@ -506,12 +510,12 @@ static int uclogic_probe(struct hid_device *hdev,
 		if (udev->config->desc.bNumInterfaces == 3) {
 			/* If it is the pen interface */
 			if (intf->cur_altsetting->desc.bInterfaceNumber == 0) {
-				rc = uclogic_probe_tablet(
+				rc = uclogic_probe_pen(
 					hdev,
-					uclogic_rdesc_tablet_template_arr,
-					uclogic_rdesc_tablet_template_size);
+					uclogic_rdesc_pen_template_arr,
+					uclogic_rdesc_pen_template_size);
 				if (rc) {
-					hid_err(hdev, "tablet enabling failed\n");
+					hid_err(hdev, "pen enabling failed\n");
 					return rc;
 				}
 				drvdata->invert_pen_inrange = true;
@@ -527,12 +531,12 @@ static int uclogic_probe(struct hid_device *hdev,
 		/* If this is the pen interface of WP5540U v2 */
 		if (hdev->dev_rsize == UCLOGIC_RDESC_WP5540U_V2_ORIG_SIZE &&
 		    intf->cur_altsetting->desc.bInterfaceNumber == 0) {
-			rc = uclogic_probe_tablet(
+			rc = uclogic_probe_pen(
 					hdev,
-					uclogic_rdesc_tablet_template_arr,
-					uclogic_rdesc_tablet_template_size);
+					uclogic_rdesc_pen_template_arr,
+					uclogic_rdesc_pen_template_size);
 			if (rc) {
-				hid_err(hdev, "tablet enabling failed\n");
+				hid_err(hdev, "pen enabling failed\n");
 				return rc;
 			}
 			drvdata->invert_pen_inrange = true;
@@ -561,10 +565,10 @@ static int uclogic_resume(struct hid_device *hdev)
 	int rc;
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 
-	/* Re-enable tablet, if needed */
-	if (drvdata->tablet_enabled) {
+	/* Re-enable pen, if needed */
+	if (drvdata->pen_enabled) {
 		__le16 *buf = NULL;
-		rc = uclogic_enable_tablet(hdev, &buf);
+		rc = uclogic_enable_pen(hdev, &buf);
 		kfree(buf);
 		if (rc != 0) {
 			return rc;

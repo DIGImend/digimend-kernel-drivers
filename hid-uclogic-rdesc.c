@@ -528,8 +528,8 @@ __u8 uclogic_rdesc_twha60_fixed1_arr[] = {
 const size_t uclogic_rdesc_twha60_fixed1_size =
 			sizeof(uclogic_rdesc_twha60_fixed1_arr);
 
-/* Fixed report descriptor template */
-const __u8 uclogic_rdesc_tablet_template_arr[] = {
+/* Fixed report descriptor template for pen reports */
+const __u8 uclogic_rdesc_pen_template_arr[] = {
 	0x05, 0x0D,             /*  Usage Page (Digitizer),                 */
 	0x09, 0x02,             /*  Usage (Pen),                            */
 	0xA1, 0x01,             /*  Collection (Application),               */
@@ -559,29 +559,29 @@ const __u8 uclogic_rdesc_tablet_template_arr[] = {
 	0x55, 0xFD,             /*          Unit Exponent (-3),             */
 	0x34,                   /*          Physical Minimum (0),           */
 	0x09, 0x30,             /*          Usage (X),                      */
-	0x27, UCLOGIC_RDESC_PH(X_LM),
+	0x27, UCLOGIC_RDESC_PEN_PH(X_LM),
 				/*          Logical Maximum (PLACEHOLDER),  */
-	0x47, UCLOGIC_RDESC_PH(X_PM),
+	0x47, UCLOGIC_RDESC_PEN_PH(X_PM),
 				/*          Physical Maximum (PLACEHOLDER), */
 	0x81, 0x02,             /*          Input (Variable),               */
 	0x09, 0x31,             /*          Usage (Y),                      */
-	0x27, UCLOGIC_RDESC_PH(Y_LM),
+	0x27, UCLOGIC_RDESC_PEN_PH(Y_LM),
 				/*          Logical Maximum (PLACEHOLDER),  */
-	0x47, UCLOGIC_RDESC_PH(Y_PM),
+	0x47, UCLOGIC_RDESC_PEN_PH(Y_PM),
 				/*          Physical Maximum (PLACEHOLDER), */
 	0x81, 0x02,             /*          Input (Variable),               */
 	0xB4,                   /*          Pop,                            */
 	0x09, 0x30,             /*          Usage (Tip Pressure),           */
 	0x27,
-	UCLOGIC_RDESC_PH(PRESSURE_LM),
+	UCLOGIC_RDESC_PEN_PH(PRESSURE_LM),
 				/*          Logical Maximum (PLACEHOLDER),  */
 	0x81, 0x02,             /*          Input (Variable),               */
 	0xC0,                   /*      End Collection,                     */
 	0xC0                    /*  End Collection                          */
 };
 
-const size_t uclogic_rdesc_tablet_template_size =
-			sizeof(uclogic_rdesc_tablet_template_arr);
+const size_t uclogic_rdesc_pen_template_size =
+			sizeof(uclogic_rdesc_pen_template_arr);
 
 /* Fixed report descriptor template for Ugee EX07 */
 const __u8 uclogic_rdesc_ugee_ex07_template_arr[] = {
@@ -614,21 +614,21 @@ const __u8 uclogic_rdesc_ugee_ex07_template_arr[] = {
 	0x55, 0xFD,             /*          Unit Exponent (-3),             */
 	0x34,                   /*          Physical Minimum (0),           */
 	0x09, 0x30,             /*          Usage (X),                      */
-	0x27, UCLOGIC_RDESC_PH(X_LM),
+	0x27, UCLOGIC_RDESC_PEN_PH(X_LM),
 				/*          Logical Maximum (PLACEHOLDER),  */
-	0x47, UCLOGIC_RDESC_PH(X_PM),
+	0x47, UCLOGIC_RDESC_PEN_PH(X_PM),
 				/*          Physical Maximum (PLACEHOLDER), */
 	0x81, 0x02,             /*          Input (Variable),               */
 	0x09, 0x31,             /*          Usage (Y),                      */
-	0x27, UCLOGIC_RDESC_PH(Y_LM),
+	0x27, UCLOGIC_RDESC_PEN_PH(Y_LM),
 				/*          Logical Maximum (PLACEHOLDER),  */
-	0x47, UCLOGIC_RDESC_PH(Y_PM),
+	0x47, UCLOGIC_RDESC_PEN_PH(Y_PM),
 				/*          Physical Maximum (PLACEHOLDER), */
 	0x81, 0x02,             /*          Input (Variable),               */
 	0xB4,                   /*          Pop,                            */
 	0x09, 0x30,             /*          Usage (Tip Pressure),           */
 	0x27,
-	UCLOGIC_RDESC_PH(PRESSURE_LM),
+	UCLOGIC_RDESC_PEN_PH(PRESSURE_LM),
 				/*          Logical Maximum (PLACEHOLDER),  */
 	0x81, 0x02,             /*          Input (Variable),               */
 	0xC0,                   /*      End Collection,                     */
