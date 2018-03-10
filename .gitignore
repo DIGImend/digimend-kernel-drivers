@@ -4,3 +4,4 @@
 .*
 /Module.symvers
 /modules.order
+debian/debhelper-build-stamp
