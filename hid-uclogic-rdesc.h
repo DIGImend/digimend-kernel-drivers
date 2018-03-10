@@ -82,6 +82,9 @@ extern const size_t uclogic_rdesc_twha60_fixed1_size;
 /* Report descriptor template placeholder head */
 #define UCLOGIC_RDESC_PH_HEAD	0xFE, 0xED, 0x1D
 
+/* Report descriptor template placeholder */
+#define UCLOGIC_RDESC_PH(_ID) UCLOGIC_RDESC_PH_HEAD, UCLOGIC_RDESC_PH_ID_##_ID
+
 /* Report descriptor template placeholder IDs */
 enum uclogic_rdesc_ph_id {
 	UCLOGIC_RDESC_PH_ID_X_LM,
@@ -91,9 +94,6 @@ enum uclogic_rdesc_ph_id {
 	UCLOGIC_RDESC_PH_ID_PRESSURE_LM,
 	UCLOGIC_RDESC_PH_ID_NUM
 };
-
-/* Report descriptor template placeholder */
-#define UCLOGIC_RDESC_PH(_ID) UCLOGIC_RDESC_PH_HEAD, UCLOGIC_RDESC_PH_ID_##_ID
 
 /* Fixed report descriptor template */
 extern const __u8 uclogic_rdesc_tablet_template_arr[];
