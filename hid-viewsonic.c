@@ -91,8 +91,6 @@ static int viewsonic_probe(struct hid_device *hdev,
 {
 	int rc;
 
-	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-
 	rc = hid_parse(hdev);
 	if (rc) {
 		hid_err(hdev, "parse failed\n");
