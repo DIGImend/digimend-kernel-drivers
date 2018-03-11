@@ -14,6 +14,7 @@
  */
 
 #include "hid-uclogic-rdesc.h"
+#include <asm/unaligned.h>
 
 /* Fixed WP4030U report descriptor */
 __u8 uclogic_rdesc_wp4030u_fixed_arr[] = {
@@ -717,3 +718,49 @@ const __u8 uclogic_rdesc_buttonpad_arr[] = {
 const size_t uclogic_rdesc_buttonpad_size =
 			sizeof(uclogic_rdesc_buttonpad_arr);
 
+/**
+ * uclogic_rdesc_template_apply() - apply report descriptor parameters to a
+ * report descriptor template, creating a report descriptor. Copies the
+ * template over to the new report descriptor and replaces every occurence of
+ * UCLOGIC_RDESC_PH_HEAD, followed by an index byte, with the value from the
+ * parameter list at that index.
+ *
+ * @template_ptr:	Pointer to the template buffer.
+ * @template_size:	Size of the template buffer.
+ * @param_list:		List of template parameters.
+ * @param_num:		Number of parameters in the list.
+ *
+ * Return:
+ * 	Kmalloc-allocated pointer to the created report descriptor,
+ * 	or NULL if allocation failed.
+ */
+__u8 *uclogic_rdesc_template_apply(const __u8 *template_ptr,
+				   size_t template_size,
+				   const s32 *param_list,
+				   size_t param_num)
+{
+	static const __u8 head[] = {UCLOGIC_RDESC_PH_HEAD};
+	__u8 *rdesc_ptr;
+	__u8 *p;
+	s32 v;
+
+	rdesc_ptr = kmalloc(template_size, GFP_KERNEL);
+	if (rdesc_ptr == NULL) {
+		return NULL;
+	}
+
+	memcpy(rdesc_ptr, template_ptr, template_size);
+
+	for (p = rdesc_ptr; p + sizeof(head) < rdesc_ptr + template_size;) {
+		if (memcmp(p, head, sizeof(head)) == 0 &&
+		    p[sizeof(head)] < param_num) {
+			v = param_list[p[sizeof(head)]];
+			put_unaligned(cpu_to_le32(v), (s32 *)p);
+			p += sizeof(head) + 1;
+		} else {
+			p++;
+		}
+	}
+
+	return rdesc_ptr;
+}
