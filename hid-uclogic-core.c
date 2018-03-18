@@ -132,36 +132,35 @@ static int uclogic_probe(struct hid_device *hdev,
 	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
 	if (drvdata == NULL) {
 		rc = -ENOMEM;
-		goto cleanup;
+		goto failure;
 	}
-
 	hid_set_drvdata(hdev, drvdata);
 
 	/* Initialize the device and retrieve parameters */
 	rc = uclogic_params_probe(&drvdata->params, hdev);
 	if (rc != 0) {
 		hid_err(hdev, "failed probing device parameters\n");
-		goto cleanup;
+		goto failure;
 	}
 
 	rc = hid_parse(hdev);
 	if (rc) {
 		hid_err(hdev, "parse failed\n");
-		goto cleanup;
+		goto failure;
 	}
 
 	rc = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
 	if (rc) {
 		hid_err(hdev, "hw start failed\n");
-		goto cleanup;
+		goto failure;
 	}
 
-	rc = 0;
-
-cleanup:
+	return 0;
+failure:
+	/* Assume "remove" might not be called if "probe" failed */
 	if (drvdata != NULL) {
 		uclogic_params_free(drvdata->params);
-		devm_kfree(&hdev->dev, drvdata);
+		drvdata->params = NULL;
 	}
 	return rc;
 }
