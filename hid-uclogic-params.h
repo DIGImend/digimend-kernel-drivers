@@ -16,8 +16,20 @@
 #define _HID_UCLOGIC_PARAMS_H
 
 #include <linux/usb.h>
+#include <linux/hid.h>
+
+/* Types of pen in-range reporting */
+enum uclogic_params_pen_report_inrange {
+	/* Normal reports: zero - out of proximity, one - in proximity */
+	UCLOGIC_PARAMS_PEN_REPORT_INRANGE_NORMAL,
+	/* Inverted reports: zero - in proximity, one - out of proximity */
+	UCLOGIC_PARAMS_PEN_REPORT_INRANGE_INVERTED,
+	/* No reports */
+	UCLOGIC_PARAMS_PEN_REPORT_INRANGE_NONE,
+};
 
 /* Tablet interface parameters */
+/* TODO Consider stripping "report" from names */
 struct uclogic_params {
 	/*
 	 * Pointer to replacement report descriptor allocated with kmalloc,
@@ -25,8 +37,8 @@ struct uclogic_params {
 	 */
 	__u8 *rdesc_ptr;
 	/*
-	 * Size of the replacement report descriptor,
-	 * or zero if no replacement is needed.
+	 * Size of the replacement report descriptor.
+	 * Only valid, if rdesc_ptr is not NULL.
 	 */
 	unsigned int rdesc_size;
 	/*
@@ -40,15 +52,10 @@ struct uclogic_params {
 	 */
 	unsigned pen_report_id;
 	/*
-	 * True, if pen in-range bit is inverted in reports.
+	 * Type of pen in-range reporting.
 	 * Only valid if pen_report_id is not zero.
 	 */
-	bool pen_report_inrange_inverted;
-	/*
-	 * True if pen doesn't report in-range (proximity) event.
-	 * Only valid if pen_report_id is not zero.
-	 */
-	bool pen_report_inrange_none;
+	enum uclogic_params_pen_report_inrange pen_report_inrange;
 	/*
 	 * Bitmask matching frame controls "sub-report" flag in the second
 	 * byte of the pen report, or zero if it's not expected.
@@ -68,8 +75,10 @@ struct uclogic_params {
 	unsigned frame_virtual_report_id;
 };
 
-extern int uclogic_params_probe(struct uclogic_params *pparams,
+/* Initialize a tablet interface and discover its parameters */
+extern int uclogic_params_probe(struct uclogic_params **pparams,
 				struct hid_device *hdev);
-extern void uclogic_params_cleanup(struct uclogic_params *params);
+/* Free resources used by tablet interface's parameters */
+extern void uclogic_params_free(struct uclogic_params *params);
 
 #endif /* _HID_UCLOGIC_PARAMS_H */

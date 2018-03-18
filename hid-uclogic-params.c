@@ -14,7 +14,10 @@
 
 #include "hid-uclogic-params.h"
 #include "hid-uclogic-rdesc.h"
-#include <ctype.h>
+#include "usbhid/usbhid.h"
+#include "hid-ids.h"
+#include <linux/ctype.h>
+#include <asm/unaligned.h>
 
 /**
  * uclogic_params_get_str_desc - retrieve a string descriptor from a HID
@@ -56,6 +59,7 @@ static int uclogic_params_get_str_desc(__u8 **pbuf, struct hid_device *hdev,
 }
 
 /* Tablet interface's pen input parameters */
+/* TODO Consider stripping "report" from names */
 struct uclogic_params_pen {
 	/* Pointer to report descriptor allocated with kmalloc */
 	__u8 *rdesc_ptr;
@@ -63,6 +67,8 @@ struct uclogic_params_pen {
 	unsigned int rdesc_size;
 	/* Pen report ID */
 	unsigned report_id;
+	/* Type of pen in-range reporting */
+	enum uclogic_params_pen_report_inrange report_inrange;
 	/*
 	 * True, if pen reports include fragmented high resolution coords,
 	 * with high-order X and then Y bytes following the pressure field
@@ -81,6 +87,7 @@ static void uclogic_params_pen_free(struct uclogic_params_pen *pen)
 	if (pen != NULL) {
 		kfree(pen->rdesc_ptr);
 		memset(pen, 0, sizeof(*pen));
+		kfree(pen);
 	}
 }
 
@@ -137,12 +144,12 @@ static int uclogic_params_pen_v1_probe(struct uclogic_params_pen **ppen,
 	 * Fill report descriptor parameters from the string descriptor
 	 */
 	rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] =
-		le16_to_cpu((__le16 *)(buf + 2))
+		get_unaligned_le16(buf + 2);
 	rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] =
-		le16_to_cpu((__le16 *)(buf + 4))
+		get_unaligned_le16(buf + 4);
 	rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_PRESSURE_LM] =
-		le16_to_cpu((__le16 *)(buf + 8))
-	resolution = le16_to_cpu((__le16 *)(buf + 10));
+		get_unaligned_le16(buf + 8);
+	resolution = get_unaligned_le16(buf + 10);
 	if (resolution == 0) {
 		rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] = 0;
 		rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] = 0;
@@ -160,7 +167,7 @@ static int uclogic_params_pen_v1_probe(struct uclogic_params_pen **ppen,
 	/*
 	 * Generate pen report descriptor
 	 */
-	rdesc_ptr = uclogic_rdesc_template_fill(
+	rdesc_ptr = uclogic_rdesc_template_apply(
 				uclogic_rdesc_pen_v1_template_arr,
 				uclogic_rdesc_pen_v1_template_size,
 				rdesc_params, ARRAY_SIZE(rdesc_params));
@@ -181,6 +188,7 @@ static int uclogic_params_pen_v1_probe(struct uclogic_params_pen **ppen,
 	rdesc_ptr = NULL;
 	pen->rdesc_size = uclogic_rdesc_pen_v1_template_size;
 	pen->report_id = UCLOGIC_RDESC_PEN_V1_ID;
+	pen->report_inrange = UCLOGIC_PARAMS_PEN_REPORT_INRANGE_INVERTED;
 
 	/*
 	 * Output the parameters, if requested
@@ -200,17 +208,18 @@ cleanup:
 }
 
 /**
- * uclogic_params_le24_to_cpu - convert a 24-bit number from little-endian to
- * host byte order.
+ * uclogic_params_get_le24() - get a 24-bit little-endian number from a
+ * buffer.
  *
- * @p	The pointer to the number to convert.
+ * @p	The pointer to the number buffer.
  *
  * Return:
- * 	The converted number
+ * 	The retrieved number
  */
-static s32 uclogic_params_le24_to_cpu(const __u8* p)
+static s32 uclogic_params_get_le24(const void *p)
 {
-	return p[0] | (p[1] << 8UL) | (p[2] << 16UL);
+	const __u8* b = p;
+	return b[0] | (b[1] << 8UL) | (b[2] << 16UL);
 }
 
 /**
@@ -281,12 +290,12 @@ static int uclogic_params_pen_v2_probe(struct uclogic_params_pen **ppen,
 	 * Fill report descriptor parameters from the string descriptor
 	 */
 	rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] =
-		uclogic_params_le24_to_cpu(buf + 2)
+		uclogic_params_get_le24(buf + 2);
 	rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] =
-		uclogic_params_le24_to_cpu(buf + 5)
+		uclogic_params_get_le24(buf + 5);
 	rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_PRESSURE_LM] =
-		le16_to_cpu((__le16 *)(buf + 8))
-	resolution = le16_to_cpu((__le16 *)(buf + 10));
+		get_unaligned_le16(buf + 8);
+	resolution = get_unaligned_le16(buf + 10);
 	if (resolution == 0) {
 		rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] = 0;
 		rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] = 0;
@@ -304,7 +313,7 @@ static int uclogic_params_pen_v2_probe(struct uclogic_params_pen **ppen,
 	/*
 	 * Generate pen report descriptor
 	 */
-	rdesc_ptr = uclogic_rdesc_template_fill(
+	rdesc_ptr = uclogic_rdesc_template_apply(
 				uclogic_rdesc_pen_v2_template_arr,
 				uclogic_rdesc_pen_v2_template_size,
 				rdesc_params, ARRAY_SIZE(rdesc_params));
@@ -325,6 +334,7 @@ static int uclogic_params_pen_v2_probe(struct uclogic_params_pen **ppen,
 	rdesc_ptr = NULL;
 	pen->rdesc_size = uclogic_rdesc_pen_v2_template_size;
 	pen->report_id = UCLOGIC_RDESC_PEN_V2_ID;
+	pen->report_inrange = UCLOGIC_PARAMS_PEN_REPORT_INRANGE_NONE;
 	pen->report_fragmented_hires = true;
 
 	/*
@@ -374,7 +384,7 @@ static int uclogic_params_pen_probe(struct uclogic_params_pen **ppen,
 	/* Try to probe v2 pen parameters */
 	rc = uclogic_params_pen_v2_probe(&pen, hdev);
 	/* If this is not a v2 pen */
-	if (rc == 0 && &pen == NULL) {
+	if (rc == 0 && pen == NULL) {
 		/* Try to probe v1 pen parameters */
 		rc = uclogic_params_pen_v1_probe(&pen, hdev);
 	}
@@ -398,16 +408,18 @@ struct uclogic_params_frame {
 };
 
 /**
- * uclogic_params_frame_cleanup - cleanup and free resources used by struct
+ * uclogic_params_frame_free - free resources used by struct
  * uclogic_params_frame (tablet interface's frame controls input parameters).
- * Can be called repeatedly.
  *
- * @frame	Frame controls input parameters to cleanup.
+ * @frame	Frame controls input parameters to free. Can be NULL.
  */
-static void uclogic_params_frame_cleanup(struct uclogic_params_frame *frame)
+static void uclogic_params_frame_free(struct uclogic_params_frame *frame)
 {
-	kfree(frame->rdesc_ptr);
-	memset(frame, 0, sizeof(*frame));
+	if (frame != NULL) {
+		kfree(frame->rdesc_ptr);
+		memset(frame, 0, sizeof(*frame));
+		kfree(frame);
+	}
 }
 
 /**
@@ -433,7 +445,6 @@ static int uclogic_params_frame_probe(struct uclogic_params_frame **pframe,
 {
 	int rc;
 	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
-	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 	char *str_buf;
 	size_t str_len = 16;
 	struct uclogic_params_frame *frame = NULL;
@@ -500,6 +511,7 @@ void uclogic_params_free(struct uclogic_params *params)
 	if (params != NULL) {
 		kfree(params->rdesc_ptr);
 		params->rdesc_ptr = NULL;
+		kfree(params);
 	}
 }
 
@@ -540,7 +552,7 @@ static int uclogic_params_probe_static(struct uclogic_params **pparams,
 	/*
 	 * Handle some models with static report descriptors
 	 */
-	switch (id->product) {
+	switch (hdev->product) {
 	case USB_DEVICE_ID_UCLOGIC_TABLET_PF1209:
 		if (dev_rdesc_size == UCLOGIC_RDESC_PF1209_ORIG_SIZE) {
 			rdesc_ptr = uclogic_rdesc_pf1209_fixed_arr;
@@ -603,7 +615,7 @@ static int uclogic_params_probe_static(struct uclogic_params **pparams,
 		}
 		switch (bInterfaceNumber) {
 		case 0:
-			if (dev_RSIZE == UCLOGIC_RDESC_TWHA60_ORIG0_SIZE) {
+			if (dev_rdesc_size == UCLOGIC_RDESC_TWHA60_ORIG0_SIZE) {
 				rdesc_ptr = uclogic_rdesc_twha60_fixed0_arr;
 				rdesc_size = uclogic_rdesc_twha60_fixed0_size;
 			}
@@ -666,11 +678,15 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 					struct hid_device *hdev)
 {
 	int rc;
-	bool pen_unused = false;
+	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
+	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
 	/* Pen input parameters */
 	struct uclogic_params_pen *pen = NULL;
+	/* Frame controls' input parameters */
+	struct uclogic_params_frame *frame = NULL;
 	/* The resulting interface parameters */
 	struct uclogic_params *params = NULL;
+	__u8 *p;
 
 	/* Check arguments */
 	if (hdev == NULL) {
@@ -678,7 +694,7 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 		goto cleanup;
 	}
 
-	switch (id->product) {
+	switch (hdev->product) {
 	case USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60:
 		/* If it is the pen interface */
 		if (bInterfaceNumber == 0) {
@@ -687,14 +703,17 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 				hid_err(hdev, "pen probing failed: %d\n", rc);
 				goto cleanup;
 			}
-			rc = uclogic_probe_buttons(hdev);
-		} else {
-			/*
-			 * TODO Switch to just disabling the
-			 * interface, if possible.
-			 */
-			pen_unused = true;
+			rc = uclogic_params_frame_probe(&frame, hdev);
+			if (rc != 0) {
+				hid_err(hdev, "frame controls probing "
+					"failed: %d\n", rc);
+				goto cleanup;
+			}
 		}
+		/*
+		 * Ignoring pen reports on all other interfaces
+		 * TODO Switch to just ignoring the interface, if possible.
+		 */
 		break;
 	case USB_DEVICE_ID_HUION_TABLET:
 	case USB_DEVICE_ID_YIYNOVA_TABLET:
@@ -709,14 +728,17 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 				hid_err(hdev, "pen probing failed: %d\n", rc);
 				goto cleanup;
 			}
-			rc = uclogic_probe_buttons(hdev);
-		} else {
-			/*
-			 * TODO Switch to just disabling the interface,
-			 * if possible.
-			 */
-			pen_unused = true;
+			rc = uclogic_params_frame_probe(&frame, hdev);
+			if (rc != 0) {
+				hid_err(hdev, "frame controls probing "
+					"failed: %d\n", rc);
+				goto cleanup;
+			}
 		}
+		/*
+		 * Ignoring pen reports on all other interfaces
+		 * TODO Switch to just ignoring the interface, if possible.
+		 */
 		break;
 	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
 	case USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540:
@@ -727,13 +749,11 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 				hid_err(hdev, "pen probing failed: %d\n", rc);
 				goto cleanup;
 			}
-		} else {
-			/*
-			 * TODO Switch to just disabling the interface,
-			 * if possible.
-			 */
-			pen_unused = true;
 		}
+		/*
+		 * Ignoring pen reports on all other interfaces
+		 * TODO Switch to just ignoring the interface, if possible.
+		 */
 		break;
 	case USB_DEVICE_ID_UGEE_TABLET_EX07S:
 		/* If this is the pen interface */
@@ -770,15 +790,52 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 		goto cleanup;
 	}
 
-	params->pen_unused = pen_unused;
-	if (!params->pen_unused) {
-		params->pen_report_id = pen.report_id;
-		params->pen_report_inrange_inverted = true;
-		params->pen_report_fragmented_hires =
-				pen.report_fragmented_hires;
+	/*
+	 * Merge report descriptors
+	 */
+	if (pen != NULL) {
+		params->rdesc_size += pen->rdesc_size;
+	}
+	if (frame != NULL) {
+		params->rdesc_size += frame->rdesc_size;
 	}
 
-	/* Output parameters, if requested */
+	params->rdesc_ptr = kmalloc(params->rdesc_size, GFP_KERNEL);
+	if (params->rdesc_ptr == NULL) {
+		rc = -ENOMEM;
+		goto cleanup;
+	}
+
+	p = params->rdesc_ptr;
+	if (pen != NULL) {
+		memcpy(p, pen->rdesc_ptr, pen->rdesc_size);
+		p += pen->rdesc_size;
+	}
+	if (frame != NULL) {
+		memcpy(p, frame->rdesc_ptr, frame->rdesc_size);
+		p += frame->rdesc_size;
+	}
+	WARN_ON(p != frame->rdesc_ptr + frame->rdesc_size);
+
+	/*
+	 * Fill-in parameters
+	 */
+	if (pen != NULL) {
+		params->pen_report_id = pen->report_id;
+		params->pen_report_inrange = pen->report_inrange;
+		params->pen_report_fragmented_hires =
+			pen->report_fragmented_hires;
+	} else {
+		params->pen_unused = true;
+	}
+	if (frame != NULL) {
+		params->pen_report_frame_flag = 0x20;
+		params->frame_virtual_report_id = 0xf7;
+	}
+
+	/*
+	 * Output parameters, if requested
+	 */
 	if (pparams != NULL) {
 		*pparams = params;
 		params = NULL;
@@ -787,6 +844,7 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 	rc = 0;
 
 cleanup:
+	uclogic_params_frame_free(frame);
 	uclogic_params_pen_free(pen);
 	uclogic_params_free(params);
 	return rc;
@@ -806,7 +864,7 @@ cleanup:
  * Return:
  * 	Zero, if successful. A negative errno code on error.
  */
-int uclogic_params_probe(struct uclogic_params *params,
+int uclogic_params_probe(struct uclogic_params **pparams,
 			 struct hid_device *hdev)
 {
 	int rc;
@@ -821,7 +879,7 @@ int uclogic_params_probe(struct uclogic_params *params,
 	/* Try to probe static parameters */
 	rc = uclogic_params_probe_static(&params, hdev);
 	/* If not found */
-	if (rc == 0 && &params == NULL) {
+	if (rc == 0 && params == NULL) {
 		/* Try to probe dynamic parameters */
 		rc = uclogic_params_probe_dynamic(&params, hdev);
 	}
