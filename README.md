@@ -110,7 +110,7 @@ drivers as a Debian package, make sure you have `dpkg-dev`, `debhelper`, and
 `dkms` packages installed, and run the following command in the source
 directory:
 
-    dpkg-buildpackage -b --no-sign
+    dpkg-buildpackage -b -uc
 
 The resulting package files will be written to the parent directory.
 
