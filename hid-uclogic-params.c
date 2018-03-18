@@ -851,6 +851,50 @@ cleanup:
 }
 
 /**
+ * uclogic_params_dump() - dump tablet interface parameters with hid_dbg.
+ *
+ * @params 	The interface parameters to dump. Cannot be NULL.
+ * @hdev	The HID device of the tablet interface to refer to while
+ * 		dumping. Cannot be NULL.
+ * @prefix   	String to output before the dump. Cannot be NULL.
+ */
+void uclogic_params_dump(const struct uclogic_params *params,
+				const struct hid_device *hdev,
+				const char *prefix)
+{
+#define BOOL_STR(_x) ((_x) ? "true" : "false")
+#define INRANGE_STR(_x) \
+	((_x) == UCLOGIC_PARAMS_PEN_REPORT_INRANGE_NORMAL \
+		? "normal" \
+		: ((_x) == UCLOGIC_PARAMS_PEN_REPORT_INRANGE_INVERTED \
+			? "inverted" \
+			: "none"))
+
+	hid_dbg(hdev,
+		"%s"
+		".rdesc_ptr = %p\n"
+		".rdesc_size = %u\n"
+		".pen_unused = %s\n"
+		".pen_report_id = %u\n"
+		".pen_report_inrange = %s\n"
+		".pen_report_frame_flag = 0x%02x\n"
+		".pen_report_fragmented_hires = %s\n"
+		".frame_virtual_report_id = %u\n",
+		prefix,
+		params->rdesc_ptr,
+		params->rdesc_size,
+		BOOL_STR(params->pen_unused),
+		params->pen_report_id,
+		INRANGE_STR(params->pen_report_inrange),
+		params->pen_report_frame_flag,
+		BOOL_STR(params->pen_report_fragmented_hires),
+		params->frame_virtual_report_id);
+
+#undef INRANGE_STR
+#undef BOOL_STR
+}
+
+/**
  * uclogic_params_probe() - initialize a tablet interface and discover its
  * parameters.
  *

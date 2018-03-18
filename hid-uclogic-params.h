@@ -78,6 +78,12 @@ struct uclogic_params {
 /* Initialize a tablet interface and discover its parameters */
 extern int uclogic_params_probe(struct uclogic_params **pparams,
 				struct hid_device *hdev);
+
+/* Dump tablet interface parameters with hid_dbg */
+extern void uclogic_params_dump(const struct uclogic_params *params,
+				const struct hid_device *hdev,
+				const char *prefix);
+
 /* Free resources used by tablet interface's parameters */
 extern void uclogic_params_free(struct uclogic_params *params);
 

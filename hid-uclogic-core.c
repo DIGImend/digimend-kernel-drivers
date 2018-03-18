@@ -142,6 +142,12 @@ static int uclogic_probe(struct hid_device *hdev,
 		hid_err(hdev, "failed probing device parameters\n");
 		goto failure;
 	}
+	if (drvdata->params == NULL) {
+		hid_warn(hdev, "interface parameters not found");
+	} else {
+		uclogic_params_dump(drvdata->params, hdev,
+					"interface parameters:\n");
+	}
 
 	rc = hid_parse(hdev);
 	if (rc) {
