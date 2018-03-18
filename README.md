@@ -95,6 +95,25 @@ See the DIGImend project [support page](http://digimend.github.io/support/)
 for further setup instructions. Please [report issues][report_issue] if you
 find any.
 
+### SSL error during installation ###
+
+On Ubuntu, and possibly other distros, the driver installation process
+attempts to cryptographically sign the modules being installed. Most of the
+users don't have the system configured to support this, so during the
+installation they get errors messages similar to these:
+
+      INSTALL /home/danghai/digimend-kernel-drivers/hid-uclogic.ko
+    At main.c:160:
+    - SSL error:02001002:system library:fopen:No such file or directory: bss_file.c:175
+    - SSL error:2006D080:BIO routines:BIO_new_file:no such file: bss_file.c:178
+    sign-file: certs/signing_key.pem: No such file or directory
+
+The above basically means that the system tried to sign the module, but
+couldn't find the key to sign with. This does not interfere with module
+installation and operation and can safely be ignored. That is, unless you set
+up module signature verification, but then you would recognize the problem,
+and would be able to fix it.
+
 Uninstalling
 ------------
 
