@@ -186,7 +186,8 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 	struct uclogic_params *params = drvdata->params;
 
-	if (!params->pen_unused &&
+	if (params != NULL &&
+	    !params->pen_unused &&
 	    (report->type == HID_INPUT_REPORT) &&
 	    (report->id == params->pen_report_id) &&
 	    (size >= 2)) {
