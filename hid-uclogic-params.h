@@ -61,7 +61,7 @@ struct uclogic_params {
 	 * byte of the pen report, or zero if it's not expected.
 	 * Only valid if pen_report_id is not zero.
 	 */
-	bool pen_report_frame_flag;
+	__u8 pen_report_frame_flag;
 	/*
 	 * True, if pen reports include fragmented high resolution coords,
 	 * with high-order X and then Y bytes following the pressure field
