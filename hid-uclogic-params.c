@@ -26,6 +26,7 @@
  *
  * @pbuf	Location for the kmalloc-allocated buffer pointer containing
  * 		the retrieved descriptor. Not modified in case of error.
+ * 		Can be NULL to have retrieved descriptor discarded.
  * @idx		Index of the string descriptor to request from the device.
  * @len		Length of the buffer to allocate and the data to retrieve.
  *
@@ -39,22 +40,36 @@ static int uclogic_params_get_str_desc(__u8 **pbuf, struct hid_device *hdev,
 {
 	int rc;
 	struct usb_device *udev = hid_to_usb_dev(hdev);
-	__u8 *buf;
+	__u8 *buf = NULL;
 
 	buf = kmalloc(len, GFP_KERNEL);
 	if (buf == NULL) {
-		return -ENOMEM;
+		rc = -ENOMEM;
+		goto cleanup;
 	}
+
 	rc = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
 				USB_REQ_GET_DESCRIPTOR, USB_DIR_IN,
 				(USB_DT_STRING << 8) + idx,
 				0x0409, buf, len,
 				USB_CTRL_GET_TIMEOUT);
-	if (rc >= 0) {
-		*pbuf = buf;
-	} else {
-		kfree(buf);
+	if (rc == -EPIPE) {
+		hid_dbg(hdev, "string descriptor #%hhu not found\n", idx);
+		goto cleanup;
+	} else if (rc < 0) {
+		hid_err(hdev,
+			"failed retrieving string descriptor #%hhu: %d\n",
+			idx, rc);
+		goto cleanup;
 	}
+
+	if (pbuf != NULL) {
+		*pbuf = buf;
+		buf = NULL;
+	}
+
+cleanup:
+	kfree(buf);
 	return rc;
 }
 
@@ -113,7 +128,7 @@ static int uclogic_params_pen_v1_probe(struct uclogic_params_pen **ppen,
 	/* Buffer for (part of) the string descriptor */
 	__u8 *buf = NULL;
 	/* Minimum descriptor length required, maximum seen so far is 18 */
-	const size_t len = 12;
+	const int len = 12;
 	s32 resolution;
 	/* Pen report descriptor template parameters */
 	s32 rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_NUM];
@@ -133,11 +148,21 @@ static int uclogic_params_pen_v1_probe(struct uclogic_params_pen **ppen,
 	 * NOTE: This enables fully-functional tablet mode.
 	 */
 	rc = uclogic_params_get_str_desc(&buf, hdev, 100, len);
-	if (rc < 0) {
+	if (rc == -ENOENT) {
+		hid_dbg(hdev,
+			"string descriptor with pen parameters not found, "
+			"assuming not compatible\n");
+		goto output;
+	} else if (rc < 0) {
+		hid_err(hdev, "failed retrieving pen parameters: %d\n", rc);
 		goto cleanup;
 	} else if (rc != len) {
-		rc = -ERANGE;
-		goto cleanup;
+		hid_dbg(hdev,
+			"string descriptor with pen parameters has "
+			"invalid length (got %d, expected %d), "
+			"assuming not compatible\n",
+			rc, len);
+		goto output;
 	}
 
 	/*
@@ -190,6 +215,7 @@ static int uclogic_params_pen_v1_probe(struct uclogic_params_pen **ppen,
 	pen->report_id = UCLOGIC_RDESC_PEN_V1_ID;
 	pen->report_inrange = UCLOGIC_PARAMS_PEN_REPORT_INRANGE_INVERTED;
 
+output:
 	/*
 	 * Output the parameters, if requested
 	 */
@@ -244,7 +270,7 @@ static int uclogic_params_pen_v2_probe(struct uclogic_params_pen **ppen,
 	/* Buffer for (part of) the string descriptor */
 	__u8 *buf = NULL;
 	/* Minimum descriptor length required, maximum seen so far is 18 */
-	const size_t len = 12;
+	const int len = 12;
 	s32 resolution;
 	/* Pen report descriptor template parameters */
 	s32 rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_NUM];
@@ -263,12 +289,23 @@ static int uclogic_params_pen_v2_probe(struct uclogic_params_pen **ppen,
 	 * the Windows driver traffic.
 	 * NOTE: This enables fully-functional tablet mode.
 	 */
-	rc = uclogic_params_get_str_desc(&buf, hdev, 100, len);
-	if (rc < 0) {
+	rc = uclogic_params_get_str_desc(&buf, hdev, 200, len);
+	if (rc == -ENOENT) {
+		hid_dbg(hdev,
+			"string descriptor with pen parameters not found, "
+			"assuming not compatible\n");
+		rc = 0;
+		goto cleanup;
+	} else if (rc < 0) {
+		hid_err(hdev, "failed retrieving pen parameters: %d\n", rc);
 		goto cleanup;
 	} else if (rc != len) {
-		rc = -ERANGE;
-		goto cleanup;
+		hid_dbg(hdev,
+			"string descriptor with pen parameters has "
+			"invalid length (got %d, expected %d), "
+			"assuming not compatible\n",
+			rc, len);
+		goto output;
 	} else {
 		size_t i;
 		/*
@@ -281,8 +318,10 @@ static int uclogic_params_pen_v2_probe(struct uclogic_params_pen **ppen,
 		     	!(buf[i] >= 0x20 && buf[i] < 0x7f && buf[i + 1] == 0);
 		     i += 2);
 		if (i < len) {
-			rc = -ERANGE;
-			goto cleanup;
+			hid_dbg(hdev,
+				"string descriptor with pen parameters seems "
+				"to contain text, assuming not compatible\n");
+			goto output;
 		}
 	}
 
@@ -337,6 +376,7 @@ static int uclogic_params_pen_v2_probe(struct uclogic_params_pen **ppen,
 	pen->report_inrange = UCLOGIC_PARAMS_PEN_REPORT_INRANGE_NONE;
 	pen->report_fragmented_hires = true;
 
+output:
 	/*
 	 * Output the parameters, if requested
 	 */
@@ -383,10 +423,22 @@ static int uclogic_params_pen_probe(struct uclogic_params_pen **ppen,
 
 	/* Try to probe v2 pen parameters */
 	rc = uclogic_params_pen_v2_probe(&pen, hdev);
-	/* If this is not a v2 pen */
-	if (rc == 0 && pen == NULL) {
+	if (rc < 0) {
+		hid_err(hdev, "failed probing pen v2 parameters: %d\n", rc);
+	} else if (pen == NULL) {
+		hid_dbg(hdev, "pen v2 parameters not found\n");
 		/* Try to probe v1 pen parameters */
 		rc = uclogic_params_pen_v1_probe(&pen, hdev);
+		if (rc < 0) {
+			hid_err(hdev,
+				"failed probing pen v1 parameters: %d\n", rc);
+		} else if (pen == NULL) {
+			hid_dbg(hdev, "pen v1 parameters not found\n");
+		} else {
+			hid_dbg(hdev, "pen v1 parameters found\n");
+		}
+	} else {
+		hid_dbg(hdev, "pen v2 parameters found\n");
 	}
 
 	/* Output the parameters if succeeded, and asked to */
@@ -465,8 +517,9 @@ static int uclogic_params_frame_probe(struct uclogic_params_frame **pframe,
 		hid_err(hdev, "failed to enable abstract keyboard\n");
 		goto cleanup;
 	} else if (strncmp(str_buf, "HK On", rc) != 0) {
-		hid_info(hdev, "invalid answer when requesting buttons: '%s'\n",
-			str_buf);
+		hid_info(hdev,
+			 "invalid answer when requesting buttons: '%s'\n",
+			 str_buf);
 	} else {
 		frame = kzalloc(sizeof(*frame), GFP_KERNEL);
 		if (frame == NULL) {
@@ -686,7 +739,6 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 	struct uclogic_params_frame *frame = NULL;
 	/* The resulting interface parameters */
 	struct uclogic_params *params = NULL;
-	__u8 *p;
 
 	/* Check arguments */
 	if (hdev == NULL) {
@@ -799,36 +851,44 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 	if (frame != NULL) {
 		params->rdesc_size += frame->rdesc_size;
 	}
+	if (params->rdesc_size > 0) {
+		__u8 *p;
 
-	params->rdesc_ptr = kmalloc(params->rdesc_size, GFP_KERNEL);
-	if (params->rdesc_ptr == NULL) {
-		rc = -ENOMEM;
-		goto cleanup;
-	}
+		params->rdesc_ptr = kmalloc(params->rdesc_size, GFP_KERNEL);
+		if (params->rdesc_ptr == NULL) {
+			rc = -ENOMEM;
+			goto cleanup;
+		}
 
-	p = params->rdesc_ptr;
-	if (pen != NULL) {
-		memcpy(p, pen->rdesc_ptr, pen->rdesc_size);
-		p += pen->rdesc_size;
+		p = params->rdesc_ptr;
+		if (pen != NULL) {
+			memcpy(p, pen->rdesc_ptr, pen->rdesc_size);
+			p += pen->rdesc_size;
+		}
+		if (frame != NULL) {
+			memcpy(p, frame->rdesc_ptr, frame->rdesc_size);
+			p += frame->rdesc_size;
+		}
+		WARN_ON(p != params->rdesc_ptr + params->rdesc_size);
 	}
-	if (frame != NULL) {
-		memcpy(p, frame->rdesc_ptr, frame->rdesc_size);
-		p += frame->rdesc_size;
-	}
-	WARN_ON(p != frame->rdesc_ptr + frame->rdesc_size);
 
 	/*
 	 * Fill-in parameters
 	 */
-	if (pen != NULL) {
+	if (pen == NULL) {
+		hid_dbg(hdev, "pen parameters not found\n");
+		params->pen_unused = true;
+	} else {
+		hid_dbg(hdev, "pen parameters found\n");
 		params->pen_report_id = pen->report_id;
 		params->pen_report_inrange = pen->report_inrange;
 		params->pen_report_fragmented_hires =
 			pen->report_fragmented_hires;
-	} else {
-		params->pen_unused = true;
 	}
-	if (frame != NULL) {
+	if (frame == NULL) {
+		hid_dbg(hdev, "frame parameters not found\n");
+	} else {
+		hid_dbg(hdev, "frame parameters found\n");
 		params->pen_report_frame_flag = 0x20;
 		params->frame_virtual_report_id = 0xf7;
 	}
@@ -868,7 +928,9 @@ void uclogic_params_dump(const struct uclogic_params *params,
 		? "normal" \
 		: ((_x) == UCLOGIC_PARAMS_PEN_REPORT_INRANGE_INVERTED \
 			? "inverted" \
-			: "none"))
+			: ((_x) == UCLOGIC_PARAMS_PEN_REPORT_INRANGE_NONE \
+				? "none" \
+				: "unknown")))
 
 	hid_dbg(hdev,
 		"%s"
@@ -911,7 +973,7 @@ void uclogic_params_dump(const struct uclogic_params *params,
 int uclogic_params_probe(struct uclogic_params **pparams,
 			 struct hid_device *hdev)
 {
-	int rc;
+	int rc = 0;
 	/* The resulting parameters */
 	struct uclogic_params *params = NULL;
 
@@ -922,10 +984,23 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 
 	/* Try to probe static parameters */
 	rc = uclogic_params_probe_static(&params, hdev);
-	/* If not found */
-	if (rc == 0 && params == NULL) {
+	if (rc < 0) {
+		hid_err(hdev, "failed probing static parameters: %d\n", rc);
+	} else if (params == NULL) {
+		hid_dbg(hdev, "static parameters not found\n");
 		/* Try to probe dynamic parameters */
 		rc = uclogic_params_probe_dynamic(&params, hdev);
+		if (rc < 0) {
+			hid_err(hdev,
+				"failed probing dynamic parameters: %d\n",
+				rc);
+		} else if (params == NULL) {
+			hid_dbg(hdev, "dynamic parameters not found\n");
+		} else {
+			hid_dbg(hdev, "dynamic parameters found\n");
+		}
+	} else {
+		hid_dbg(hdev, "static parameters found\n");
 	}
 
 	/* Output the parameters if succeeded, and asked to */
