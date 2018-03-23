@@ -315,12 +315,13 @@ static int uclogic_params_pen_v2_probe(struct uclogic_params_pen **ppen,
 		 */
 		for (i = 2;
 		     i < len &&
-		     	!(buf[i] >= 0x20 && buf[i] < 0x7f && buf[i + 1] == 0);
+			(buf[i] >= 0x20 && buf[i] < 0x7f && buf[i + 1] == 0);
 		     i += 2);
-		if (i < len) {
+		if (i >= len) {
 			hid_dbg(hdev,
-				"string descriptor with pen parameters seems "
-				"to contain text, assuming not compatible\n");
+				"string descriptor with pen parameters "
+				"seems to contain only text, "
+				"assuming not compatible\n");
 			goto output;
 		}
 	}
