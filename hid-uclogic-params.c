@@ -269,8 +269,8 @@ static int uclogic_params_pen_v2_probe(struct uclogic_params_pen **ppen,
 	int rc;
 	/* Buffer for (part of) the string descriptor */
 	__u8 *buf = NULL;
-	/* Minimum descriptor length required, maximum seen so far is 18 */
-	const int len = 12;
+	/* Descriptor length required */
+	const int len = 18;
 	s32 resolution;
 	/* Pen report descriptor template parameters */
 	s32 rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_NUM];
