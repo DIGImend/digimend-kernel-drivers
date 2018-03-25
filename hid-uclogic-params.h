@@ -43,7 +43,6 @@ struct uclogic_params {
 	unsigned int rdesc_size;
 	/*
 	 * True, if pen usage in report descriptor is present, but unused.
-	 * TODO Switch to just disabling unused interfaces, if possible.
 	 */
 	bool pen_unused;
 	/*
@@ -69,10 +68,10 @@ struct uclogic_params {
 	 */
 	bool pen_report_fragmented_hires;
 	/*
-	 * Virtual report ID to use for frame controls "sub-reports" extracted
+	 * Virtual report ID to use for frame control "sub-reports" extracted
 	 * from the pen reports.
 	 */
-	unsigned frame_virtual_report_id;
+	unsigned pen_frame_report_id;
 };
 
 /* Initialize a tablet interface and discover its parameters */

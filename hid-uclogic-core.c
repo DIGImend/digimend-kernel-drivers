@@ -37,7 +37,7 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 {
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 	struct uclogic_params *params = drvdata->params;
-	if (params != NULL && params->rdesc_ptr != NULL) {
+	if (params->rdesc_ptr != NULL) {
 		rdesc = params->rdesc_ptr;
 		*rsize = params->rdesc_size;
 	}
@@ -52,7 +52,7 @@ static int uclogic_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 	struct uclogic_params *params = drvdata->params;
 
 	/* discard the unused pen interface */
-	if (params != NULL && params->pen_unused &&
+	if (params->pen_unused &&
 	    (field->application == HID_DG_PEN))
 		return -1;
 
@@ -143,7 +143,10 @@ static int uclogic_probe(struct hid_device *hdev,
 		goto failure;
 	}
 	if (drvdata->params == NULL) {
-		hid_warn(hdev, "parameters not found");
+		hid_info(hdev, "parameters not found, "
+				"ignoring the interface");
+		rc = -ENODEV;
+		goto failure;
 	} else {
 		uclogic_params_dump(drvdata->params, hdev, "parameters:\n");
 	}
@@ -191,15 +194,14 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 	struct uclogic_params *params = drvdata->params;
 
-	if (params != NULL &&
-	    !params->pen_unused &&
+	if (!params->pen_unused &&
 	    (report->type == HID_INPUT_REPORT) &&
 	    (report->id == params->pen_report_id) &&
 	    (size >= 2)) {
 		/* If it's the "virtual" frame controls report */
 		if (data[1] & params->pen_report_frame_flag) {
 			/* Change to virtual frame controls report ID */
-			data[0] = params->frame_virtual_report_id;
+			data[0] = params->pen_frame_report_id;
 		} else {
 			/* If in-range reports are inverted */
 			if (params->pen_report_inrange ==

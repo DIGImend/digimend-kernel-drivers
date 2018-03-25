@@ -589,11 +589,26 @@ static int uclogic_params_probe_static(struct uclogic_params **pparams,
 	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
 	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
 	/* The device's original report descriptor size */
-	unsigned dev_rdesc_size = hdev->dev_rsize;
-	/* The replacement report descriptor pointer */
+	unsigned orig_rdesc_size = hdev->dev_rsize;
+	/*
+	 * The replacement report descriptor pointer,
+	 * or NULL if no replacement is needed.
+	 */
 	const __u8 *rdesc_ptr = NULL;
-	/* The replacement report descriptor size */
+	/*
+	 * The replacement report descriptor size.
+	 * Only valid if rdesc_ptr is not NULL.
+	 */
 	unsigned int rdesc_size = 0;
+	/*
+	 * True if the report descriptor contains several reports, one of
+	 * which is a pen report, which is unused, but some of the others may
+	 * still report something. TODO Switch to just returning NULL
+	 * parameters, so the whole interface is ignored instead, if the other
+	 * reports are also unused after all, or to rewriting the report
+	 * descriptor.
+	 */
+	bool pen_unused = false;
 	/* The resulting parameters */
 	struct uclogic_params *params = NULL;
 
@@ -608,31 +623,31 @@ static int uclogic_params_probe_static(struct uclogic_params **pparams,
 	 */
 	switch (hdev->product) {
 	case USB_DEVICE_ID_UCLOGIC_TABLET_PF1209:
-		if (dev_rdesc_size == UCLOGIC_RDESC_PF1209_ORIG_SIZE) {
+		if (orig_rdesc_size == UCLOGIC_RDESC_PF1209_ORIG_SIZE) {
 			rdesc_ptr = uclogic_rdesc_pf1209_fixed_arr;
 			rdesc_size = uclogic_rdesc_pf1209_fixed_size;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U:
-		if (dev_rdesc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
+		if (orig_rdesc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
 			rdesc_ptr = uclogic_rdesc_wp4030u_fixed_arr;
 			rdesc_size = uclogic_rdesc_wp4030u_fixed_size;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U:
-		if (dev_rdesc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
+		if (orig_rdesc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
 			rdesc_ptr = uclogic_rdesc_wp5540u_fixed_arr;
 			rdesc_size = uclogic_rdesc_wp5540u_fixed_size;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U:
-		if (dev_rdesc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
+		if (orig_rdesc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
 			rdesc_ptr = uclogic_rdesc_wp8060u_fixed_arr;
 			rdesc_size = uclogic_rdesc_wp8060u_fixed_size;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP1062:
-		if (dev_rdesc_size == UCLOGIC_RDESC_WP1062_ORIG_SIZE) {
+		if (orig_rdesc_size == UCLOGIC_RDESC_WP1062_ORIG_SIZE) {
 			rdesc_ptr = uclogic_rdesc_wp1062_fixed_arr;
 			rdesc_size = uclogic_rdesc_wp1062_fixed_size;
 		}
@@ -640,19 +655,19 @@ static int uclogic_params_probe_static(struct uclogic_params **pparams,
 	case USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850:
 		switch (bInterfaceNumber) {
 		case 0:
-			if (dev_rdesc_size == UCLOGIC_RDESC_TWHL850_ORIG0_SIZE) {
+			if (orig_rdesc_size == UCLOGIC_RDESC_TWHL850_ORIG0_SIZE) {
 				rdesc_ptr = uclogic_rdesc_twhl850_fixed0_arr;
 				rdesc_size = uclogic_rdesc_twhl850_fixed0_size;
 			}
 			break;
 		case 1:
-			if (dev_rdesc_size == UCLOGIC_RDESC_TWHL850_ORIG1_SIZE) {
+			if (orig_rdesc_size == UCLOGIC_RDESC_TWHL850_ORIG1_SIZE) {
 				rdesc_ptr = uclogic_rdesc_twhl850_fixed1_arr;
 				rdesc_size = uclogic_rdesc_twhl850_fixed1_size;
 			}
 			break;
 		case 2:
-			if (dev_rdesc_size == UCLOGIC_RDESC_TWHL850_ORIG2_SIZE) {
+			if (orig_rdesc_size == UCLOGIC_RDESC_TWHL850_ORIG2_SIZE) {
 				rdesc_ptr = uclogic_rdesc_twhl850_fixed2_arr;
 				rdesc_size = uclogic_rdesc_twhl850_fixed2_size;
 			}
@@ -665,40 +680,59 @@ static int uclogic_params_probe_static(struct uclogic_params **pparams,
 		 * respond to initialization.
 		 */
 		if (bNumInterfaces == 3) {
+			pen_unused = (bInterfaceNumber != 0);
 			break;
 		}
 		switch (bInterfaceNumber) {
 		case 0:
-			if (dev_rdesc_size == UCLOGIC_RDESC_TWHA60_ORIG0_SIZE) {
+			if (orig_rdesc_size == UCLOGIC_RDESC_TWHA60_ORIG0_SIZE) {
 				rdesc_ptr = uclogic_rdesc_twha60_fixed0_arr;
 				rdesc_size = uclogic_rdesc_twha60_fixed0_size;
 			}
 			break;
 		case 1:
-			if (dev_rdesc_size == UCLOGIC_RDESC_TWHA60_ORIG1_SIZE) {
+			if (orig_rdesc_size == UCLOGIC_RDESC_TWHA60_ORIG1_SIZE) {
 				rdesc_ptr = uclogic_rdesc_twha60_fixed1_arr;
 				rdesc_size = uclogic_rdesc_twha60_fixed1_size;
 			}
 			break;
 		}
 		break;
+	case USB_DEVICE_ID_HUION_TABLET:
+	case USB_DEVICE_ID_YIYNOVA_TABLET:
+	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_81:
+	case USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3:
+	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_45:
+	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47:
+		pen_unused = (bInterfaceNumber != 0);
+		break;
+	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
+	case USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540:
+		pen_unused = (bInterfaceNumber != 1);
+		break;
 	}
 
-	/* If we got our report descriptor */
-	if (rdesc_ptr != NULL && rdesc_size != 0) {
+	/*
+	 * If we got a replacement for the report descriptor,
+	 * or we have to tweak its interpretation.
+	 */
+	if (rdesc_ptr != NULL || pen_unused) {
 		/* Create parameters */
 		params = kzalloc(sizeof(*params), GFP_KERNEL);
 		if (params == NULL) {
 			rc = -ENOMEM;
 			goto cleanup;
 		}
-		params->rdesc_ptr = kmalloc(rdesc_size, GFP_KERNEL);
-		if (params->rdesc_ptr == NULL) {
-			rc = -ENOMEM;
-			goto cleanup;
+		params->pen_unused = pen_unused;
+		if (rdesc_ptr != NULL) {
+			params->rdesc_ptr = kmalloc(rdesc_size, GFP_KERNEL);
+			if (params->rdesc_ptr == NULL) {
+				rc = -ENOMEM;
+				goto cleanup;
+			}
+			memcpy(params->rdesc_ptr, rdesc_ptr, rdesc_size);
+			params->rdesc_size = rdesc_size;
 		}
-		memcpy(params->rdesc_ptr, rdesc_ptr, rdesc_size);
-		params->rdesc_size = rdesc_size;
 	}
 
 	/* Output parameters, if requested */
@@ -763,10 +797,6 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 				goto cleanup;
 			}
 		}
-		/*
-		 * Ignoring pen reports on all other interfaces
-		 * TODO Switch to just ignoring the interface, if possible.
-		 */
 		break;
 	case USB_DEVICE_ID_HUION_TABLET:
 	case USB_DEVICE_ID_YIYNOVA_TABLET:
@@ -788,10 +818,6 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 				goto cleanup;
 			}
 		}
-		/*
-		 * Ignoring pen reports on all other interfaces
-		 * TODO Switch to just ignoring the interface, if possible.
-		 */
 		break;
 	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
 	case USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540:
@@ -803,10 +829,6 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 				goto cleanup;
 			}
 		}
-		/*
-		 * Ignoring pen reports on all other interfaces
-		 * TODO Switch to just ignoring the interface, if possible.
-		 */
 		break;
 	case USB_DEVICE_ID_UGEE_TABLET_EX07S:
 		/* If this is the pen interface */
@@ -816,9 +838,6 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 				hid_err(hdev, "pen probing failed: %d\n", rc);
 				goto cleanup;
 			}
-		} else {
-			/* Ignore unused interface #0 */
-			return -ENODEV;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U:
@@ -835,6 +854,17 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 	}
 
 	/*
+	 * Check if we found anything
+	 */
+	hid_dbg(hdev, "pen parameters %sfound\n",
+			(pen == NULL ? "not " : ""));
+	hid_dbg(hdev, "frame parameters %sfound\n",
+			(frame == NULL ? "not " : ""));
+	if (pen == NULL && frame == NULL) {
+		goto output;
+	}
+
+	/*
 	 * Create parameters
 	 */
 	params = kzalloc(sizeof(*params), GFP_KERNEL);
@@ -842,16 +872,22 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 		rc = -ENOMEM;
 		goto cleanup;
 	}
-
-	/*
-	 * Merge report descriptors
-	 */
 	if (pen != NULL) {
 		params->rdesc_size += pen->rdesc_size;
+		params->pen_report_id = pen->report_id;
+		params->pen_report_inrange = pen->report_inrange;
+		params->pen_report_fragmented_hires =
+			pen->report_fragmented_hires;
 	}
 	if (frame != NULL) {
 		params->rdesc_size += frame->rdesc_size;
+		params->pen_report_frame_flag = 0x20;
+		params->pen_frame_report_id = 0xf7;
 	}
+
+	/*
+	 * Merge report descriptors, if any
+	 */
 	if (params->rdesc_size > 0) {
 		__u8 *p;
 
@@ -873,27 +909,7 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 		WARN_ON(p != params->rdesc_ptr + params->rdesc_size);
 	}
 
-	/*
-	 * Fill-in parameters
-	 */
-	if (pen == NULL) {
-		hid_dbg(hdev, "pen parameters not found\n");
-		params->pen_unused = true;
-	} else {
-		hid_dbg(hdev, "pen parameters found\n");
-		params->pen_report_id = pen->report_id;
-		params->pen_report_inrange = pen->report_inrange;
-		params->pen_report_fragmented_hires =
-			pen->report_fragmented_hires;
-	}
-	if (frame == NULL) {
-		hid_dbg(hdev, "frame parameters not found\n");
-	} else {
-		hid_dbg(hdev, "frame parameters found\n");
-		params->pen_report_frame_flag = 0x20;
-		params->frame_virtual_report_id = 0xf7;
-	}
-
+output:
 	/*
 	 * Output parameters, if requested
 	 */
@@ -942,7 +958,7 @@ void uclogic_params_dump(const struct uclogic_params *params,
 		".pen_report_inrange = %s\n"
 		".pen_report_frame_flag = 0x%02x\n"
 		".pen_report_fragmented_hires = %s\n"
-		".frame_virtual_report_id = %u\n",
+		".pen_frame_report_id = %u\n",
 		prefix,
 		params->rdesc_ptr,
 		params->rdesc_size,
@@ -951,7 +967,7 @@ void uclogic_params_dump(const struct uclogic_params *params,
 		INRANGE_STR(params->pen_report_inrange),
 		params->pen_report_frame_flag,
 		BOOL_STR(params->pen_report_fragmented_hires),
-		params->frame_virtual_report_id);
+		params->pen_frame_report_id);
 
 #undef INRANGE_STR
 #undef BOOL_STR
