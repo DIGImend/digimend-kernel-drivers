@@ -16,6 +16,7 @@
 #include <linux/hid.h>
 #include <linux/module.h>
 #include <linux/usb.h>
+#include <linux/timer.h>
 #include <asm/unaligned.h>
 #include "usbhid/usbhid.h"
 #include "hid-uclogic-params.h"
@@ -29,8 +30,33 @@
 
 /* Driver data */
 struct uclogic_drvdata {
+	/* Interface parameters */
 	struct uclogic_params *params;
+	/* Pen input device */
+	struct input_dev *pen_input;
+	/* Proximity-out timer */
+	struct timer_list proximity_timer;
 };
+
+static void uclogic_proximity_timeout(struct timer_list *t)
+{
+	struct uclogic_drvdata *drvdata = from_timer(drvdata, t,
+							proximity_timer);
+	struct input_dev *input = drvdata->pen_input;
+	if (input == NULL) {
+		return;
+	}
+	input_report_abs(input, ABS_PRESSURE, 0);
+	/* If BTN_TOUCH state is changing */
+	if (test_bit(BTN_TOUCH, input->key)) {
+		input_event(input, EV_MSC, MSC_SCAN,
+				/* Digitizer Tip Switch usage */
+				0xd0042);
+		input_report_key(input, BTN_TOUCH, 0);
+	}
+	input_report_key(input, BTN_TOOL_PEN, 0);
+	input_sync(input);
+}
 
 static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 					unsigned int *rsize)
@@ -70,6 +96,8 @@ static int uclogic_input_configured(struct hid_device *hdev,
 		struct hid_input *hi)
 #endif
 {
+	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
+	struct uclogic_params *params = drvdata->params;
 	char *name;
 	const char *suffix = NULL;
 	struct hid_field *field;
@@ -78,6 +106,15 @@ static int uclogic_input_configured(struct hid_device *hdev,
 	/* no report associated (HID_QUIRK_MULTI_INPUT not set) */
 	if (!hi->report)
 		RETURN_SUCCESS;
+
+	/*
+	 * If this is the input corresponding to the pen report
+	 * in need of tweaking.
+	 */
+	if (hi->report->id == params->pen_report_id) {
+		/* Remember the input device so we can simulate events */
+		drvdata->pen_input = hi->input;
+	}
 
 	field = hi->report->field[0];
 
@@ -134,6 +171,7 @@ static int uclogic_probe(struct hid_device *hdev,
 		rc = -ENOMEM;
 		goto failure;
 	}
+	timer_setup(&drvdata->proximity_timer, uclogic_proximity_timeout, 0);
 	hid_set_drvdata(hdev, drvdata);
 
 	/* Initialize the device and retrieve parameters */
@@ -202,38 +240,47 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 		if (data[1] & params->pen_report_frame_flag) {
 			/* Change to virtual frame controls report ID */
 			data[0] = params->pen_frame_report_id;
-		} else {
-			/* If in-range reports are inverted */
-			if (params->pen_report_inrange ==
-				UCLOGIC_PARAMS_PEN_REPORT_INRANGE_INVERTED) {
-				/* Invert the in-range bit */
-				data[1] ^= 0x40;
-			}
-			/*
-			 * If report contains fragmented high-resolution pen
-			 * coordinates
-			 */
-			if (size >= 10 && params->pen_report_fragmented_hires) {
-				u8 pressure_low_byte;
-				u8 pressure_high_byte;
+			return 0;
+		}
+		/* If in-range reports are inverted */
+		if (params->pen_report_inrange ==
+			UCLOGIC_PARAMS_PEN_REPORT_INRANGE_INVERTED) {
+			/* Invert the in-range bit */
+			data[1] ^= 0x40;
+		}
+		/*
+		 * If report contains fragmented high-resolution pen
+		 * coordinates
+		 */
+		if (size >= 10 && params->pen_report_fragmented_hires) {
+			u8 pressure_low_byte;
+			u8 pressure_high_byte;
 
-				/* Lift pressure bytes */
-				pressure_low_byte = data[6];
-				pressure_high_byte = data[7];
-				/*
-				 * Move Y coord to make space for high-order X
-				 * coord byte
-				 */
-				data[6] = data[5];
-				data[5] = data[4];
-				/* Move high-order X coord byte */
-				data[4] = data[8];
-				/* Move high-order Y coord byte */
-				data[7] = data[9];
-				/* Place pressure bytes */
-				data[8] = pressure_low_byte;
-				data[9] = pressure_high_byte;
-			}
+			/* Lift pressure bytes */
+			pressure_low_byte = data[6];
+			pressure_high_byte = data[7];
+			/*
+			 * Move Y coord to make space for high-order X
+			 * coord byte
+			 */
+			data[6] = data[5];
+			data[5] = data[4];
+			/* Move high-order X coord byte */
+			data[4] = data[8];
+			/* Move high-order Y coord byte */
+			data[7] = data[9];
+			/* Place pressure bytes */
+			data[8] = pressure_low_byte;
+			data[9] = pressure_high_byte;
+		}
+		/* If we need to emulate proximity */
+		if (params->pen_report_inrange ==
+				UCLOGIC_PARAMS_PEN_REPORT_INRANGE_NONE) {
+			/* Set proximity bit */
+			data[1] |= 0x40;
+			/* (Re-)start proximity timeout */
+			mod_timer(&drvdata->proximity_timer,
+					jiffies + msecs_to_jiffies(100));
 		}
 	}
 
@@ -243,9 +290,10 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 static void uclogic_remove(struct hid_device *hdev)
 {
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
+	del_timer_sync(&drvdata->proximity_timer);
+	hid_hw_stop(hdev);
 	uclogic_params_free(drvdata->params);
 	drvdata->params = NULL;
-	hid_hw_stop(hdev);
 }
 
 static const struct hid_device_id uclogic_devices[] = {

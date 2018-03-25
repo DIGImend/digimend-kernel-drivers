@@ -26,4 +26,21 @@
 		      hid_unregister_driver)
 #endif
 
+#ifndef from_timer
+#define from_timer(var, callback_timer, timer_fieldname) \
+	container_of(callback_timer, typeof(*var), timer_fieldname)
+#endif
+
+/* If we're on an old kernel where setup_timer was still defined */
+#ifdef setup_timer
+/*
+ * Define a replacement of timer_setup found in newer kernels.
+ * NOTE Casting function pointers like this is a dirty hack,
+ * 	but will probably work, and should do for now.
+ */
+#define timer_setup(timer, callback, flags) \
+	__setup_timer((timer), (void (*)(unsigned long))(callback), \
+			(unsigned long)(timer), (flags))
+#endif
+
 #endif
