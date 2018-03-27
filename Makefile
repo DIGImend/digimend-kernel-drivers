@@ -9,6 +9,9 @@ PWD := $(shell pwd)
 UDEV_RULES := /lib/udev/rules.d/90-hid-rebind.rules
 DEPMOD_CONF := /etc/depmod.d/digimend.conf
 HID_REBIND := /sbin/hid-rebind
+PACKAGE_NAME = digimend-kernel-drivers
+PACKAGE_VERSION = 7
+PACKAGE = $(PACKAGE_NAME)-$(PACKAGE_VERSION)
 modules modules_install clean:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) $@
 install: modules_install
@@ -25,3 +28,5 @@ uninstall:
 		/lib/modules/*/extra/hid-viewsonic.ko
 	udevadm control --reload
 	depmod -a
+dist:
+	git archive --format=tar.gz --prefix=$(PACKAGE)/ HEAD > $(PACKAGE).tar.gz
