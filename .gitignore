@@ -2,6 +2,7 @@
 *.mod.c
 *.o
 .*
+*.tar.gz
 /Module.symvers
 /modules.order
 !.travis.yml
