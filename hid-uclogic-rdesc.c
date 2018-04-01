@@ -733,46 +733,43 @@ const __u8 uclogic_rdesc_ugee_ex07_template_arr[] = {
 const size_t uclogic_rdesc_ugee_ex07_template_size =
 			sizeof(uclogic_rdesc_ugee_ex07_template_arr);
 
-/* Fixed virtual pad report descriptor */
-const __u8 uclogic_rdesc_buttonpad_arr[] = {
-	0x05, 0x01,             /*  Usage Page (Desktop),                   */
-	0x09, 0x07,             /*  Usage (Keypad),                         */
-	0xA1, 0x01,             /*  Collection (Application),               */
-	0x85, 0xF7,             /*      Report ID (247),                    */
-	0x05, 0x0D,             /*      Usage Page (Digitizers),            */
-	0x09, 0x39,             /*      Usage (Tablet Function Keys),       */
-	0xA0,                   /*      Collection (Physical),              */
-	0x05, 0x09,             /*          Usage Page (Button),            */
-	0x75, 0x01,             /*          Report Size (1),                */
-	0x95, 0x18,             /*          Report Count (24),              */
-	0x81, 0x03,             /*          Input (Constant, Variable),     */
-	0x19, 0x01,             /*          Usage Minimum (01h),            */
-	0x29, 0x08,             /*          Usage Maximum (08h),            */
-	0x95, 0x08,             /*          Report Count (8),               */
-	0x81, 0x02,             /*          Input (Variable),               */
-	0x05, 0x0D,             /*          Usage Page (Digitizers),        */
-	0x09, 0x20,             /*          Usage (Stylus),                 */
-	0x14,                   /*          Logical Minimum (0),            */
-	0x25, 0x01,             /*          Logical Maximum (1),            */
-	0x09, 0x44,             /*          Usage (Barrel Switch),          */
-	0x95, 0x01,             /*          Report Count (1),               */
-	0x81, 0x02,             /*          Input (Data,Var,Abs),           */
-	0x05, 0x01,             /*          Usage Page (Generic Desktop),   */
-	0x09, 0x30,             /*          Usage (X),                      */
-	0x09, 0x31,             /*          Usage (Y),                      */
-	0x95, 0x02,             /*          Report Count (2),               */
-	0x81, 0x02,             /*          Input (Data,Var,Abs),           */
-	0x05, 0x0D,             /*          Usage Page (Digitizers),        */
-	0x09, 0xFF,             /*          Usage (Vendor Usage 0xff),      */
-	0x75, 0x05,             /*          Report Size (5),                */
-	0x95, 0x01,             /*          Report Count (1),               */
-	0x81, 0x02,             /*          Input (Data,Var,Abs),           */
-	0xC0,                   /*      End Collection                      */
-	0xC0                    /*  End Collection                          */
+/* Fixed report descriptor template for basic button frame controls */
+const __u8 uclogic_rdesc_buttonpad_template_arr[] = {
+	0x05, 0x01,		/*  Usage Page (Desktop),               */
+	0x09, 0x07,		/*  Usage (Keypad),                     */
+	0xA1, 0x01,		/*  Collection (Application),           */
+	0x85, 0xF7,		/*      Report ID (247),                */
+	0x14,			/*      Logical Minimum (0),            */
+	0x25, 0x01,		/*      Logical Maximum (1),            */
+	0x75, 0x01,		/*      Report Size (1),                */
+	0x05, 0x0D,		/*      Usage Page (Digitizer),         */
+	0x09, 0x39,		/*      Usage (Tablet Function Keys),   */
+	0xA0,			/*      Collection (Physical),          */
+	0x05, 0x09,		/*          Usage Page (Button),        */
+	0x95, 0x18,		/*          Report Count (24),          */
+	0x81, 0x01,		/*          Input (Constant),           */
+	0x19, 0x01,		/*          Usage Minimum (01h),        */
+	0x29, 0x0A,		/*          Usage Maximum (0Ah),        */
+	0x95, 0x0A,		/*          Report Count (10),          */
+	0x81, 0x02,		/*          Input (Variable),           */
+	0xC0,			/*      End Collection,                 */
+	0x05, 0x01,		/*      Usage Page (Desktop),           */
+	0x09, 0x05,		/*      Usage (Gamepad),                */
+	0xA0,			/*      Collection (Physical),          */
+	0x05, 0x09,		/*          Usage Page (Button),        */
+	0x19, 0x01,		/*          Usage Minimum (01h),        */
+	0x29, 0x02,		/*          Usage Maximum (02h),        */
+	0x95, 0x02,		/*          Report Count (2),           */
+	0x81, 0x02,		/*          Input (Variable),           */
+	0x97, UCLOGIC_RDESC_BUTTONPAD_PH(PADDING),
+				/*          Report Count (PLACEHOLDER), */
+	0x81, 0x01,		/*          Input (Constant),           */
+	0xC0,			/*      End Collection,                 */
+	0xC0			/*  End Collection                      */
 };
 
-const size_t uclogic_rdesc_buttonpad_size =
-			sizeof(uclogic_rdesc_buttonpad_arr);
+const size_t uclogic_rdesc_buttonpad_template_size =
+			sizeof(uclogic_rdesc_buttonpad_template_arr);
 
 /**
  * uclogic_rdesc_template_apply() - apply report descriptor parameters to a

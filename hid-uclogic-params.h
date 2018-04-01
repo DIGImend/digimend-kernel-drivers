@@ -68,10 +68,11 @@ struct uclogic_params {
 	 */
 	bool pen_report_fragmented_hires;
 	/*
-	 * Virtual report ID to use for frame control "sub-reports" extracted
-	 * from the pen reports.
+	 * Frame controls report ID. Used as a virtual frame report ID, for
+	 * frame button reports extracted from pen reports, if
+	 * pen_report_frame_flag is valid and not zero.
 	 */
-	unsigned pen_frame_report_id;
+	unsigned frame_report_id;
 };
 
 /* Initialize a tablet interface and discover its parameters */

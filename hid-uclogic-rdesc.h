@@ -116,12 +116,25 @@ extern const size_t uclogic_rdesc_pen_v1_template_size;
 extern const __u8 uclogic_rdesc_pen_v2_template_arr[];
 extern const size_t uclogic_rdesc_pen_v2_template_size;
 
+/* Button pad report descriptor template placeholder IDs */
+enum uclogic_rdesc_buttonpad_ph_id {
+	UCLOGIC_RDESC_BUTTONPAD_PH_ID_PADDING,
+	UCLOGIC_RDESC_BUTTONPAD_PH_ID_NUM
+};
+
+/* Button pad report descriptor template placeholder */
+#define UCLOGIC_RDESC_BUTTONPAD_PH(_ID) \
+	UCLOGIC_RDESC_PH_HEAD, UCLOGIC_RDESC_BUTTONPAD_PH_ID_##_ID
+
+/* Fixed report descriptor template for basic button frame controls */
+extern const __u8 uclogic_rdesc_buttonpad_template_arr[];
+extern const size_t uclogic_rdesc_buttonpad_template_size;
+
+/* Report ID for button pad reports */
+#define UCLOGIC_RDESC_BUTTONPAD_ID 0xf7
+
 /* Fixed report descriptor template for Ugee EX07 */
 extern const __u8 uclogic_rdesc_ugee_ex07_template_arr[];
 extern const size_t uclogic_rdesc_ugee_ex07_template_size;
-
-/* Fixed virtual pad report descriptor */
-extern const __u8 uclogic_rdesc_buttonpad_arr[];
-extern const size_t uclogic_rdesc_buttonpad_size;
 
 #endif /* _HID_UCLOGIC_RDESC_H */
