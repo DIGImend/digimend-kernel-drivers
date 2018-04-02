@@ -537,6 +537,9 @@ void uclogic_params_free(struct uclogic_params *params)
  * 		Can be NULL to have parameters discarded after retrieval.
  * @hdev	The HID device of the tablet interface to initialize and
  * 		possibly get parameters from. Cannot be NULL.
+ *
+ * Return:
+ * 	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_probe_static(struct uclogic_params **pparams,
 			 		struct hid_device *hdev)
