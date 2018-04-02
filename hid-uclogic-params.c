@@ -462,9 +462,9 @@ static int uclogic_params_frame_probe_generic(
 	if (rc == -EPIPE) {
 		hid_dbg(hdev, "generic button -enabling string descriptor "
 				"not found\n");
-	} else if (rc < 0) {
+	} else if (rc < 0 && rc != -ENODATA) {
 		goto cleanup;
-	} else if (strncmp(str_buf, "HK On", rc) != 0) {
+	} else if (rc == 0 && strncmp(str_buf, "HK On", rc) != 0) {
 		hid_dbg(hdev, "invalid response to enabling generic "
 				"buttons: \"%s\"\n", str_buf);
 	} else {
@@ -472,7 +472,13 @@ static int uclogic_params_frame_probe_generic(
 			[UCLOGIC_RDESC_BUTTONPAD_PH_ID_PADDING] = padding
 		};
 
-		hid_dbg(hdev, "generic buttons enabled\n");
+		if (rc == -ENODATA) {
+			hid_dbg(hdev, "invalid generic button -enabling string "
+					"descriptor, assuming generic buttons "
+					"are enabled succesfully\n");
+		} else {
+			hid_dbg(hdev, "generic buttons enabled\n");
+		}
 
 		frame = kzalloc(sizeof(*frame), GFP_KERNEL);
 		if (frame == NULL) {
