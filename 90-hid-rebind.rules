@@ -14,3 +14,5 @@ SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:00000543:0000E621", \
 	RUN+="/sbin/hid-rebind"
 SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:000028BD:00000078", \
 	RUN+="/sbin/hid-rebind"
+SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:00002133:00000018", \
+	RUN+="/sbin/hid-rebind"
