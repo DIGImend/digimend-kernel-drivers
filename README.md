@@ -1,6 +1,8 @@
 DIGImend kernel drivers
 =======================
 
+[![Travis CI Build Status][travis_ci_badge]][travis_ci_page]
+
 This is a collection of graphics tablet drivers for the Linux kernel, produced
 and maintained by the DIGImend project. We maintain this package to provide
 newer drivers for older kernel versions which don't have them, and to allow
@@ -219,6 +221,8 @@ at [the issues page on GitHub][issues]. Join the [#DIGImend channel on
 irc.freenode.net][irc_channel] to discuss the drivers, tablets, development,
 to ask for help, and to help others!
 
+[travis_ci_badge]: https://travis-ci.org/DIGImend/digimend-kernel-drivers.svg?branch=master
+[travis_ci_page]: https://travis-ci.org/DIGImend/digimend-kernel-drivers
 [website]: http://digimend.github.io/
 [supported_tablets]: http://digimend.github.io/drivers/digimend/tablets/
 [releases]: https://github.com/DIGImend/digimend-kernel-drivers/releases
