@@ -24,11 +24,11 @@
  * device interface, putting it into a kmalloc-allocated buffer as is, without
  * character encoding conversion.
  *
- * @pbuf	Location for the kmalloc-allocated buffer pointer containing
+ * @pbuf:	Location for the kmalloc-allocated buffer pointer containing
  * 		the retrieved descriptor. Not modified in case of error.
  * 		Can be NULL to have retrieved descriptor discarded.
- * @idx		Index of the string descriptor to request from the device.
- * @len		Length of the buffer to allocate and the data to retrieve.
+ * @idx:	Index of the string descriptor to request from the device.
+ * @len:	Length of the buffer to allocate and the data to retrieve.
  *
  * Return:
  * 	number of bytes retrieved (<= len),
@@ -95,7 +95,7 @@ struct uclogic_params_pen {
  * uclogic_params_pen_free - free resources used by struct uclogic_params_pen
  * (tablet interface's pen input parameters).
  *
- * @pen	Pen input parameters to free. Can be NULL.
+ * @pen:	Pen input parameters to free. Can be NULL.
  */
 static void uclogic_params_pen_free(struct uclogic_params_pen *pen)
 {
@@ -110,12 +110,12 @@ static void uclogic_params_pen_free(struct uclogic_params_pen *pen)
  * uclogic_params_pen_v1_probe() - initialize tablet interface pen
  * input and retrieve its parameters from the device, using v1 protocol.
  *
- * @ppen 	Location for the pointer to resulting pen parameters (to be
+ * @ppen: 	Location for the pointer to resulting pen parameters (to be
  * 		freed with uclogic_params_pen_free()), or for NULL if the pen
  * 		parameters were not found or recognized.  Not modified in case
  * 		of error. Can be NULL to have parameters discarded after
  * 		retrieval.
- * @hdev	The HID device of the tablet interface to initialize and get
+ * @hdev:	The HID device of the tablet interface to initialize and get
  * 		parameters from. Cannot be NULL.
  *
  * Return:
@@ -237,7 +237,7 @@ cleanup:
  * uclogic_params_get_le24() - get a 24-bit little-endian number from a
  * buffer.
  *
- * @p	The pointer to the number buffer.
+ * @p:	The pointer to the number buffer.
  *
  * Return:
  * 	The retrieved number
@@ -252,12 +252,12 @@ static s32 uclogic_params_get_le24(const void *p)
  * uclogic_params_pen_v2_probe() - initialize tablet interface pen
  * input and retrieve its parameters from the device, using v2 protocol.
  *
- * @ppen 	Location for the pointer to resulting pen parameters (to be
+ * @ppen: 	Location for the pointer to resulting pen parameters (to be
  * 		freed with uclogic_params_pen_free()), or for NULL if the pen
  * 		parameters were not found or recognized.  Not modified in case
  * 		of error. Can be NULL to have parameters discarded after
  * 		retrieval.
- * @hdev	The HID device of the tablet interface to initialize and get
+ * @hdev:	The HID device of the tablet interface to initialize and get
  * 		parameters from. Cannot be NULL.
  *
  * Return:
@@ -409,7 +409,7 @@ struct uclogic_params_frame {
  * uclogic_params_frame_free - free resources used by struct
  * uclogic_params_frame (tablet interface's frame controls input parameters).
  *
- * @frame	Frame controls input parameters to free. Can be NULL.
+ * @frame:	Frame controls input parameters to free. Can be NULL.
  */
 static void uclogic_params_frame_free(struct uclogic_params_frame *frame)
 {
@@ -424,15 +424,15 @@ static void uclogic_params_frame_free(struct uclogic_params_frame *frame)
  * uclogic_params_frame_probe_generic() - initialize tablet interface generic
  * frame button controls, with specified bit layout.
  *
- * @pframe		Location for the pointer to resulting frame controls
+ * @pframe:		Location for the pointer to resulting frame controls
  * 			parameters (to be freed with
  * 			uclogic_params_frame_free()), or for NULL if the frame
  * 			controls parameters were not found or recognized.  Not
  * 			modified in case of error. Can be NULL to have
  * 			parameters discarded after retrieval.
- * @hdev		The HID device of the tablet interface to initialize
+ * @hdev:		The HID device of the tablet interface to initialize
  * 			and get parameters from. Cannot be NULL.
- * @padding		Padding from the end of button bits at bit 44, until
+ * @padding:		Padding from the end of button bits at bit 44, until
  * 			the end of the report, bits.
  *
  * Return:
@@ -516,7 +516,7 @@ cleanup:
  * uclogic_params_free - free resources used by struct uclogic_params
  * (tablet interface's input parameters).
  *
- * @params	Input parameters to free. Can be NULL.
+ * @params:	Input parameters to free. Can be NULL.
  */
 void uclogic_params_free(struct uclogic_params *params)
 {
@@ -531,11 +531,11 @@ void uclogic_params_free(struct uclogic_params *params)
  * uclogic_params_probe_static() - probe a tablet interface with
  * statically-assigned parameters.
  *
- * @pparams 	Location for the pointer to resulting parameters (to be
+ * @pparams: 	Location for the pointer to resulting parameters (to be
  * 		freed with uclogic_params_free()), or for NULL if the
  * 		parameters were not found.  Not modified in case of error.
  * 		Can be NULL to have parameters discarded after retrieval.
- * @hdev	The HID device of the tablet interface to initialize and
+ * @hdev:	The HID device of the tablet interface to initialize and
  * 		possibly get parameters from. Cannot be NULL.
  *
  * Return:
@@ -713,11 +713,11 @@ cleanup:
  * uclogic_params_probe_dynamic() - initialize a tablet interface and retrieve
  * its parameters from the device.
  *
- * @pparams 	Location for the pointer to resulting parameters (to be
+ * @pparams: 	Location for the pointer to resulting parameters (to be
  * 		freed with uclogic_params_free()), or for NULL if the
  * 		parameters were not found.  Not modified in case of error.
  * 		Can be NULL to have parameters discarded after retrieval.
- * @hdev	The HID device of the tablet interface to initialize and get
+ * @hdev:	The HID device of the tablet interface to initialize and get
  * 		parameters from. Cannot be NULL.
  *
  * Return:
@@ -904,10 +904,10 @@ cleanup:
 /**
  * uclogic_params_dump() - dump tablet interface parameters with hid_dbg.
  *
- * @params 	The interface parameters to dump. Cannot be NULL.
- * @hdev	The HID device of the tablet interface to refer to while
+ * @params: 	The interface parameters to dump. Cannot be NULL.
+ * @hdev:	The HID device of the tablet interface to refer to while
  * 		dumping. Cannot be NULL.
- * @prefix   	String to output before the dump. Cannot be NULL.
+ * @prefix:   	String to output before the dump. Cannot be NULL.
  */
 void uclogic_params_dump(const struct uclogic_params *params,
 				const struct hid_device *hdev,
@@ -951,11 +951,11 @@ void uclogic_params_dump(const struct uclogic_params *params,
  * uclogic_params_probe() - initialize a tablet interface and discover its
  * parameters.
  *
- * @pparams 	Location for the pointer to resulting parameters (to be
+ * @pparams: 	Location for the pointer to resulting parameters (to be
  * 		freed with uclogic_params_free()), or for NULL if the
  * 		parameters were not found.  Not modified in case of error.
  * 		Can be NULL to have parameters discarded after retrieval.
- * @hdev	The HID device of the tablet interface to initialize and get
+ * @hdev:	The HID device of the tablet interface to initialize and get
  * 		parameters from. Cannot be NULL.
  *
  * Return:
