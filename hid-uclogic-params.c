@@ -686,12 +686,12 @@ static int uclogic_params_probe_static(struct uclogic_params **pparams,
 		}
 		params->pen_unused = pen_unused;
 		if (rdesc_ptr != NULL) {
-			params->rdesc_ptr = kmalloc(rdesc_size, GFP_KERNEL);
+			params->rdesc_ptr =
+				kmemdup(rdesc_ptr, rdesc_size, GFP_KERNEL);
 			if (params->rdesc_ptr == NULL) {
 				rc = -ENOMEM;
 				goto cleanup;
 			}
-			memcpy(params->rdesc_ptr, rdesc_ptr, rdesc_size);
 			params->rdesc_size = rdesc_size;
 		}
 	}

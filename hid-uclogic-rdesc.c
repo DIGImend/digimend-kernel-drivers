@@ -797,12 +797,10 @@ __u8 *uclogic_rdesc_template_apply(const __u8 *template_ptr,
 	__u8 *p;
 	s32 v;
 
-	rdesc_ptr = kmalloc(template_size, GFP_KERNEL);
+	rdesc_ptr = kmemdup(template_ptr, template_size, GFP_KERNEL);
 	if (rdesc_ptr == NULL) {
 		return NULL;
 	}
-
-	memcpy(rdesc_ptr, template_ptr, template_size);
 
 	for (p = rdesc_ptr; p + sizeof(head) < rdesc_ptr + template_size;) {
 		if (memcmp(p, head, sizeof(head)) == 0 &&
