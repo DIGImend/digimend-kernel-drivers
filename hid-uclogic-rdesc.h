@@ -130,8 +130,8 @@ extern const size_t uclogic_rdesc_buttonpad_v2_size;
 /* Report ID for tweaked v2 buttonpad reports */
 #define UCLOGIC_RDESC_BUTTONPAD_V2_ID 0xf7
 
-/* Fixed report descriptor template for Ugee EX07 */
-extern const __u8 uclogic_rdesc_ugee_ex07_template_arr[];
-extern const size_t uclogic_rdesc_ugee_ex07_template_size;
+/* Fixed report descriptor for Ugee EX07 buttonpad */
+extern const __u8 uclogic_rdesc_ugee_ex07_buttonpad_arr[];
+extern const size_t uclogic_rdesc_ugee_ex07_buttonpad_size;
 
 #endif /* _HID_UCLOGIC_RDESC_H */

@@ -239,7 +239,7 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 		/* If it's the "virtual" frame controls report */
 		if (data[1] & params->pen_report_frame_flag) {
 			/* Change to virtual frame controls report ID */
-			data[0] = params->frame_report_id;
+			data[0] = params->pen_report_frame_report_id;
 			return 0;
 		}
 		/* If in-range reports are inverted */

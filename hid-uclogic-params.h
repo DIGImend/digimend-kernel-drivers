@@ -68,10 +68,11 @@ struct uclogic_params {
 	 */
 	__u8 pen_report_frame_flag;
 	/*
-	 * ID of the frame controls report, if there is one, and not more than
-	 * one. Otherwise zero.
+	 * Frame controls report ID. Used as the virtual frame report ID, for
+	 * frame button reports extracted from pen reports, if
+	 * pen_report_frame_flag is valid and not zero.
 	 */
-	unsigned frame_report_id;
+	unsigned pen_report_frame_report_id;
 };
 
 /* Initialize a tablet interface and discover its parameters */

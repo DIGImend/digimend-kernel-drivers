@@ -401,11 +401,6 @@ struct uclogic_params_frame {
 	__u8 *rdesc_ptr;
 	/* Size of the report descriptor */
 	unsigned int rdesc_size;
-	/*
-	 * The ID of the report described by the report descriptor,
-	 * if it has only one. Otherwise zero.
-	 */
-	unsigned report_id;
 };
 
 /**
@@ -433,16 +428,13 @@ static void uclogic_params_frame_free(struct uclogic_params_frame *frame)
  * 		discarded after creation.
  * @rdesc_ptr:	Report descriptor pointer. Can be NULL, if rdesc_size is zero.
  * @rdesc_size:	Report descriptor size.
- * @report_id: 	The ID of the report described by the report descriptor, if it
- * 		has only one. Otherwise zero.
  *
  * Return:
  * 	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_frame_create(struct uclogic_params_frame **pframe,
 				       const __u8 *rdesc_ptr,
-				       size_t rdesc_size,
-				       unsigned report_id)
+				       size_t rdesc_size)
 {
 	int rc;
 	struct uclogic_params_frame *frame = NULL;
@@ -458,7 +450,6 @@ static int uclogic_params_frame_create(struct uclogic_params_frame **pframe,
 		goto cleanup;
 	}
 	frame->rdesc_size = rdesc_size;
-	frame->report_id = report_id;
 
 	/*
 	 * Output the parameters, if requested
@@ -528,8 +519,7 @@ static int uclogic_params_frame_buttonpad_v1_probe(
 		rc = uclogic_params_frame_create(
 				&frame,
 				uclogic_rdesc_buttonpad_v1_arr,
-				uclogic_rdesc_buttonpad_v1_size,
-				UCLOGIC_RDESC_BUTTONPAD_V1_ID);
+				uclogic_rdesc_buttonpad_v1_size);
 		if (rc < 0) {
 			goto cleanup;
 		}
@@ -769,8 +759,19 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
 	/* Pen input parameters */
 	struct uclogic_params_pen *pen = NULL;
+	/*
+	 * Bitmask matching frame controls "sub-report" flag in the second
+	 * byte of the pen report, or zero if it's not expected.
+	 */
+	__u8 pen_report_frame_flag = 0;
 	/* Frame controls' input parameters */
 	struct uclogic_params_frame *frame = NULL;
+	/*
+	 * Frame controls report ID. Used as the virtual frame report ID, for
+	 * frame button reports extracted from pen reports, if
+	 * pen_report_frame_flag is valid and not zero.
+	 */
+	unsigned pen_report_frame_report_id = 0;
 	/* The resulting interface parameters */
 	struct uclogic_params *params = NULL;
 
@@ -803,13 +804,15 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 			rc = uclogic_params_frame_create(
 					&frame,
 					uclogic_rdesc_buttonpad_v2_arr,
-					uclogic_rdesc_buttonpad_v2_size,
-					UCLOGIC_RDESC_BUTTONPAD_V2_ID);
+					uclogic_rdesc_buttonpad_v2_size);
 			if (rc != 0) {
 				hid_err(hdev, "failed creating v2 buttonpad "
 					"parameters: %d\n", rc);
 				goto cleanup;
 			}
+			pen_report_frame_flag = 0x20;
+			pen_report_frame_report_id =
+				UCLOGIC_RDESC_BUTTONPAD_V2_ID;
 			break;
 		}
 		hid_dbg(hdev, "pen v2 parameters not found\n");
@@ -828,6 +831,9 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 					"failed: %d\n", rc);
 				goto cleanup;
 			}
+			pen_report_frame_flag = 0x20;
+			pen_report_frame_report_id =
+				UCLOGIC_RDESC_BUTTONPAD_V1_ID;
 			break;
 		}
 		hid_dbg(hdev, "pen v1 parameters not found\n");
@@ -845,11 +851,25 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 		}
 		break;
 	case USB_DEVICE_ID_UGEE_TABLET_EX07S:
-		/* If this is the pen interface */
-		if (bInterfaceNumber == 1) {
-			rc = uclogic_params_pen_v1_probe(&pen, hdev);
+		/* Skip non-pen interfaces */
+		if (bInterfaceNumber != 1) {
+			break;
+		}
+
+		/* Probe pen parameters */
+		rc = uclogic_params_pen_v1_probe(&pen, hdev);
+		if (rc != 0) {
+			hid_err(hdev, "pen probing failed: %d\n", rc);
+			goto cleanup;
+		} else if (pen != NULL) {
+			/* Create frame parameters */
+			rc = uclogic_params_frame_create(
+				&frame,
+				uclogic_rdesc_ugee_ex07_buttonpad_arr,
+				uclogic_rdesc_ugee_ex07_buttonpad_size);
 			if (rc != 0) {
-				hid_err(hdev, "pen probing failed: %d\n", rc);
+				hid_err(hdev, "failed creating buttonpad "
+					"parameters: %d\n", rc);
 				goto cleanup;
 			}
 		}
@@ -892,12 +912,12 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 		params->pen_report_inrange = pen->report_inrange;
 		params->pen_report_fragmented_hires =
 			pen->report_fragmented_hires;
-		/* TODO Move this to pen probing functions */
-		params->pen_report_frame_flag = 0x20;
+		params->pen_report_frame_flag = pen_report_frame_flag;
+		params->pen_report_frame_report_id =
+				pen_report_frame_report_id;
 	}
 	if (frame != NULL) {
 		params->rdesc_size += frame->rdesc_size;
-		params->frame_report_id = frame->report_id;
 	}
 
 	/*
@@ -971,18 +991,18 @@ void uclogic_params_dump(const struct uclogic_params *params,
 		".pen_unused = %s\n"
 		".pen_report_id = %u\n"
 		".pen_report_inrange = %s\n"
-		".pen_report_frame_flag = 0x%02x\n"
 		".pen_report_fragmented_hires = %s\n"
-		".frame_report_id = %u\n",
+		".pen_report_frame_flag = 0x%02x\n"
+		".pen_report_frame_report_id = %u\n",
 		prefix,
 		params->rdesc_ptr,
 		params->rdesc_size,
 		BOOL_STR(params->pen_unused),
 		params->pen_report_id,
 		INRANGE_STR(params->pen_report_inrange),
-		params->pen_report_frame_flag,
 		BOOL_STR(params->pen_report_fragmented_hires),
-		params->frame_report_id);
+		params->pen_report_frame_flag,
+		params->pen_report_frame_report_id);
 
 #undef INRANGE_STR
 #undef BOOL_STR
