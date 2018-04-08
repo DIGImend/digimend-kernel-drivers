@@ -46,7 +46,7 @@ struct uclogic_params {
 	 */
 	bool pen_unused;
 	/*
-	 * Pen report ID, if pen reports should be tweaked, zero if not
+	 * Pen report ID, if pen reports should be tweaked, zero if not.
 	 * Only valid if pen_unused is false.
 	 */
 	unsigned pen_report_id;
@@ -56,21 +56,20 @@ struct uclogic_params {
 	 */
 	enum uclogic_params_pen_report_inrange pen_report_inrange;
 	/*
-	 * Bitmask matching frame controls "sub-report" flag in the second
-	 * byte of the pen report, or zero if it's not expected.
-	 * Only valid if pen_report_id is not zero.
-	 */
-	__u8 pen_report_frame_flag;
-	/*
 	 * True, if pen reports include fragmented high resolution coords,
 	 * with high-order X and then Y bytes following the pressure field
 	 * Only valid if pen_report_id is not zero.
 	 */
 	bool pen_report_fragmented_hires;
 	/*
-	 * Frame controls report ID. Used as a virtual frame report ID, for
-	 * frame button reports extracted from pen reports, if
-	 * pen_report_frame_flag is valid and not zero.
+	 * Bitmask matching frame controls "sub-report" flag in the second
+	 * byte of the pen report, or zero if it's not expected.
+	 * Only valid if pen_report_id is valid and not zero.
+	 */
+	__u8 pen_report_frame_flag;
+	/*
+	 * ID of the frame controls report, if there is one, and not more than
+	 * one. Otherwise zero.
 	 */
 	unsigned frame_report_id;
 };

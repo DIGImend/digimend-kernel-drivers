@@ -401,7 +401,10 @@ struct uclogic_params_frame {
 	__u8 *rdesc_ptr;
 	/* Size of the report descriptor */
 	unsigned int rdesc_size;
-	/* Report ID */
+	/*
+	 * The ID of the report described by the report descriptor,
+	 * if it has only one. Otherwise zero.
+	 */
 	unsigned report_id;
 };
 
@@ -421,27 +424,74 @@ static void uclogic_params_frame_free(struct uclogic_params_frame *frame)
 }
 
 /**
- * uclogic_params_frame_probe_generic() - initialize tablet interface generic
- * frame button controls, with specified bit layout.
+ * uclogic_params_frame_create() - create tablet frame controls
+ * parameters from a static report descriptor.
  *
- * @pframe:		Location for the pointer to resulting frame controls
- * 			parameters (to be freed with
- * 			uclogic_params_frame_free()), or for NULL if the frame
- * 			controls parameters were not found or recognized.  Not
- * 			modified in case of error. Can be NULL to have
- * 			parameters discarded after retrieval.
- * @hdev:		The HID device of the tablet interface to initialize
- * 			and get parameters from. Cannot be NULL.
- * @padding:		Padding from the end of button bits at bit 44, until
- * 			the end of the report, bits.
+ * @pframe:	Location for the pointer to resulting frame controls
+ * 		parameters (to be freed with uclogic_params_frame_free()).
+ * 		Not modified in case of error. Can be NULL to have parameters
+ * 		discarded after creation.
+ * @rdesc_ptr:	Report descriptor pointer. Can be NULL, if rdesc_size is zero.
+ * @rdesc_size:	Report descriptor size.
+ * @report_id: 	The ID of the report described by the report descriptor, if it
+ * 		has only one. Otherwise zero.
  *
  * Return:
  * 	Zero, if successful. A negative errno code on error.
  */
-static int uclogic_params_frame_probe_generic(
+static int uclogic_params_frame_create(struct uclogic_params_frame **pframe,
+				       const __u8 *rdesc_ptr,
+				       size_t rdesc_size,
+				       unsigned report_id)
+{
+	int rc;
+	struct uclogic_params_frame *frame = NULL;
+
+	frame = kzalloc(sizeof(*frame), GFP_KERNEL);
+	if (frame == NULL) {
+		rc = -ENOMEM;
+		goto cleanup;
+	}
+	frame->rdesc_ptr = kmemdup(rdesc_ptr, rdesc_size, GFP_KERNEL);
+	if (frame->rdesc_ptr == NULL) {
+		rc = -ENOMEM;
+		goto cleanup;
+	}
+	frame->rdesc_size = rdesc_size;
+	frame->report_id = report_id;
+
+	/*
+	 * Output the parameters, if requested
+	 */
+	if (pframe != NULL) {
+		*pframe = frame;
+		frame = NULL;
+	}
+
+	rc = 0;
+cleanup:
+	uclogic_params_frame_free(frame);
+	return rc;
+}
+
+/**
+ * uclogic_params_frame_buttonpad_v1_probe() - initialize abstract buttonpad
+ * on a v1 tablet interface.
+ *
+ * @pframe:	Location for the pointer to resulting frame controls
+ * 		parameters (to be freed with uclogic_params_frame_free()), or
+ * 		for NULL if the frame controls parameters were not found or
+ * 		recognized.  Not modified in case of error. Can be NULL to
+ * 		have parameters discarded after retrieval.
+ * @hdev:	The HID device of the tablet interface to initialize and get
+ * 		parameters from. Cannot be NULL.
+ *
+ * Return:
+ * 	Zero, if successful. A negative errno code on error.
+ */
+static int uclogic_params_frame_buttonpad_v1_probe(
 					struct uclogic_params_frame **pframe,
-					struct hid_device *hdev,
-					s32 padding)
+					struct hid_device *hdev)
 {
 	int rc;
 	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
@@ -449,8 +499,14 @@ static int uclogic_params_frame_probe_generic(
 	size_t str_len = 16;
 	struct uclogic_params_frame *frame = NULL;
 
+	/* Check arguments */
+	if (hdev == NULL) {
+		rc = -EINVAL;
+		goto cleanup;
+	}
+
 	/*
-	 * Enable generic keyboard mode
+	 * Enable generic button mode
 	 */
 	str_buf = kzalloc(str_len, GFP_KERNEL);
 	if (str_buf == NULL) {
@@ -462,39 +518,21 @@ static int uclogic_params_frame_probe_generic(
 	if (rc == -EPIPE) {
 		hid_dbg(hdev, "generic button -enabling string descriptor "
 				"not found\n");
-	} else if (rc < 0 && rc != -ENODATA) {
+	} else if (rc < 0) {
 		goto cleanup;
-	} else if (rc == 0 && strncmp(str_buf, "HK On", rc) != 0) {
+	} else if (strncmp(str_buf, "HK On", rc) != 0) {
 		hid_dbg(hdev, "invalid response to enabling generic "
 				"buttons: \"%s\"\n", str_buf);
 	} else {
-		const s32 param_list[UCLOGIC_RDESC_BUTTONPAD_PH_ID_NUM] = {
-			[UCLOGIC_RDESC_BUTTONPAD_PH_ID_PADDING] = padding
-		};
-
-		if (rc == -ENODATA) {
-			hid_dbg(hdev, "invalid generic button -enabling string "
-					"descriptor, assuming generic buttons "
-					"are enabled succesfully\n");
-		} else {
-			hid_dbg(hdev, "generic buttons enabled\n");
-		}
-
-		frame = kzalloc(sizeof(*frame), GFP_KERNEL);
-		if (frame == NULL) {
-			rc = -ENOMEM;
+		hid_dbg(hdev, "generic buttons enabled\n");
+		rc = uclogic_params_frame_create(
+				&frame,
+				uclogic_rdesc_buttonpad_v1_arr,
+				uclogic_rdesc_buttonpad_v1_size,
+				UCLOGIC_RDESC_BUTTONPAD_V1_ID);
+		if (rc < 0) {
 			goto cleanup;
 		}
-		frame->rdesc_ptr = uclogic_rdesc_template_apply(
-					uclogic_rdesc_buttonpad_template_arr,
-					uclogic_rdesc_buttonpad_template_size,
-					param_list, sizeof(param_list));
-		if (frame->rdesc_ptr == NULL) {
-			rc = -ENOMEM;
-			goto cleanup;
-		}
-		frame->rdesc_size = uclogic_rdesc_buttonpad_template_size;
-		frame->report_id = UCLOGIC_RDESC_BUTTONPAD_ID;
 	}
 
 	/*
@@ -762,11 +800,14 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 				"failed probing pen v2 parameters: %d\n", rc);
 		} else if (pen != NULL) {
 			hid_dbg(hdev, "pen v2 parameters found\n");
-			rc = uclogic_params_frame_probe_generic(
-							&frame, hdev, 52);
+			rc = uclogic_params_frame_create(
+					&frame,
+					uclogic_rdesc_buttonpad_v2_arr,
+					uclogic_rdesc_buttonpad_v2_size,
+					UCLOGIC_RDESC_BUTTONPAD_V2_ID);
 			if (rc != 0) {
-				hid_err(hdev, "frame controls probing "
-					"failed: %d\n", rc);
+				hid_err(hdev, "failed creating v2 buttonpad "
+					"parameters: %d\n", rc);
 				goto cleanup;
 			}
 			break;
@@ -780,10 +821,10 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 				"failed probing pen v1 parameters: %d\n", rc);
 		} else if (pen != NULL) {
 			hid_dbg(hdev, "pen v1 parameters found\n");
-			rc = uclogic_params_frame_probe_generic(
-							&frame, hdev, 20);
+			rc = uclogic_params_frame_buttonpad_v1_probe(
+							&frame, hdev);
 			if (rc != 0) {
-				hid_err(hdev, "frame controls probing "
+				hid_err(hdev, "v1 buttonpad probing "
 					"failed: %d\n", rc);
 				goto cleanup;
 			}
