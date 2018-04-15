@@ -32,14 +32,14 @@ struct uclogic_drvdata {
 	struct uclogic_params *params;
 	/* Pen input device */
 	struct input_dev *pen_input;
-	/* Proximity-out timer */
-	struct timer_list proximity_timer;
+	/* In-range timer */
+	struct timer_list inrange_timer;
 };
 
-static void uclogic_proximity_timeout(struct timer_list *t)
+static void uclogic_inrange_timeout(struct timer_list *t)
 {
 	struct uclogic_drvdata *drvdata = from_timer(drvdata, t,
-							proximity_timer);
+							inrange_timer);
 	struct input_dev *input = drvdata->pen_input;
 	if (input == NULL) {
 		return;
@@ -168,7 +168,7 @@ static int uclogic_probe(struct hid_device *hdev,
 		rc = -ENOMEM;
 		goto failure;
 	}
-	timer_setup(&drvdata->proximity_timer, uclogic_proximity_timeout, 0);
+	timer_setup(&drvdata->inrange_timer, uclogic_inrange_timeout, 0);
 	hid_set_drvdata(hdev, drvdata);
 
 	/* Initialize the device and retrieve parameters */
@@ -270,12 +270,12 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 			data[8] = pressure_low_byte;
 			data[9] = pressure_high_byte;
 		}
-		/* If we need to emulate proximity */
+		/* If we need to emulate in-range detection */
 		if (params->pen_inrange == UCLOGIC_PARAMS_PEN_INRANGE_NONE) {
-			/* Set proximity bit */
+			/* Set in-range bit */
 			data[1] |= 0x40;
-			/* (Re-)start proximity timeout */
-			mod_timer(&drvdata->proximity_timer,
+			/* (Re-)start in-range timeout */
+			mod_timer(&drvdata->inrange_timer,
 					jiffies + msecs_to_jiffies(100));
 		}
 	}
@@ -286,7 +286,7 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 static void uclogic_remove(struct hid_device *hdev)
 {
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
-	del_timer_sync(&drvdata->proximity_timer);
+	del_timer_sync(&drvdata->inrange_timer);
 	hid_hw_stop(hdev);
 	uclogic_params_free(drvdata->params);
 	drvdata->params = NULL;
