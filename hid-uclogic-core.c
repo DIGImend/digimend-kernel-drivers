@@ -61,9 +61,9 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 {
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 	struct uclogic_params *params = drvdata->params;
-	if (params->rdesc_ptr != NULL) {
-		rdesc = params->rdesc_ptr;
-		*rsize = params->rdesc_size;
+	if (params->desc_ptr != NULL) {
+		rdesc = params->desc_ptr;
+		*rsize = params->desc_size;
 	}
 	return rdesc;
 }
@@ -76,8 +76,7 @@ static int uclogic_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 	struct uclogic_params *params = drvdata->params;
 
 	/* discard the unused pen interface */
-	if (params->pen_unused &&
-	    (field->application == HID_DG_PEN))
+	if (params->pen_unused && (field->application == HID_DG_PEN))
 		return -1;
 
 	/* let hid-core decide what to do */
@@ -109,7 +108,7 @@ static int uclogic_input_configured(struct hid_device *hdev,
 	 * If this is the input corresponding to the pen report
 	 * in need of tweaking.
 	 */
-	if (hi->report->id == params->pen_report_id) {
+	if (hi->report->id == params->pen_id) {
 		/* Remember the input device so we can simulate events */
 		drvdata->pen_input = hi->input;
 	}
@@ -232,17 +231,17 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 
 	if (!params->pen_unused &&
 	    (report->type == HID_INPUT_REPORT) &&
-	    (report->id == params->pen_report_id) &&
+	    (report->id == params->pen_id) &&
 	    (size >= 2)) {
 		/* If it's the "virtual" frame controls report */
-		if (data[1] & params->pen_report_frame_flag) {
+		if (data[1] & params->pen_frame_flag) {
 			/* Change to virtual frame controls report ID */
-			data[0] = params->pen_report_frame_report_id;
+			data[0] = params->pen_frame_id;
 			return 0;
 		}
 		/* If in-range reports are inverted */
-		if (params->pen_report_inrange ==
-			UCLOGIC_PARAMS_PEN_REPORT_INRANGE_INVERTED) {
+		if (params->pen_inrange ==
+			UCLOGIC_PARAMS_PEN_INRANGE_INVERTED) {
 			/* Invert the in-range bit */
 			data[1] ^= 0x40;
 		}
@@ -250,7 +249,7 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 		 * If report contains fragmented high-resolution pen
 		 * coordinates
 		 */
-		if (size >= 10 && params->pen_report_fragmented_hires) {
+		if (size >= 10 && params->pen_fragmented_hires) {
 			u8 pressure_low_byte;
 			u8 pressure_high_byte;
 
@@ -272,8 +271,7 @@ static int uclogic_raw_event(struct hid_device *hdev, struct hid_report *report,
 			data[9] = pressure_high_byte;
 		}
 		/* If we need to emulate proximity */
-		if (params->pen_report_inrange ==
-				UCLOGIC_PARAMS_PEN_REPORT_INRANGE_NONE) {
+		if (params->pen_inrange == UCLOGIC_PARAMS_PEN_INRANGE_NONE) {
 			/* Set proximity bit */
 			data[1] |= 0x40;
 			/* (Re-)start proximity timeout */

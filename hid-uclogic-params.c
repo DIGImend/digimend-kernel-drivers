@@ -77,18 +77,18 @@ cleanup:
 /* TODO Consider stripping "report" from names */
 struct uclogic_params_pen {
 	/* Pointer to report descriptor allocated with kmalloc */
-	__u8 *rdesc_ptr;
+	__u8 *desc_ptr;
 	/* Size of the report descriptor */
-	unsigned int rdesc_size;
+	unsigned int desc_size;
 	/* Pen report ID */
-	unsigned report_id;
+	unsigned id;
 	/* Type of pen in-range reporting */
-	enum uclogic_params_pen_report_inrange report_inrange;
+	enum uclogic_params_pen_inrange inrange;
 	/*
 	 * True, if pen reports include fragmented high resolution coords,
 	 * with high-order X and then Y bytes following the pressure field
 	 */
-	bool report_fragmented_hires;
+	bool fragmented_hires;
 };
 
 /**
@@ -100,7 +100,7 @@ struct uclogic_params_pen {
 static void uclogic_params_pen_free(struct uclogic_params_pen *pen)
 {
 	if (pen != NULL) {
-		kfree(pen->rdesc_ptr);
+		kfree(pen->desc_ptr);
 		memset(pen, 0, sizeof(*pen));
 		kfree(pen);
 	}
@@ -131,8 +131,8 @@ static int uclogic_params_pen_v1_probe(struct uclogic_params_pen **ppen,
 	const int len = 12;
 	s32 resolution;
 	/* Pen report descriptor template parameters */
-	s32 rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_NUM];
-	__u8 *rdesc_ptr = NULL;
+	s32 desc_params[UCLOGIC_RDESC_PEN_PH_ID_NUM];
+	__u8 *desc_ptr = NULL;
 	struct uclogic_params_pen *pen = NULL;
 
 	/* Check arguments */
@@ -168,22 +168,22 @@ static int uclogic_params_pen_v1_probe(struct uclogic_params_pen **ppen,
 	/*
 	 * Fill report descriptor parameters from the string descriptor
 	 */
-	rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] =
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] =
 		get_unaligned_le16(buf + 2);
-	rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] =
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] =
 		get_unaligned_le16(buf + 4);
-	rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_PRESSURE_LM] =
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_PRESSURE_LM] =
 		get_unaligned_le16(buf + 8);
 	resolution = get_unaligned_le16(buf + 10);
 	if (resolution == 0) {
-		rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] = 0;
-		rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] = 0;
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] = 0;
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] = 0;
 	} else {
-		rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] =
-			rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] * 1000 /
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] =
+			desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] * 1000 /
 			resolution;
-		rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] =
-			rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] * 1000 /
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] =
+			desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] * 1000 /
 			resolution;
 	}
 	kfree(buf);
@@ -192,11 +192,11 @@ static int uclogic_params_pen_v1_probe(struct uclogic_params_pen **ppen,
 	/*
 	 * Generate pen report descriptor
 	 */
-	rdesc_ptr = uclogic_rdesc_template_apply(
+	desc_ptr = uclogic_rdesc_template_apply(
 				uclogic_rdesc_pen_v1_template_arr,
 				uclogic_rdesc_pen_v1_template_size,
-				rdesc_params, ARRAY_SIZE(rdesc_params));
-	if (rdesc_ptr == NULL) {
+				desc_params, ARRAY_SIZE(desc_params));
+	if (desc_ptr == NULL) {
 		rc = -ENOMEM;
 		goto cleanup;
 	}
@@ -209,11 +209,11 @@ static int uclogic_params_pen_v1_probe(struct uclogic_params_pen **ppen,
 		rc = -ENOMEM;
 		goto cleanup;
 	}
-	pen->rdesc_ptr = rdesc_ptr;
-	rdesc_ptr = NULL;
-	pen->rdesc_size = uclogic_rdesc_pen_v1_template_size;
-	pen->report_id = UCLOGIC_RDESC_PEN_V1_ID;
-	pen->report_inrange = UCLOGIC_PARAMS_PEN_REPORT_INRANGE_INVERTED;
+	pen->desc_ptr = desc_ptr;
+	desc_ptr = NULL;
+	pen->desc_size = uclogic_rdesc_pen_v1_template_size;
+	pen->id = UCLOGIC_RDESC_PEN_V1_ID;
+	pen->inrange = UCLOGIC_PARAMS_PEN_INRANGE_INVERTED;
 
 output:
 	/*
@@ -228,7 +228,7 @@ output:
 
 cleanup:
 	uclogic_params_pen_free(pen);
-	kfree(rdesc_ptr);
+	kfree(desc_ptr);
 	kfree(buf);
 	return rc;
 }
@@ -273,8 +273,8 @@ static int uclogic_params_pen_v2_probe(struct uclogic_params_pen **ppen,
 	const int len = 18;
 	s32 resolution;
 	/* Pen report descriptor template parameters */
-	s32 rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_NUM];
-	__u8 *rdesc_ptr = NULL;
+	s32 desc_params[UCLOGIC_RDESC_PEN_PH_ID_NUM];
+	__u8 *desc_ptr = NULL;
 	struct uclogic_params_pen *pen = NULL;
 
 	/* Check arguments */
@@ -329,22 +329,22 @@ static int uclogic_params_pen_v2_probe(struct uclogic_params_pen **ppen,
 	/*
 	 * Fill report descriptor parameters from the string descriptor
 	 */
-	rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] =
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] =
 		uclogic_params_get_le24(buf + 2);
-	rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] =
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] =
 		uclogic_params_get_le24(buf + 5);
-	rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_PRESSURE_LM] =
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_PRESSURE_LM] =
 		get_unaligned_le16(buf + 8);
 	resolution = get_unaligned_le16(buf + 10);
 	if (resolution == 0) {
-		rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] = 0;
-		rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] = 0;
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] = 0;
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] = 0;
 	} else {
-		rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] =
-			rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] * 1000 /
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] =
+			desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] * 1000 /
 			resolution;
-		rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] =
-			rdesc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] * 1000 /
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] =
+			desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] * 1000 /
 			resolution;
 	}
 	kfree(buf);
@@ -353,11 +353,11 @@ static int uclogic_params_pen_v2_probe(struct uclogic_params_pen **ppen,
 	/*
 	 * Generate pen report descriptor
 	 */
-	rdesc_ptr = uclogic_rdesc_template_apply(
+	desc_ptr = uclogic_rdesc_template_apply(
 				uclogic_rdesc_pen_v2_template_arr,
 				uclogic_rdesc_pen_v2_template_size,
-				rdesc_params, ARRAY_SIZE(rdesc_params));
-	if (rdesc_ptr == NULL) {
+				desc_params, ARRAY_SIZE(desc_params));
+	if (desc_ptr == NULL) {
 		rc = -ENOMEM;
 		goto cleanup;
 	}
@@ -370,12 +370,12 @@ static int uclogic_params_pen_v2_probe(struct uclogic_params_pen **ppen,
 		rc = -ENOMEM;
 		goto cleanup;
 	}
-	pen->rdesc_ptr = rdesc_ptr;
-	rdesc_ptr = NULL;
-	pen->rdesc_size = uclogic_rdesc_pen_v2_template_size;
-	pen->report_id = UCLOGIC_RDESC_PEN_V2_ID;
-	pen->report_inrange = UCLOGIC_PARAMS_PEN_REPORT_INRANGE_NONE;
-	pen->report_fragmented_hires = true;
+	pen->desc_ptr = desc_ptr;
+	desc_ptr = NULL;
+	pen->desc_size = uclogic_rdesc_pen_v2_template_size;
+	pen->id = UCLOGIC_RDESC_PEN_V2_ID;
+	pen->inrange = UCLOGIC_PARAMS_PEN_INRANGE_NONE;
+	pen->fragmented_hires = true;
 
 output:
 	/*
@@ -390,7 +390,7 @@ output:
 
 cleanup:
 	uclogic_params_pen_free(pen);
-	kfree(rdesc_ptr);
+	kfree(desc_ptr);
 	kfree(buf);
 	return rc;
 }
@@ -398,9 +398,9 @@ cleanup:
 /* Parameters of frame control inputs of a tablet interface */
 struct uclogic_params_frame {
 	/* Pointer to report descriptor allocated with kmalloc */
-	__u8 *rdesc_ptr;
+	__u8 *desc_ptr;
 	/* Size of the report descriptor */
-	unsigned int rdesc_size;
+	unsigned int desc_size;
 };
 
 /**
@@ -412,7 +412,7 @@ struct uclogic_params_frame {
 static void uclogic_params_frame_free(struct uclogic_params_frame *frame)
 {
 	if (frame != NULL) {
-		kfree(frame->rdesc_ptr);
+		kfree(frame->desc_ptr);
 		memset(frame, 0, sizeof(*frame));
 		kfree(frame);
 	}
@@ -426,15 +426,15 @@ static void uclogic_params_frame_free(struct uclogic_params_frame *frame)
  * 		parameters (to be freed with uclogic_params_frame_free()).
  * 		Not modified in case of error. Can be NULL to have parameters
  * 		discarded after creation.
- * @rdesc_ptr:	Report descriptor pointer. Can be NULL, if rdesc_size is zero.
- * @rdesc_size:	Report descriptor size.
+ * @desc_ptr:	Report descriptor pointer. Can be NULL, if desc_size is zero.
+ * @desc_size:	Report descriptor size.
  *
  * Return:
  * 	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_frame_create(struct uclogic_params_frame **pframe,
-				       const __u8 *rdesc_ptr,
-				       size_t rdesc_size)
+				       const __u8 *desc_ptr,
+				       size_t desc_size)
 {
 	int rc;
 	struct uclogic_params_frame *frame = NULL;
@@ -444,12 +444,12 @@ static int uclogic_params_frame_create(struct uclogic_params_frame **pframe,
 		rc = -ENOMEM;
 		goto cleanup;
 	}
-	frame->rdesc_ptr = kmemdup(rdesc_ptr, rdesc_size, GFP_KERNEL);
-	if (frame->rdesc_ptr == NULL) {
+	frame->desc_ptr = kmemdup(desc_ptr, desc_size, GFP_KERNEL);
+	if (frame->desc_ptr == NULL) {
 		rc = -ENOMEM;
 		goto cleanup;
 	}
-	frame->rdesc_size = rdesc_size;
+	frame->desc_size = desc_size;
 
 	/*
 	 * Output the parameters, if requested
@@ -549,8 +549,8 @@ cleanup:
 void uclogic_params_free(struct uclogic_params *params)
 {
 	if (params != NULL) {
-		kfree(params->rdesc_ptr);
-		params->rdesc_ptr = NULL;
+		kfree(params->desc_ptr);
+		params->desc_ptr = NULL;
 		kfree(params);
 	}
 }
@@ -578,17 +578,17 @@ static int uclogic_params_probe_static(struct uclogic_params **pparams,
 	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
 	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
 	/* The device's original report descriptor size */
-	unsigned orig_rdesc_size = hdev->dev_rsize;
+	unsigned orig_desc_size = hdev->dev_rsize;
 	/*
 	 * The replacement report descriptor pointer,
 	 * or NULL if no replacement is needed.
 	 */
-	const __u8 *rdesc_ptr = NULL;
+	const __u8 *desc_ptr = NULL;
 	/*
 	 * The replacement report descriptor size.
-	 * Only valid if rdesc_ptr is not NULL.
+	 * Only valid if desc_ptr is not NULL.
 	 */
-	unsigned int rdesc_size = 0;
+	unsigned int desc_size = 0;
 	/*
 	 * True if the report descriptor contains several reports, one of
 	 * which is a pen report, which is unused, but some of the others may
@@ -612,53 +612,53 @@ static int uclogic_params_probe_static(struct uclogic_params **pparams,
 	 */
 	switch (hdev->product) {
 	case USB_DEVICE_ID_UCLOGIC_TABLET_PF1209:
-		if (orig_rdesc_size == UCLOGIC_RDESC_PF1209_ORIG_SIZE) {
-			rdesc_ptr = uclogic_rdesc_pf1209_fixed_arr;
-			rdesc_size = uclogic_rdesc_pf1209_fixed_size;
+		if (orig_desc_size == UCLOGIC_RDESC_PF1209_ORIG_SIZE) {
+			desc_ptr = uclogic_rdesc_pf1209_fixed_arr;
+			desc_size = uclogic_rdesc_pf1209_fixed_size;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U:
-		if (orig_rdesc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
-			rdesc_ptr = uclogic_rdesc_wp4030u_fixed_arr;
-			rdesc_size = uclogic_rdesc_wp4030u_fixed_size;
+		if (orig_desc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
+			desc_ptr = uclogic_rdesc_wp4030u_fixed_arr;
+			desc_size = uclogic_rdesc_wp4030u_fixed_size;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U:
-		if (orig_rdesc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
-			rdesc_ptr = uclogic_rdesc_wp5540u_fixed_arr;
-			rdesc_size = uclogic_rdesc_wp5540u_fixed_size;
+		if (orig_desc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
+			desc_ptr = uclogic_rdesc_wp5540u_fixed_arr;
+			desc_size = uclogic_rdesc_wp5540u_fixed_size;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U:
-		if (orig_rdesc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
-			rdesc_ptr = uclogic_rdesc_wp8060u_fixed_arr;
-			rdesc_size = uclogic_rdesc_wp8060u_fixed_size;
+		if (orig_desc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
+			desc_ptr = uclogic_rdesc_wp8060u_fixed_arr;
+			desc_size = uclogic_rdesc_wp8060u_fixed_size;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP1062:
-		if (orig_rdesc_size == UCLOGIC_RDESC_WP1062_ORIG_SIZE) {
-			rdesc_ptr = uclogic_rdesc_wp1062_fixed_arr;
-			rdesc_size = uclogic_rdesc_wp1062_fixed_size;
+		if (orig_desc_size == UCLOGIC_RDESC_WP1062_ORIG_SIZE) {
+			desc_ptr = uclogic_rdesc_wp1062_fixed_arr;
+			desc_size = uclogic_rdesc_wp1062_fixed_size;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850:
 		switch (bInterfaceNumber) {
 		case 0:
-			if (orig_rdesc_size == UCLOGIC_RDESC_TWHL850_ORIG0_SIZE) {
-				rdesc_ptr = uclogic_rdesc_twhl850_fixed0_arr;
-				rdesc_size = uclogic_rdesc_twhl850_fixed0_size;
+			if (orig_desc_size == UCLOGIC_RDESC_TWHL850_ORIG0_SIZE) {
+				desc_ptr = uclogic_rdesc_twhl850_fixed0_arr;
+				desc_size = uclogic_rdesc_twhl850_fixed0_size;
 			}
 			break;
 		case 1:
-			if (orig_rdesc_size == UCLOGIC_RDESC_TWHL850_ORIG1_SIZE) {
-				rdesc_ptr = uclogic_rdesc_twhl850_fixed1_arr;
-				rdesc_size = uclogic_rdesc_twhl850_fixed1_size;
+			if (orig_desc_size == UCLOGIC_RDESC_TWHL850_ORIG1_SIZE) {
+				desc_ptr = uclogic_rdesc_twhl850_fixed1_arr;
+				desc_size = uclogic_rdesc_twhl850_fixed1_size;
 			}
 			break;
 		case 2:
-			if (orig_rdesc_size == UCLOGIC_RDESC_TWHL850_ORIG2_SIZE) {
-				rdesc_ptr = uclogic_rdesc_twhl850_fixed2_arr;
-				rdesc_size = uclogic_rdesc_twhl850_fixed2_size;
+			if (orig_desc_size == UCLOGIC_RDESC_TWHL850_ORIG2_SIZE) {
+				desc_ptr = uclogic_rdesc_twhl850_fixed2_arr;
+				desc_size = uclogic_rdesc_twhl850_fixed2_size;
 			}
 			break;
 		}
@@ -674,15 +674,15 @@ static int uclogic_params_probe_static(struct uclogic_params **pparams,
 		}
 		switch (bInterfaceNumber) {
 		case 0:
-			if (orig_rdesc_size == UCLOGIC_RDESC_TWHA60_ORIG0_SIZE) {
-				rdesc_ptr = uclogic_rdesc_twha60_fixed0_arr;
-				rdesc_size = uclogic_rdesc_twha60_fixed0_size;
+			if (orig_desc_size == UCLOGIC_RDESC_TWHA60_ORIG0_SIZE) {
+				desc_ptr = uclogic_rdesc_twha60_fixed0_arr;
+				desc_size = uclogic_rdesc_twha60_fixed0_size;
 			}
 			break;
 		case 1:
-			if (orig_rdesc_size == UCLOGIC_RDESC_TWHA60_ORIG1_SIZE) {
-				rdesc_ptr = uclogic_rdesc_twha60_fixed1_arr;
-				rdesc_size = uclogic_rdesc_twha60_fixed1_size;
+			if (orig_desc_size == UCLOGIC_RDESC_TWHA60_ORIG1_SIZE) {
+				desc_ptr = uclogic_rdesc_twha60_fixed1_arr;
+				desc_size = uclogic_rdesc_twha60_fixed1_size;
 			}
 			break;
 		}
@@ -705,7 +705,7 @@ static int uclogic_params_probe_static(struct uclogic_params **pparams,
 	 * If we got a replacement for the report descriptor,
 	 * or we have to tweak its interpretation.
 	 */
-	if (rdesc_ptr != NULL || pen_unused) {
+	if (desc_ptr != NULL || pen_unused) {
 		/* Create parameters */
 		params = kzalloc(sizeof(*params), GFP_KERNEL);
 		if (params == NULL) {
@@ -713,14 +713,14 @@ static int uclogic_params_probe_static(struct uclogic_params **pparams,
 			goto cleanup;
 		}
 		params->pen_unused = pen_unused;
-		if (rdesc_ptr != NULL) {
-			params->rdesc_ptr =
-				kmemdup(rdesc_ptr, rdesc_size, GFP_KERNEL);
-			if (params->rdesc_ptr == NULL) {
+		if (desc_ptr != NULL) {
+			params->desc_ptr =
+				kmemdup(desc_ptr, desc_size, GFP_KERNEL);
+			if (params->desc_ptr == NULL) {
 				rc = -ENOMEM;
 				goto cleanup;
 			}
-			params->rdesc_size = rdesc_size;
+			params->desc_size = desc_size;
 		}
 	}
 
@@ -763,15 +763,15 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 	 * Bitmask matching frame controls "sub-report" flag in the second
 	 * byte of the pen report, or zero if it's not expected.
 	 */
-	__u8 pen_report_frame_flag = 0;
+	__u8 pen_frame_flag = 0;
 	/* Frame controls' input parameters */
 	struct uclogic_params_frame *frame = NULL;
 	/*
 	 * Frame controls report ID. Used as the virtual frame report ID, for
 	 * frame button reports extracted from pen reports, if
-	 * pen_report_frame_flag is valid and not zero.
+	 * pen_frame_flag is valid and not zero.
 	 */
-	unsigned pen_report_frame_report_id = 0;
+	unsigned pen_frame_id = 0;
 	/* The resulting interface parameters */
 	struct uclogic_params *params = NULL;
 
@@ -810,9 +810,8 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 					"parameters: %d\n", rc);
 				goto cleanup;
 			}
-			pen_report_frame_flag = 0x20;
-			pen_report_frame_report_id =
-				UCLOGIC_RDESC_BUTTONPAD_V2_ID;
+			pen_frame_flag = 0x20;
+			pen_frame_id = UCLOGIC_RDESC_BUTTONPAD_V2_ID;
 			break;
 		}
 		hid_dbg(hdev, "pen v2 parameters not found\n");
@@ -831,9 +830,8 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 					"failed: %d\n", rc);
 				goto cleanup;
 			}
-			pen_report_frame_flag = 0x20;
-			pen_report_frame_report_id =
-				UCLOGIC_RDESC_BUTTONPAD_V1_ID;
+			pen_frame_flag = 0x20;
+			pen_frame_id = UCLOGIC_RDESC_BUTTONPAD_V1_ID;
 			break;
 		}
 		hid_dbg(hdev, "pen v1 parameters not found\n");
@@ -907,41 +905,39 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 		goto cleanup;
 	}
 	if (pen != NULL) {
-		params->rdesc_size += pen->rdesc_size;
-		params->pen_report_id = pen->report_id;
-		params->pen_report_inrange = pen->report_inrange;
-		params->pen_report_fragmented_hires =
-			pen->report_fragmented_hires;
-		params->pen_report_frame_flag = pen_report_frame_flag;
-		params->pen_report_frame_report_id =
-				pen_report_frame_report_id;
+		params->desc_size += pen->desc_size;
+		params->pen_id = pen->id;
+		params->pen_inrange = pen->inrange;
+		params->pen_fragmented_hires = pen->fragmented_hires;
+		params->pen_frame_flag = pen_frame_flag;
+		params->pen_frame_id = pen_frame_id;
 	}
 	if (frame != NULL) {
-		params->rdesc_size += frame->rdesc_size;
+		params->desc_size += frame->desc_size;
 	}
 
 	/*
 	 * Merge report descriptors, if any
 	 */
-	if (params->rdesc_size > 0) {
+	if (params->desc_size > 0) {
 		__u8 *p;
 
-		params->rdesc_ptr = kmalloc(params->rdesc_size, GFP_KERNEL);
-		if (params->rdesc_ptr == NULL) {
+		params->desc_ptr = kmalloc(params->desc_size, GFP_KERNEL);
+		if (params->desc_ptr == NULL) {
 			rc = -ENOMEM;
 			goto cleanup;
 		}
 
-		p = params->rdesc_ptr;
+		p = params->desc_ptr;
 		if (pen != NULL) {
-			memcpy(p, pen->rdesc_ptr, pen->rdesc_size);
-			p += pen->rdesc_size;
+			memcpy(p, pen->desc_ptr, pen->desc_size);
+			p += pen->desc_size;
 		}
 		if (frame != NULL) {
-			memcpy(p, frame->rdesc_ptr, frame->rdesc_size);
-			p += frame->rdesc_size;
+			memcpy(p, frame->desc_ptr, frame->desc_size);
+			p += frame->desc_size;
 		}
-		WARN_ON(p != params->rdesc_ptr + params->rdesc_size);
+		WARN_ON(p != params->desc_ptr + params->desc_size);
 	}
 
 output:
@@ -976,33 +972,33 @@ void uclogic_params_dump(const struct uclogic_params *params,
 {
 #define BOOL_STR(_x) ((_x) ? "true" : "false")
 #define INRANGE_STR(_x) \
-	((_x) == UCLOGIC_PARAMS_PEN_REPORT_INRANGE_NORMAL \
+	((_x) == UCLOGIC_PARAMS_PEN_INRANGE_NORMAL \
 		? "normal" \
-		: ((_x) == UCLOGIC_PARAMS_PEN_REPORT_INRANGE_INVERTED \
+		: ((_x) == UCLOGIC_PARAMS_PEN_INRANGE_INVERTED \
 			? "inverted" \
-			: ((_x) == UCLOGIC_PARAMS_PEN_REPORT_INRANGE_NONE \
+			: ((_x) == UCLOGIC_PARAMS_PEN_INRANGE_NONE \
 				? "none" \
 				: "unknown")))
 
 	hid_dbg(hdev,
 		"%s"
-		".rdesc_ptr = %p\n"
-		".rdesc_size = %u\n"
+		".desc_ptr = %p\n"
+		".desc_size = %u\n"
 		".pen_unused = %s\n"
-		".pen_report_id = %u\n"
-		".pen_report_inrange = %s\n"
-		".pen_report_fragmented_hires = %s\n"
-		".pen_report_frame_flag = 0x%02x\n"
-		".pen_report_frame_report_id = %u\n",
+		".pen_id = %u\n"
+		".pen_inrange = %s\n"
+		".pen_fragmented_hires = %s\n"
+		".pen_frame_flag = 0x%02x\n"
+		".pen_frame_id = %u\n",
 		prefix,
-		params->rdesc_ptr,
-		params->rdesc_size,
+		params->desc_ptr,
+		params->desc_size,
 		BOOL_STR(params->pen_unused),
-		params->pen_report_id,
-		INRANGE_STR(params->pen_report_inrange),
-		BOOL_STR(params->pen_report_fragmented_hires),
-		params->pen_report_frame_flag,
-		params->pen_report_frame_report_id);
+		params->pen_id,
+		INRANGE_STR(params->pen_inrange),
+		BOOL_STR(params->pen_fragmented_hires),
+		params->pen_frame_flag,
+		params->pen_frame_id);
 
 #undef INRANGE_STR
 #undef BOOL_STR
