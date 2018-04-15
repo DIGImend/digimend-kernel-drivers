@@ -26,8 +26,6 @@
 #include "compat.h"
 #include <linux/version.h>
 
-#define UCLOGIC_PEN_REPORT_ID	0x07
-
 /* Driver data */
 struct uclogic_drvdata {
 	/* Interface parameters */
