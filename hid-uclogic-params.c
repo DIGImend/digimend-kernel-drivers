@@ -518,7 +518,7 @@ static int uclogic_params_frame_buttonpad_v1_probe(
 				&frame,
 				uclogic_rdesc_buttonpad_v1_arr,
 				uclogic_rdesc_buttonpad_v1_size);
-		if (rc < 0) {
+		if (rc != 0) {
 			goto cleanup;
 		}
 	}
