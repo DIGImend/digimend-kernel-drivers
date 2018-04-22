@@ -225,7 +225,6 @@ output:
 	}
 
 	rc = 0;
-
 cleanup:
 	uclogic_params_pen_free(pen);
 	kfree(desc_ptr);
@@ -387,7 +386,6 @@ output:
 	}
 
 	rc = 0;
-
 cleanup:
 	uclogic_params_pen_free(pen);
 	kfree(desc_ptr);
