@@ -417,7 +417,7 @@ static void uclogic_params_frame_free(struct uclogic_params_frame *frame)
 }
 
 /**
- * uclogic_params_frame_create() - create tablet frame controls
+ * uclogic_params_frame_from_desc() - create tablet frame controls
  * parameters from a static report descriptor.
  *
  * @pframe:	Location for the pointer to resulting frame controls
@@ -430,9 +430,10 @@ static void uclogic_params_frame_free(struct uclogic_params_frame *frame)
  * Return:
  * 	Zero, if successful. A negative errno code on error.
  */
-static int uclogic_params_frame_create(struct uclogic_params_frame **pframe,
-				       const __u8 *desc_ptr,
-				       size_t desc_size)
+static int uclogic_params_frame_from_desc(
+					struct uclogic_params_frame **pframe,
+					const __u8 *desc_ptr,
+					size_t desc_size)
 {
 	int rc;
 	struct uclogic_params_frame *frame = NULL;
@@ -514,7 +515,7 @@ static int uclogic_params_frame_buttonpad_v1_probe(
 				"buttons: \"%s\"\n", str_buf);
 	} else {
 		hid_dbg(hdev, "generic buttons enabled\n");
-		rc = uclogic_params_frame_create(
+		rc = uclogic_params_frame_from_desc(
 				&frame,
 				uclogic_rdesc_buttonpad_v1_arr,
 				uclogic_rdesc_buttonpad_v1_size);
@@ -554,369 +555,63 @@ void uclogic_params_free(struct uclogic_params *params)
 }
 
 /**
- * uclogic_params_probe_static() - probe a tablet interface with
- * statically-assigned parameters.
+ * Create tablet interface parameters from pen report parameters, frame report
+ * parameters, and parameters for extracting frame reports from pen reports.
  *
- * @pparams: 	Location for the pointer to resulting parameters (to be
- * 		freed with uclogic_params_free()), or for NULL if the
- * 		parameters were not found.  Not modified in case of error.
- * 		Can be NULL to have parameters discarded after retrieval.
- * @hdev:	The HID device of the tablet interface to initialize and
- * 		possibly get parameters from. Cannot be NULL.
- *
- * Return:
- * 	Zero, if successful. A negative errno code on error.
- */
-static int uclogic_params_probe_static(struct uclogic_params **pparams,
-			 		struct hid_device *hdev)
-{
-	int rc;
-	struct usb_device *udev = hid_to_usb_dev(hdev);
-	__u8  bNumInterfaces = udev->config->desc.bNumInterfaces;
-	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
-	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
-	/* The device's original report descriptor size */
-	unsigned orig_desc_size = hdev->dev_rsize;
-	/*
-	 * The replacement report descriptor pointer,
-	 * or NULL if no replacement is needed.
-	 */
-	const __u8 *desc_ptr = NULL;
-	/*
-	 * The replacement report descriptor size.
-	 * Only valid if desc_ptr is not NULL.
-	 */
-	unsigned int desc_size = 0;
-	/*
-	 * True if the report descriptor contains several reports, one of
-	 * which is a pen report, which is unused, but some of the others may
-	 * still report something. TODO Switch to just returning NULL
-	 * parameters, so the whole interface is ignored instead, if the other
-	 * reports are also unused after all, or to rewriting the report
-	 * descriptor.
-	 */
-	bool pen_unused = false;
-	/* The resulting parameters */
-	struct uclogic_params *params = NULL;
-
-	/* Check arguments */
-	if (hdev == NULL) {
-		rc = -EINVAL;
-		goto cleanup;
-	}
-
-	/*
-	 * Handle some models with static report descriptors
-	 */
-	switch (hdev->product) {
-	case USB_DEVICE_ID_UCLOGIC_TABLET_PF1209:
-		if (orig_desc_size == UCLOGIC_RDESC_PF1209_ORIG_SIZE) {
-			desc_ptr = uclogic_rdesc_pf1209_fixed_arr;
-			desc_size = uclogic_rdesc_pf1209_fixed_size;
-		}
-		break;
-	case USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U:
-		if (orig_desc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
-			desc_ptr = uclogic_rdesc_wp4030u_fixed_arr;
-			desc_size = uclogic_rdesc_wp4030u_fixed_size;
-		}
-		break;
-	case USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U:
-		if (orig_desc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
-			desc_ptr = uclogic_rdesc_wp5540u_fixed_arr;
-			desc_size = uclogic_rdesc_wp5540u_fixed_size;
-		}
-		break;
-	case USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U:
-		if (orig_desc_size == UCLOGIC_RDESC_WPXXXXU_ORIG_SIZE) {
-			desc_ptr = uclogic_rdesc_wp8060u_fixed_arr;
-			desc_size = uclogic_rdesc_wp8060u_fixed_size;
-		}
-		break;
-	case USB_DEVICE_ID_UCLOGIC_TABLET_WP1062:
-		if (orig_desc_size == UCLOGIC_RDESC_WP1062_ORIG_SIZE) {
-			desc_ptr = uclogic_rdesc_wp1062_fixed_arr;
-			desc_size = uclogic_rdesc_wp1062_fixed_size;
-		}
-		break;
-	case USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850:
-		switch (bInterfaceNumber) {
-		case 0:
-			if (orig_desc_size == UCLOGIC_RDESC_TWHL850_ORIG0_SIZE) {
-				desc_ptr = uclogic_rdesc_twhl850_fixed0_arr;
-				desc_size = uclogic_rdesc_twhl850_fixed0_size;
-			}
-			break;
-		case 1:
-			if (orig_desc_size == UCLOGIC_RDESC_TWHL850_ORIG1_SIZE) {
-				desc_ptr = uclogic_rdesc_twhl850_fixed1_arr;
-				desc_size = uclogic_rdesc_twhl850_fixed1_size;
-			}
-			break;
-		case 2:
-			if (orig_desc_size == UCLOGIC_RDESC_TWHL850_ORIG2_SIZE) {
-				desc_ptr = uclogic_rdesc_twhl850_fixed2_arr;
-				desc_size = uclogic_rdesc_twhl850_fixed2_size;
-			}
-			break;
-		}
-		break;
-	case USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60:
-		/*
-		 * If it is the three-interface version, which is known to
-		 * respond to initialization.
-		 */
-		if (bNumInterfaces == 3) {
-			pen_unused = (bInterfaceNumber != 0);
-			break;
-		}
-		switch (bInterfaceNumber) {
-		case 0:
-			if (orig_desc_size == UCLOGIC_RDESC_TWHA60_ORIG0_SIZE) {
-				desc_ptr = uclogic_rdesc_twha60_fixed0_arr;
-				desc_size = uclogic_rdesc_twha60_fixed0_size;
-			}
-			break;
-		case 1:
-			if (orig_desc_size == UCLOGIC_RDESC_TWHA60_ORIG1_SIZE) {
-				desc_ptr = uclogic_rdesc_twha60_fixed1_arr;
-				desc_size = uclogic_rdesc_twha60_fixed1_size;
-			}
-			break;
-		}
-		break;
-	case USB_DEVICE_ID_HUION_TABLET:
-	case USB_DEVICE_ID_YIYNOVA_TABLET:
-	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_81:
-	case USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3:
-	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_45:
-	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47:
-		pen_unused = (bInterfaceNumber != 0);
-		break;
-	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
-	case USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540:
-		pen_unused = (bInterfaceNumber != 1);
-		break;
-	}
-
-	/*
-	 * If we got a replacement for the report descriptor,
-	 * or we have to tweak its interpretation.
-	 */
-	if (desc_ptr != NULL || pen_unused) {
-		/* Create parameters */
-		params = kzalloc(sizeof(*params), GFP_KERNEL);
-		if (params == NULL) {
-			rc = -ENOMEM;
-			goto cleanup;
-		}
-		params->pen_unused = pen_unused;
-		if (desc_ptr != NULL) {
-			params->desc_ptr =
-				kmemdup(desc_ptr, desc_size, GFP_KERNEL);
-			if (params->desc_ptr == NULL) {
-				rc = -ENOMEM;
-				goto cleanup;
-			}
-			params->desc_size = desc_size;
-		}
-	}
-
-	/* Output parameters, if requested */
-	if (pparams != NULL) {
-		*pparams = params;
-		params = NULL;
-	}
-
-	rc = 0;
-
-cleanup:
-	uclogic_params_free(params);
-	return rc;
-}
-
-/**
- * uclogic_params_probe_dynamic() - initialize a tablet interface and retrieve
- * its parameters from the device.
- *
- * @pparams: 	Location for the pointer to resulting parameters (to be
- * 		freed with uclogic_params_free()), or for NULL if the
- * 		parameters were not found.  Not modified in case of error.
- * 		Can be NULL to have parameters discarded after retrieval.
- * @hdev:	The HID device of the tablet interface to initialize and get
- * 		parameters from. Cannot be NULL.
+ * @pparams: 		Location for the pointer to resulting parameters (to
+ * 			be freed with uclogic_params_free()). Not modified in
+ * 			case of error. Can be NULL to have parameters
+ * 			discarded after creation.
+ * @pen:		Pen parameters to use for creation.
+ * 			Can be NULL, if none.
+ * @frame:		Frame parameters to use for creation.
+ * 			Can be NULL, if none.
+ * @pen_frame_flag:	Bitmask matching frame controls "sub-report" flag in
+ * 			the second byte of the pen report, or zero if it's not
+ * 			expected. Only valid if both "pen" and "frame" are not
+ * 			NULL.
+ * @pen_frame_id: 	Report ID to assign to frame reports extracted from
+ * 			pen reports. Only valid if "pen_frame_flag" is valid
+ * 			and not zero.
  *
  * Return:
- * 	Zero, if successful. A negative errno code on error.
+ * 	Zero, if successful.
+ * 	-ENOMEM, if failed to allocate memory.
  */
-static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
-					struct hid_device *hdev)
+static int uclogic_params_from_pen_and_frame(
+					struct uclogic_params **pparams,
+					struct uclogic_params_pen *pen,
+					struct uclogic_params_frame *frame,
+					__u8 pen_frame_flag,
+					unsigned pen_frame_id)
 {
 	int rc;
-	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
-	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
-	/* Pen input parameters */
-	struct uclogic_params_pen *pen = NULL;
-	/*
-	 * Bitmask matching frame controls "sub-report" flag in the second
-	 * byte of the pen report, or zero if it's not expected.
-	 */
-	__u8 pen_frame_flag = 0;
-	/* Frame controls' input parameters */
-	struct uclogic_params_frame *frame = NULL;
-	/*
-	 * Frame controls report ID. Used as the virtual frame report ID, for
-	 * frame button reports extracted from pen reports, if
-	 * pen_frame_flag is valid and not zero.
-	 */
-	unsigned pen_frame_id = 0;
 	/* The resulting interface parameters */
 	struct uclogic_params *params = NULL;
 
-	/* Check arguments */
-	if (hdev == NULL) {
-		rc = -EINVAL;
-		goto cleanup;
-	}
-
-	switch (hdev->product) {
-	case USB_DEVICE_ID_HUION_TABLET:
-	case USB_DEVICE_ID_YIYNOVA_TABLET:
-	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_81:
-	case USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3:
-	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_45:
-	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47:
-	case USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60:
-		/* Skip non-pen interfaces */
-		if (bInterfaceNumber != 0) {
-			break;
-		}
-
-		/* Try to probe v2 pen parameters */
-		rc = uclogic_params_pen_v2_probe(&pen, hdev);
-		if (rc < 0) {
-			hid_err(hdev,
-				"failed probing pen v2 parameters: %d\n", rc);
-		} else if (pen != NULL) {
-			hid_dbg(hdev, "pen v2 parameters found\n");
-			rc = uclogic_params_frame_create(
-					&frame,
-					uclogic_rdesc_buttonpad_v2_arr,
-					uclogic_rdesc_buttonpad_v2_size);
-			if (rc != 0) {
-				hid_err(hdev, "failed creating v2 buttonpad "
-					"parameters: %d\n", rc);
-				goto cleanup;
-			}
-			pen_frame_flag = 0x20;
-			pen_frame_id = UCLOGIC_RDESC_BUTTONPAD_V2_ID;
-			break;
-		}
-		hid_dbg(hdev, "pen v2 parameters not found\n");
-
-		/* Try to probe v1 pen parameters */
-		rc = uclogic_params_pen_v1_probe(&pen, hdev);
-		if (rc < 0) {
-			hid_err(hdev,
-				"failed probing pen v1 parameters: %d\n", rc);
-		} else if (pen != NULL) {
-			hid_dbg(hdev, "pen v1 parameters found\n");
-			rc = uclogic_params_frame_buttonpad_v1_probe(
-							&frame, hdev);
-			if (rc != 0) {
-				hid_err(hdev, "v1 buttonpad probing "
-					"failed: %d\n", rc);
-				goto cleanup;
-			}
-			pen_frame_flag = 0x20;
-			pen_frame_id = UCLOGIC_RDESC_BUTTONPAD_V1_ID;
-			break;
-		}
-		hid_dbg(hdev, "pen v1 parameters not found\n");
-
-		break;
-	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
-	case USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540:
-		/* If this is the pen interface */
-		if (bInterfaceNumber == 1) {
-			rc = uclogic_params_pen_v1_probe(&pen, hdev);
-			if (rc != 0) {
-				hid_err(hdev, "pen probing failed: %d\n", rc);
-				goto cleanup;
-			}
-		}
-		break;
-	case USB_DEVICE_ID_UGEE_TABLET_EX07S:
-		/* Skip non-pen interfaces */
-		if (bInterfaceNumber != 1) {
-			break;
-		}
-
-		/* Probe pen parameters */
-		rc = uclogic_params_pen_v1_probe(&pen, hdev);
-		if (rc != 0) {
-			hid_err(hdev, "pen probing failed: %d\n", rc);
-			goto cleanup;
-		} else if (pen != NULL) {
-			/* Create frame parameters */
-			rc = uclogic_params_frame_create(
-				&frame,
-				uclogic_rdesc_ugee_ex07_buttonpad_arr,
-				uclogic_rdesc_ugee_ex07_buttonpad_size);
-			if (rc != 0) {
-				hid_err(hdev, "failed creating buttonpad "
-					"parameters: %d\n", rc);
-				goto cleanup;
-			}
-		}
-		break;
-	case USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U:
-		/* If this is the pen interface of WP5540U v2 */
-		if (hdev->dev_rsize == UCLOGIC_RDESC_WP5540U_V2_ORIG_SIZE &&
-		    bInterfaceNumber == 0) {
-			rc = uclogic_params_pen_v1_probe(&pen, hdev);
-			if (rc != 0) {
-				hid_err(hdev, "pen probing failed: %d\n", rc);
-				goto cleanup;
-			}
-		}
-		break;
-	}
-
-	/*
-	 * Check if we found anything
-	 */
-	hid_dbg(hdev, "pen parameters %sfound\n",
-			(pen == NULL ? "not " : ""));
-	hid_dbg(hdev, "frame parameters %sfound\n",
-			(frame == NULL ? "not " : ""));
-	if (pen == NULL && frame == NULL) {
-		goto output;
-	}
-
-	/*
-	 * Create parameters
-	 */
+	/* Allocate parameters */
 	params = kzalloc(sizeof(*params), GFP_KERNEL);
 	if (params == NULL) {
 		rc = -ENOMEM;
 		goto cleanup;
 	}
+
+	/* Merge parameters */
 	if (pen != NULL) {
 		params->desc_size += pen->desc_size;
 		params->pen_id = pen->id;
 		params->pen_inrange = pen->inrange;
 		params->pen_fragmented_hires = pen->fragmented_hires;
-		params->pen_frame_flag = pen_frame_flag;
-		params->pen_frame_id = pen_frame_id;
 	}
 	if (frame != NULL) {
 		params->desc_size += frame->desc_size;
 	}
+	if (pen != NULL && frame != NULL) {
+		params->pen_frame_flag = pen_frame_flag;
+		params->pen_frame_id = pen_frame_id;
+	}
 
-	/*
-	 * Merge report descriptors, if any
-	 */
+	/* Merge report descriptors, if any */
 	if (params->desc_size > 0) {
 		__u8 *p;
 
@@ -938,20 +633,117 @@ static int uclogic_params_probe_dynamic(struct uclogic_params **pparams,
 		WARN_ON(p != params->desc_ptr + params->desc_size);
 	}
 
-output:
-	/*
-	 * Output parameters, if requested
-	 */
+	/* Output parameters, if requested */
 	if (pparams != NULL) {
 		*pparams = params;
 		params = NULL;
 	}
 
 	rc = 0;
-
 cleanup:
-	uclogic_params_frame_free(frame);
-	uclogic_params_pen_free(pen);
+	uclogic_params_free(params);
+	return rc;
+}
+
+/**
+ * uclogic_params_from_desc() - create tablet interface parameters from a
+ * replacement report descriptor, provided the original report descriptor
+ * matches the expected size.
+ *
+ * @pparams: 		Location for the pointer to resulting parameters (to
+ * 			be freed with uclogic_params_free()), or for NULL if
+ * 			the original report descriptor size hasn't match the
+ * 			expected size. Not modified in case of error. Can be
+ * 			NULL to have parameters discarded after creation.
+ * @hdev:		The HID device of the tablet interface create the
+ * 			parameters for. Cannot be NULL.
+ * @orig_desc_size	Expected size of the original report descriptor to
+ * 			be replaced.
+ * @desc_ptr		Pointer to the replacement report descriptor.
+ * @desc_size		Size of the replacement report descriptor.
+ *
+ * Return:
+ * 	Zero, if successful. -EINVAL if an invalid argument was passed.
+ * 	-ENOMEM, if failed to allocate memory.
+ */
+static int uclogic_params_from_desc(struct uclogic_params **pparams,
+				    struct hid_device *hdev,
+				    unsigned int orig_desc_size,
+				    __u8 *desc_ptr,
+				    unsigned int desc_size)
+{
+	int rc;
+	/* The resulting parameters */
+	struct uclogic_params *params = NULL;
+
+	/* Check arguments */
+	if (hdev == NULL) {
+		return -EINVAL;
+	}
+
+	/* Create parameters if the report descriptor size matches */
+	if (hdev->rsize == orig_desc_size) {
+		params = kzalloc(sizeof(*params), GFP_KERNEL);
+		if (params == NULL) {
+			rc = -ENOMEM;
+			goto cleanup;
+		}
+		params->desc_ptr = kmemdup(desc_ptr, desc_size, GFP_KERNEL);
+		if (params->desc_ptr == NULL) {
+			rc = -ENOMEM;
+			goto cleanup;
+		}
+		params->desc_size = desc_size;
+	}
+
+	/* Output parameters, if requested */
+	if (pparams != NULL) {
+		*pparams = params;
+		params = NULL;
+	}
+
+	rc = 0;
+cleanup:
+	uclogic_params_free(params);
+	return rc;
+}
+
+/**
+ * uclogic_params_with_pen_unused() - create tablet interface parameters
+ * preserving original reports and generic HID processing, but disabling pen
+ * usage.
+ *
+ * @pparams: 		Location for the pointer to resulting parameters (to
+ * 			be freed with uclogic_params_free()). Not modified in
+ * 			case of error. Can be NULL to have parameters
+ * 			discarded after creation.
+ *
+ * Return:
+ * 	Zero, if successful.
+ * 	-ENOMEM, if failed to allocate memory.
+ */
+static int uclogic_params_with_pen_unused(struct uclogic_params **pparams)
+{
+	int rc;
+	/* The resulting parameters */
+	struct uclogic_params *params = NULL;
+
+	/* Create parameters */
+	params = kzalloc(sizeof(*params), GFP_KERNEL);
+	if (params == NULL) {
+		rc = -ENOMEM;
+		goto cleanup;
+	}
+	params->pen_unused = true;
+
+	/* Output parameters, if requested */
+	if (pparams != NULL) {
+		*pparams = params;
+		params = NULL;
+	}
+
+	rc = 0;
+cleanup:
 	uclogic_params_free(params);
 	return rc;
 }
@@ -1019,7 +811,13 @@ void uclogic_params_dump(const struct uclogic_params *params,
 int uclogic_params_probe(struct uclogic_params **pparams,
 			 struct hid_device *hdev)
 {
-	int rc = 0;
+	int rc;
+	struct usb_device *udev = hid_to_usb_dev(hdev);
+	__u8  bNumInterfaces = udev->config->desc.bNumInterfaces;
+	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
+	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
+	struct uclogic_params_pen *pen = NULL;
+	struct uclogic_params_frame *frame = NULL;
 	/* The resulting parameters */
 	struct uclogic_params *params = NULL;
 
@@ -1028,33 +826,238 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		return -EINVAL;
 	}
 
-	/* Try to probe static parameters */
-	rc = uclogic_params_probe_static(&params, hdev);
-	if (rc < 0) {
-		hid_err(hdev, "failed probing static parameters: %d\n", rc);
-	} else if (params == NULL) {
-		hid_dbg(hdev, "static parameters not found\n");
-		/* Try to probe dynamic parameters */
-		rc = uclogic_params_probe_dynamic(&params, hdev);
-		if (rc < 0) {
-			hid_err(hdev,
-				"failed probing dynamic parameters: %d\n",
-				rc);
-		} else if (params == NULL) {
-			hid_dbg(hdev, "dynamic parameters not found\n");
-		} else {
-			hid_dbg(hdev, "dynamic parameters found\n");
+#define FROM_DESC(_orig_desc_token, _new_desc_token) \
+	uclogic_params_from_desc(                           \
+		&params, hdev,                              \
+		UCLOGIC_RDESC_##_orig_desc_token##_SIZE,    \
+		uclogic_rdesc_##_new_desc_token##_arr,      \
+		uclogic_rdesc_##_new_desc_token##_size);
+
+	switch (hdev->product) {
+	case USB_DEVICE_ID_UCLOGIC_TABLET_PF1209:
+		rc = FROM_DESC(PF1209_ORIG, pf1209_fixed);
+		if (rc != 0) {
+			goto cleanup;
 		}
-	} else {
-		hid_dbg(hdev, "static parameters found\n");
+		break;
+	case USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U:
+		rc = FROM_DESC(WPXXXXU_ORIG, wp4030u_fixed);
+		if (rc != 0) {
+			goto cleanup;
+		}
+		break;
+	case USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U:
+		if (hdev->dev_rsize == UCLOGIC_RDESC_WP5540U_V2_ORIG_SIZE &&
+		    bInterfaceNumber == 0) {
+			rc = uclogic_params_pen_v1_probe(&pen, hdev);
+			if (rc != 0) {
+				hid_err(hdev, "pen probing failed: %d\n", rc);
+				goto cleanup;
+			}
+			rc = uclogic_params_from_pen_and_frame(
+					&params, pen, NULL, 0, 0);
+			if (rc != 0) {
+				goto cleanup;
+			}
+		} else {
+			rc = FROM_DESC(WPXXXXU_ORIG, wp5540u_fixed);
+			if (rc != 0) {
+				goto cleanup;
+			}
+		}
+
+		break;
+	case USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U:
+		rc = FROM_DESC(WPXXXXU_ORIG, wp8060u_fixed);
+		if (rc != 0) {
+			goto cleanup;
+		}
+		break;
+	case USB_DEVICE_ID_UCLOGIC_TABLET_WP1062:
+		rc = FROM_DESC(WP1062_ORIG, wp1062_fixed);
+		if (rc != 0) {
+			goto cleanup;
+		}
+		break;
+	case USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850:
+		switch (bInterfaceNumber) {
+		case 0:
+			rc = FROM_DESC(TWHL850_ORIG0, twhl850_fixed0);
+			if (rc != 0) {
+				goto cleanup;
+			}
+			break;
+		case 1:
+			rc = FROM_DESC(TWHL850_ORIG1, twhl850_fixed1);
+			if (rc != 0) {
+				goto cleanup;
+			}
+			break;
+		case 2:
+			rc = FROM_DESC(TWHL850_ORIG2, twhl850_fixed2);
+			if (rc != 0) {
+				goto cleanup;
+			}
+			break;
+		}
+		break;
+	case USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60:
+		/*
+		 * If it is not a three-interface version, which is known to
+		 * respond to initialization.
+		 */
+		if (bNumInterfaces != 3) {
+			switch (bInterfaceNumber) {
+			case 0:
+				rc = FROM_DESC(TWHA60_ORIG0, twha60_fixed0);
+				if (rc != 0) {
+					goto cleanup;
+				}
+				break;
+			case 1:
+				rc = FROM_DESC(TWHA60_ORIG1, twha60_fixed1);
+				if (rc != 0) {
+					goto cleanup;
+				}
+				break;
+			}
+			break;
+		}
+		/* FALL THROUGH */
+	case USB_DEVICE_ID_HUION_TABLET:
+	case USB_DEVICE_ID_YIYNOVA_TABLET:
+	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_81:
+	case USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3:
+	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_45:
+	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47:
+		/* If it's not a pen interface */
+		if (bInterfaceNumber != 0) {
+			rc = uclogic_params_with_pen_unused(&params);
+			if (rc != 0) {
+				goto cleanup;
+			}
+			break;
+		}
+
+		/* Try to probe v2 pen parameters */
+		rc = uclogic_params_pen_v2_probe(&pen, hdev);
+		if (rc != 0) {
+			hid_err(hdev,
+				"failed probing pen v2 parameters: %d\n", rc);
+		} else if (pen != NULL) {
+			hid_dbg(hdev, "pen v2 parameters found\n");
+			/* Create v2 buttonpad parameters */
+			rc = uclogic_params_frame_from_desc(
+					&frame,
+					uclogic_rdesc_buttonpad_v2_arr,
+					uclogic_rdesc_buttonpad_v2_size);
+			if (rc != 0) {
+				hid_err(hdev, "failed creating v2 buttonpad "
+					"parameters: %d\n", rc);
+				goto cleanup;
+			}
+			/* Combine pen and frame parameters */
+			rc = uclogic_params_from_pen_and_frame(
+					&params, pen, frame, 0x20,
+					UCLOGIC_RDESC_BUTTONPAD_V2_ID);
+			if (rc != 0) {
+				goto cleanup;
+			}
+			break;
+		}
+		hid_dbg(hdev, "pen v2 parameters not found\n");
+
+		/* Try to probe v1 pen parameters */
+		rc = uclogic_params_pen_v1_probe(&pen, hdev);
+		if (rc != 0) {
+			hid_err(hdev,
+				"failed probing pen v1 parameters: %d\n", rc);
+		} else if (pen != NULL) {
+			hid_dbg(hdev, "pen v1 parameters found\n");
+			/* Try to probe v1 buttonpad */
+			rc = uclogic_params_frame_buttonpad_v1_probe(
+							&frame, hdev);
+			if (rc != 0) {
+				hid_err(hdev, "v1 buttonpad probing "
+					"failed: %d\n", rc);
+				goto cleanup;
+			}
+			hid_dbg(hdev, "buttonpad v1 parameters%s found\n",
+				(frame == NULL ? " not" : ""));
+			/* Combine pen and frame parameters */
+			rc = uclogic_params_from_pen_and_frame(
+					&params, pen, frame, 0x20,
+					UCLOGIC_RDESC_BUTTONPAD_V1_ID);
+			if (rc != 0) {
+				goto cleanup;
+			}
+			break;
+		}
+		hid_dbg(hdev, "pen v1 parameters not found\n");
+
+		break;
+	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
+	case USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540:
+		if (bInterfaceNumber == 1) {
+			rc = uclogic_params_pen_v1_probe(&pen, hdev);
+			if (rc != 0) {
+				hid_err(hdev, "pen probing failed: %d\n", rc);
+				goto cleanup;
+			}
+			rc = uclogic_params_from_pen_and_frame(
+					&params, pen, NULL, 0, 0);
+			if (rc != 0) {
+				goto cleanup;
+			}
+		} else {
+			rc = uclogic_params_with_pen_unused(&params);
+			if (rc != 0) {
+				goto cleanup;
+			}
+		}
+		break;
+	case USB_DEVICE_ID_UGEE_TABLET_EX07S:
+		/* Ignore non-pen interfaces */
+		if (bInterfaceNumber != 1) {
+			break;
+		}
+
+		rc = uclogic_params_pen_v1_probe(&pen, hdev);
+		if (rc != 0) {
+			hid_err(hdev, "pen probing failed: %d\n", rc);
+			goto cleanup;
+		} else if (pen != NULL) {
+			rc = uclogic_params_frame_from_desc(
+				&frame,
+				uclogic_rdesc_ugee_ex07_buttonpad_arr,
+				uclogic_rdesc_ugee_ex07_buttonpad_size);
+			if (rc != 0) {
+				hid_err(hdev, "failed creating buttonpad "
+					"parameters: %d\n", rc);
+				goto cleanup;
+			}
+		}
+
+		rc = uclogic_params_from_pen_and_frame(
+				&params, pen, frame, 0, 0);
+		if (rc != 0) {
+			goto cleanup;
+		}
+		break;
 	}
 
-	/* Output the parameters if succeeded, and asked to */
-	if (rc == 0 && pparams != NULL) {
+#undef FROM_DESC
+
+	/* Output parameters, if requested */
+	if (pparams != NULL) {
 		*pparams = params;
 		params = NULL;
 	}
 
+	rc = 0;
+cleanup:
+	uclogic_params_frame_free(frame);
+	uclogic_params_pen_free(pen);
 	uclogic_params_free(params);
 	return rc;
 }
