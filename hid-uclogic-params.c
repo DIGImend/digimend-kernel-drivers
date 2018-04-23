@@ -716,8 +716,8 @@ static int uclogic_params_with_opt_desc(struct uclogic_params **pparams,
 		goto cleanup;
 	}
 
-	/* Replace matching report descriptor */
-	if (hdev->rsize == orig_desc_size) {
+	/* Replace report descriptor, if it matches */
+	if (hdev->dev_rsize == orig_desc_size) {
 		params->desc_ptr = kmemdup(desc_ptr, desc_size, GFP_KERNEL);
 		if (params->desc_ptr == NULL) {
 			rc = -ENOMEM;
