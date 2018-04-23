@@ -28,7 +28,13 @@ enum uclogic_params_pen_inrange {
 	UCLOGIC_PARAMS_PEN_INRANGE_NONE,
 };
 
-/* Tablet interface report parameters */
+/*
+ * Tablet interface report parameters.
+ * Must use declarative (descriptive) language, not imperative, to simplify
+ * understanding and maintain consistency.
+ * When filled with zeros represents a "noop" configuration - passes all
+ * reports unchanged and lets the generic HID driver handle everything.
+ */
 struct uclogic_params {
 	/*
 	 * Pointer to replacement report descriptor allocated with kmalloc,
@@ -41,7 +47,7 @@ struct uclogic_params {
 	 */
 	unsigned int desc_size;
 	/*
-	 * True, if pen usage in report descriptor is present, but unused.
+	 * True, if pen usage in report descriptor is unused, if present.
 	 */
 	bool pen_unused;
 	/*
@@ -51,13 +57,13 @@ struct uclogic_params {
 	unsigned pen_id;
 	/*
 	 * Type of pen in-range reporting.
-	 * Only valid if pen_id is not zero.
+	 * Only valid if pen_id is valid and not zero.
 	 */
 	enum uclogic_params_pen_inrange pen_inrange;
 	/*
 	 * True, if pen reports include fragmented high resolution coords,
 	 * with high-order X and then Y bytes following the pressure field
-	 * Only valid if pen_id is not zero.
+	 * Only valid if pen_id is valid and not zero.
 	 */
 	bool pen_fragmented_hires;
 	/*
