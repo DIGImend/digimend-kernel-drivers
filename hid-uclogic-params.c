@@ -675,15 +675,14 @@ cleanup:
 }
 
 /**
- * uclogic_params_from_desc() - create tablet interface parameters from a
- * replacement report descriptor, provided the original report descriptor
- * matches the expected size.
+ * uclogic_params_with_opt_desc() - create tablet interface parameters with an
+ * optional replacement report descriptor. Only modify report descriptor, if
+ * the original report descriptor matches the expected size.
  *
  * @pparams: 		Location for the pointer to resulting parameters (to
- * 			be freed with uclogic_params_free()), or for NULL if
- * 			the original report descriptor size hasn't match the
- * 			expected size. Not modified in case of error. Can be
- * 			NULL to have parameters discarded after creation.
+ * 			be freed with uclogic_params_free()). Not modified in
+ * 			case of error. Can be NULL to have parameters
+ * 			discarded after creation.
  * @hdev:		The HID device of the tablet interface create the
  * 			parameters for. Cannot be NULL.
  * @orig_desc_size:	Expected size of the original report descriptor to
@@ -695,11 +694,11 @@ cleanup:
  * 	Zero, if successful. -EINVAL if an invalid argument was passed.
  * 	-ENOMEM, if failed to allocate memory.
  */
-static int uclogic_params_from_desc(struct uclogic_params **pparams,
-				    struct hid_device *hdev,
-				    unsigned int orig_desc_size,
-				    __u8 *desc_ptr,
-				    unsigned int desc_size)
+static int uclogic_params_with_opt_desc(struct uclogic_params **pparams,
+					struct hid_device *hdev,
+					unsigned int orig_desc_size,
+					__u8 *desc_ptr,
+					unsigned int desc_size)
 {
 	int rc;
 	/* The resulting parameters */
@@ -710,13 +709,15 @@ static int uclogic_params_from_desc(struct uclogic_params **pparams,
 		return -EINVAL;
 	}
 
-	/* Create parameters if the report descriptor size matches */
+	/* Create parameters */
+	params = kzalloc(sizeof(*params), GFP_KERNEL);
+	if (params == NULL) {
+		rc = -ENOMEM;
+		goto cleanup;
+	}
+
+	/* Replace matching report descriptor */
 	if (hdev->rsize == orig_desc_size) {
-		params = kzalloc(sizeof(*params), GFP_KERNEL);
-		if (params == NULL) {
-			rc = -ENOMEM;
-			goto cleanup;
-		}
 		params->desc_ptr = kmemdup(desc_ptr, desc_size, GFP_KERNEL);
 		if (params->desc_ptr == NULL) {
 			rc = -ENOMEM;
@@ -809,8 +810,8 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		return -EINVAL;
 	}
 
-#define FROM_DESC(_orig_desc_token, _new_desc_token) \
-	uclogic_params_from_desc(                           \
+#define WITH_OPT_DESC(_orig_desc_token, _new_desc_token) \
+	uclogic_params_with_opt_desc(                       \
 		&params, hdev,                              \
 		UCLOGIC_RDESC_##_orig_desc_token##_SIZE,    \
 		uclogic_rdesc_##_new_desc_token##_arr,      \
@@ -818,13 +819,13 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 
 	switch (hdev->product) {
 	case USB_DEVICE_ID_UCLOGIC_TABLET_PF1209:
-		rc = FROM_DESC(PF1209_ORIG, pf1209_fixed);
+		rc = WITH_OPT_DESC(PF1209_ORIG, pf1209_fixed);
 		if (rc != 0) {
 			goto cleanup;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U:
-		rc = FROM_DESC(WPXXXXU_ORIG, wp4030u_fixed);
+		rc = WITH_OPT_DESC(WPXXXXU_ORIG, wp4030u_fixed);
 		if (rc != 0) {
 			goto cleanup;
 		}
@@ -843,7 +844,7 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 				goto cleanup;
 			}
 		} else {
-			rc = FROM_DESC(WPXXXXU_ORIG, wp5540u_fixed);
+			rc = WITH_OPT_DESC(WPXXXXU_ORIG, wp5540u_fixed);
 			if (rc != 0) {
 				goto cleanup;
 			}
@@ -851,13 +852,13 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U:
-		rc = FROM_DESC(WPXXXXU_ORIG, wp8060u_fixed);
+		rc = WITH_OPT_DESC(WPXXXXU_ORIG, wp8060u_fixed);
 		if (rc != 0) {
 			goto cleanup;
 		}
 		break;
 	case USB_DEVICE_ID_UCLOGIC_TABLET_WP1062:
-		rc = FROM_DESC(WP1062_ORIG, wp1062_fixed);
+		rc = WITH_OPT_DESC(WP1062_ORIG, wp1062_fixed);
 		if (rc != 0) {
 			goto cleanup;
 		}
@@ -865,19 +866,19 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 	case USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850:
 		switch (bInterfaceNumber) {
 		case 0:
-			rc = FROM_DESC(TWHL850_ORIG0, twhl850_fixed0);
+			rc = WITH_OPT_DESC(TWHL850_ORIG0, twhl850_fixed0);
 			if (rc != 0) {
 				goto cleanup;
 			}
 			break;
 		case 1:
-			rc = FROM_DESC(TWHL850_ORIG1, twhl850_fixed1);
+			rc = WITH_OPT_DESC(TWHL850_ORIG1, twhl850_fixed1);
 			if (rc != 0) {
 				goto cleanup;
 			}
 			break;
 		case 2:
-			rc = FROM_DESC(TWHL850_ORIG2, twhl850_fixed2);
+			rc = WITH_OPT_DESC(TWHL850_ORIG2, twhl850_fixed2);
 			if (rc != 0) {
 				goto cleanup;
 			}
@@ -892,13 +893,15 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		if (bNumInterfaces != 3) {
 			switch (bInterfaceNumber) {
 			case 0:
-				rc = FROM_DESC(TWHA60_ORIG0, twha60_fixed0);
+				rc = WITH_OPT_DESC(TWHA60_ORIG0,
+							twha60_fixed0);
 				if (rc != 0) {
 					goto cleanup;
 				}
 				break;
 			case 1:
-				rc = FROM_DESC(TWHA60_ORIG1, twha60_fixed1);
+				rc = WITH_OPT_DESC(TWHA60_ORIG1,
+							twha60_fixed1);
 				if (rc != 0) {
 					goto cleanup;
 				}
@@ -1030,7 +1033,7 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		break;
 	}
 
-#undef FROM_DESC
+#undef WITH_OPT_DESC
 
 	/* Output parameters, if requested */
 	if (pparams != NULL) {
