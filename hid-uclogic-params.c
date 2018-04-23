@@ -96,19 +96,23 @@ cleanup:
 	return rc;
 }
 
-/* Tablet interface's pen input parameters */
+/*
+ * Tablet interface's pen input parameters.
+ * Noop (preserving functionality) when filled with zeroes.
+ */
 struct uclogic_params_pen {
 	/* Pointer to report descriptor allocated with kmalloc */
 	__u8 *desc_ptr;
 	/* Size of the report descriptor */
 	unsigned int desc_size;
-	/* Pen report ID */
+	/* Report ID, if reports should be tweaked, zero if not */
 	unsigned id;
-	/* Type of pen in-range reporting */
+	/* Type of in-range reporting, only valid if id is not zero */
 	enum uclogic_params_pen_inrange inrange;
 	/*
-	 * True, if pen reports include fragmented high resolution coords,
-	 * with high-order X and then Y bytes following the pressure field
+	 * True, if reports include fragmented high resolution coords, with
+	 * high-order X and then Y bytes following the pressure field.
+	 * Only valid if id is not zero.
 	 */
 	bool fragmented_hires;
 };
@@ -415,7 +419,10 @@ cleanup:
 	return rc;
 }
 
-/* Parameters of frame control inputs of a tablet interface */
+/*
+ * Parameters of frame control inputs of a tablet interface.
+ * Noop (preserving functionality) when filled with zeroes.
+ */
 struct uclogic_params_frame {
 	/* Pointer to report descriptor allocated with kmalloc */
 	__u8 *desc_ptr;
@@ -974,6 +981,7 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		break;
 	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
 	case USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540:
+		/* If this is the pen interface */
 		if (bInterfaceNumber == 1) {
 			rc = uclogic_params_pen_v1_probe(&pen, hdev);
 			if (rc != 0) {
