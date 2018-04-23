@@ -97,7 +97,6 @@ cleanup:
 }
 
 /* Tablet interface's pen input parameters */
-/* TODO Consider stripping "report" from names */
 struct uclogic_params_pen {
 	/* Pointer to report descriptor allocated with kmalloc */
 	__u8 *desc_ptr;
