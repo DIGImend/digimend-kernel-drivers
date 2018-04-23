@@ -28,6 +28,10 @@ enum uclogic_params_pen_inrange {
 	UCLOGIC_PARAMS_PEN_INRANGE_NONE,
 };
 
+/* Convert a pen in-range reporting type to a string */
+extern const char *uclogic_params_pen_inrange_to_str(
+			enum uclogic_params_pen_inrange inrange);
+
 /*
  * Tablet interface report parameters.
  * Must use declarative (descriptive) language, not imperative, to simplify
@@ -84,10 +88,27 @@ struct uclogic_params {
 extern int uclogic_params_probe(struct uclogic_params **pparams,
 				struct hid_device *hdev);
 
-/* Dump tablet interface parameters with hid_dbg */
-extern void uclogic_params_dump(const struct uclogic_params *params,
-				const struct hid_device *hdev,
-				const char *prefix);
+/* Tablet interface parameters *printf format string */
+#define UCLOGIC_PARAMS_FMT_STR \
+		".desc_ptr = %p\n"              \
+		".desc_size = %u\n"             \
+		".pen_unused = %s\n"            \
+		".pen_id = %u\n"                \
+		".pen_inrange = %s\n"           \
+		".pen_fragmented_hires = %s\n"  \
+		".pen_frame_flag = 0x%02x\n"    \
+		".pen_frame_id = %u\n"
+
+/* Tablet interface parameters *printf format arguments */
+#define UCLOGIC_PARAMS_FMT_ARGS(_params) \
+		(_params)->desc_ptr,                                        \
+		(_params)->desc_size,                                       \
+		((_params)->pen_unused ? "true" : "false"),                 \
+		(_params)->pen_id,                                          \
+		uclogic_params_pen_inrange_to_str((_params)->pen_inrange),  \
+		((_params)->pen_fragmented_hires ? "true" : "false"),       \
+		(_params)->pen_frame_flag,                                  \
+		(_params)->pen_frame_id
 
 /* Free resources used by tablet interface's parameters */
 extern void uclogic_params_free(struct uclogic_params *params);

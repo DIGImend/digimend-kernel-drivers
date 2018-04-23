@@ -20,6 +20,29 @@
 #include <asm/unaligned.h>
 
 /**
+ * Convert a pen in-range reporting type to a string.
+ *
+ * @inrange:	The in-range reporting type to convert.
+ *
+ * Return:
+ * 	The string representing the type, or NULL if the type is unknown.
+ */
+const char *uclogic_params_pen_inrange_to_str(
+			enum uclogic_params_pen_inrange inrange)
+{
+	switch (inrange) {
+	case UCLOGIC_PARAMS_PEN_INRANGE_NORMAL:
+		return "normal";
+	case UCLOGIC_PARAMS_PEN_INRANGE_INVERTED:
+		return "inverted";
+	case UCLOGIC_PARAMS_PEN_INRANGE_NONE:
+		return "none";
+	default:
+		return NULL;
+	}
+}
+
+/**
  * uclogic_params_get_str_desc - retrieve a string descriptor from a HID
  * device interface, putting it into a kmalloc-allocated buffer as is, without
  * character encoding conversion.
@@ -746,52 +769,6 @@ static int uclogic_params_with_pen_unused(struct uclogic_params **pparams)
 cleanup:
 	uclogic_params_free(params);
 	return rc;
-}
-
-/**
- * uclogic_params_dump() - dump tablet interface parameters with hid_dbg.
- *
- * @params: 	The interface parameters to dump. Cannot be NULL.
- * @hdev:	The HID device of the tablet interface to refer to while
- * 		dumping. Cannot be NULL.
- * @prefix:   	String to output before the dump. Cannot be NULL.
- */
-void uclogic_params_dump(const struct uclogic_params *params,
-				const struct hid_device *hdev,
-				const char *prefix)
-{
-#define BOOL_STR(_x) ((_x) ? "true" : "false")
-#define INRANGE_STR(_x) \
-	((_x) == UCLOGIC_PARAMS_PEN_INRANGE_NORMAL \
-		? "normal" \
-		: ((_x) == UCLOGIC_PARAMS_PEN_INRANGE_INVERTED \
-			? "inverted" \
-			: ((_x) == UCLOGIC_PARAMS_PEN_INRANGE_NONE \
-				? "none" \
-				: "unknown")))
-
-	hid_dbg(hdev,
-		"%s"
-		".desc_ptr = %p\n"
-		".desc_size = %u\n"
-		".pen_unused = %s\n"
-		".pen_id = %u\n"
-		".pen_inrange = %s\n"
-		".pen_fragmented_hires = %s\n"
-		".pen_frame_flag = 0x%02x\n"
-		".pen_frame_id = %u\n",
-		prefix,
-		params->desc_ptr,
-		params->desc_size,
-		BOOL_STR(params->pen_unused),
-		params->pen_id,
-		INRANGE_STR(params->pen_inrange),
-		BOOL_STR(params->pen_fragmented_hires),
-		params->pen_frame_flag,
-		params->pen_frame_id);
-
-#undef INRANGE_STR
-#undef BOOL_STR
 }
 
 /**

@@ -186,7 +186,8 @@ static int uclogic_probe(struct hid_device *hdev,
 		rc = -ENODEV;
 		goto failure;
 	} else {
-		uclogic_params_dump(drvdata->params, hdev, "parameters:\n");
+		hid_dbg(hdev, "parameters:\n" UCLOGIC_PARAMS_FMT_STR,
+			UCLOGIC_PARAMS_FMT_ARGS(drvdata->params));
 	}
 
 	rc = hid_parse(hdev);
