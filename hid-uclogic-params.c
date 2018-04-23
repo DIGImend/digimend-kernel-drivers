@@ -718,12 +718,20 @@ static int uclogic_params_with_opt_desc(struct uclogic_params **pparams,
 
 	/* Replace report descriptor, if it matches */
 	if (hdev->dev_rsize == orig_desc_size) {
+		hid_dbg(hdev, "device report descriptor matches "
+				"the expected size, replacing\n");
 		params->desc_ptr = kmemdup(desc_ptr, desc_size, GFP_KERNEL);
 		if (params->desc_ptr == NULL) {
 			rc = -ENOMEM;
 			goto cleanup;
 		}
 		params->desc_size = desc_size;
+	} else {
+		hid_dbg(hdev,
+			"device report descriptor doesn't match "
+			"the expected size (%u != %u), preserving\n",
+			hdev->dev_rsize, orig_desc_size);
+
 	}
 
 	/* Output parameters, if requested */
