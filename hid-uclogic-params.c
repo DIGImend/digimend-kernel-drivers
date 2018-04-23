@@ -680,10 +680,10 @@ cleanup:
  * 			NULL to have parameters discarded after creation.
  * @hdev:		The HID device of the tablet interface create the
  * 			parameters for. Cannot be NULL.
- * @orig_desc_size	Expected size of the original report descriptor to
+ * @orig_desc_size:	Expected size of the original report descriptor to
  * 			be replaced.
- * @desc_ptr		Pointer to the replacement report descriptor.
- * @desc_size		Size of the replacement report descriptor.
+ * @desc_ptr:		Pointer to the replacement report descriptor.
+ * @desc_size:		Size of the replacement report descriptor.
  *
  * Return:
  * 	Zero, if successful. -EINVAL if an invalid argument was passed.
