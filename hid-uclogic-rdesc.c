@@ -724,7 +724,6 @@ const __u8 uclogic_rdesc_ugee_ex07_buttonpad_arr[] = {
 	0xC0,                   /*      End Collection,                     */
 	0xC0                    /*  End Collection                          */
 };
-
 const size_t uclogic_rdesc_ugee_ex07_buttonpad_size =
 			sizeof(uclogic_rdesc_ugee_ex07_buttonpad_arr);
 
