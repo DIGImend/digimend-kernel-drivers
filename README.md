@@ -142,6 +142,14 @@ If you've manually installed a version of this package before, please
 uninstall it before installing another one, using the sources you used for
 installation.
 
+Support
+-------
+
+If you have any problems with the drivers, look through [HOWTOs][howtos] on
+[the project website][website], and search for solutions and report new issues
+at [the issues page on GitHub][issues]. Join the [#DIGImend channel on
+irc.freenode.net][irc_channel] to discuss the drivers, tablets, development,
+to ask for help, and to help others!
 
 [website]: http://digimend.github.io/
 [supported_tablets]: http://digimend.github.io/drivers/digimend/tablets/
@@ -151,3 +159,6 @@ installation.
 [patreon_profile]: https://www.patreon.com/spbnick
 [patreon_pledge]: https://www.patreon.com/bePatron?c=930980
 [dkms_issue_pr]: https://github.com/dell/dkms/pull/47
+[howtos]: http://digimend.github.io/support/
+[issues]: https://github.com/DIGImend/digimend-kernel-drivers/issues
+[irc_channel]: https://webchat.freenode.net/?channels=DIGImend
