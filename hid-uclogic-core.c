@@ -129,6 +129,10 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 			break;
 		}
 		break;
+	case USB_DEVICE_ID_UCLOGIC_XPPEN_ARTIST_22HD:
+		rdesc = uclogic_rdesc_xppen_artist22HD_arr;
+		*rsize = uclogic_rdesc_xppen_artist22HD_size;
+		break;
 	}
 
 	return rdesc;
