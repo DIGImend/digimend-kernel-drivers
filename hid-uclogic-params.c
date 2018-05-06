@@ -427,6 +427,16 @@ struct uclogic_params_frame {
 	__u8 *desc_ptr;
 	/* Size of the report descriptor */
 	unsigned int desc_size;
+	/*
+	 * Report ID, if reports should be tweaked, zero if not.
+	 */
+	unsigned id;
+	/*
+	 * Number of the least-significant bit of the 2-bit state of a rotary
+	 * encoder, in the report. Zero if not present. Only valid if id is
+	 * not zero.
+	 */
+	unsigned re_lsb;
 };
 
 /**
@@ -633,6 +643,8 @@ static int uclogic_params_from_pen_and_frame(
 	}
 	if (frame != NULL) {
 		params->desc_size += frame->desc_size;
+		params->frame_id = frame->id;
+		params->frame_re_lsb = frame->re_lsb;
 	}
 	if (pen != NULL && frame != NULL) {
 		params->pen_frame_flag = pen_frame_flag;

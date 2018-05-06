@@ -34,6 +34,8 @@ struct uclogic_drvdata {
 	struct input_dev *pen_input;
 	/* In-range timer */
 	struct timer_list inrange_timer;
+	/* Last rotary encoder state, or U8_MAX for none */
+	u8 re_state;
 };
 
 static void uclogic_inrange_timeout(struct timer_list *t)
@@ -172,6 +174,7 @@ static int uclogic_probe(struct hid_device *hdev,
 		goto failure;
 	}
 	timer_setup(&drvdata->inrange_timer, uclogic_inrange_timeout, 0);
+	drvdata->re_state = U8_MAX;
 	hid_set_drvdata(hdev, drvdata);
 
 	/* Initialize the device and retrieve parameters */
@@ -234,6 +237,7 @@ static int uclogic_raw_event(struct hid_device *hdev,
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 	struct uclogic_params *params = drvdata->params;
 
+	/* Tweak pen reports, if necessary */
 	if (!params->pen_unused &&
 	    (report->type == HID_INPUT_REPORT) &&
 	    (report->id == params->pen_id) &&
@@ -282,6 +286,36 @@ static int uclogic_raw_event(struct hid_device *hdev,
 			/* (Re-)start in-range timeout */
 			mod_timer(&drvdata->inrange_timer,
 					jiffies + msecs_to_jiffies(100));
+		}
+	}
+
+	/* Tweak frame control reports, if necessary */
+	if ((report->type == HID_INPUT_REPORT) &&
+	    (report->id == params->frame_id)) {
+		/* If need to, and can, read rotary encoder state change */
+		if (params->frame_re_lsb > 0 &&
+		    params->frame_re_lsb / 8 < size) {
+			unsigned byte = params->frame_re_lsb / 8;
+			unsigned bit = params->frame_re_lsb % 8;
+			u8 change;
+			u8 prev_state = drvdata->re_state;
+			/* Read Gray-coded state */
+			u8 state = (data[byte] >> bit) & 0x3;
+			/* Encode state change into 2-bit signed integer */
+			if ((prev_state == 1 && state == 0) ||
+			    (prev_state == 2 && state == 3)) {
+				change = 1;
+			} else if ((prev_state == 2 && state == 0) ||
+				   (prev_state == 1 && state == 3)) {
+				change = 3;
+			} else {
+				change = 0;
+			}
+			/* Write change */
+			data[byte] = (data[byte] & ~((u8)3 << bit)) |
+					(change << bit);
+			/* Remember state */
+			drvdata->re_state = state;
 		}
 	}
 

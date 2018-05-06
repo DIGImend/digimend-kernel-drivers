@@ -82,6 +82,18 @@ struct uclogic_params {
 	 * pen_frame_flag is valid and not zero.
 	 */
 	unsigned pen_frame_id;
+	/*
+	 * Frame controls report ID, if frame control reports should be
+	 * tweaked, zero if not.
+	 */
+	unsigned frame_id;
+	/*
+	 * Number of the least-significant bit of the 2-bit state of a rotary
+	 * encoder, in the frame report. Cannot point to a 2-bit field
+	 * crossing a byte boundary. Zero if not present. Only valid if
+	 * frame_id is not zero.
+	 */
+	unsigned frame_re_lsb;
 };
 
 /* Initialize a tablet interface and discover its parameters */
@@ -90,14 +102,16 @@ extern int uclogic_params_probe(struct uclogic_params **pparams,
 
 /* Tablet interface parameters *printf format string */
 #define UCLOGIC_PARAMS_FMT_STR \
-		".desc_ptr = %p\n"              \
-		".desc_size = %u\n"             \
-		".pen_unused = %s\n"            \
-		".pen_id = %u\n"                \
-		".pen_inrange = %s\n"           \
-		".pen_fragmented_hires = %s\n"  \
-		".pen_frame_flag = 0x%02x\n"    \
-		".pen_frame_id = %u\n"
+		".desc_ptr = %p\n"                  \
+		".desc_size = %u\n"                 \
+		".pen_unused = %s\n"                \
+		".pen_id = %u\n"                    \
+		".pen_inrange = %s\n"               \
+		".pen_fragmented_hires = %s\n"      \
+		".pen_frame_flag = 0x%02x\n"        \
+		".pen_frame_id = %u\n"              \
+		".frame_id = %u\n"                  \
+		".frame_re_lsb = %u\n"
 
 /* Tablet interface parameters *printf format arguments */
 #define UCLOGIC_PARAMS_FMT_ARGS(_params) \
@@ -108,7 +122,9 @@ extern int uclogic_params_probe(struct uclogic_params **pparams,
 		uclogic_params_pen_inrange_to_str((_params)->pen_inrange),  \
 		((_params)->pen_fragmented_hires ? "true" : "false"),       \
 		(_params)->pen_frame_flag,                                  \
-		(_params)->pen_frame_id
+		(_params)->pen_frame_id,                                    \
+		(_params)->frame_id,                                        \
+		(_params)->frame_re_lsb
 
 /* Free resources used by tablet interface's parameters */
 extern void uclogic_params_free(struct uclogic_params *params);
