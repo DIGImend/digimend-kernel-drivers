@@ -1051,6 +1051,39 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		}
 		break;
 	case VID_PID(USB_VENDOR_ID_UGEE,
+		     USB_DEVICE_ID_UGEE_TABLET_G5):
+		/* Ignore non-pen interfaces */
+		if (bInterfaceNumber != 1) {
+			break;
+		}
+
+		rc = uclogic_params_pen_v1_probe(&pen, hdev);
+		if (rc != 0) {
+			hid_err(hdev, "pen probing failed: %d\n", rc);
+			goto cleanup;
+		} else if (pen != NULL) {
+			rc = uclogic_params_frame_from_desc(
+				&frame,
+				uclogic_rdesc_ugee_g5_frame_arr,
+				uclogic_rdesc_ugee_g5_frame_size);
+			if (rc != 0) {
+				hid_err(hdev, "failed creating buttonpad "
+					"parameters: %d\n", rc);
+				goto cleanup;
+			}
+			frame->id = UCLOGIC_RDESC_UGEE_G5_FRAME_ID;
+			frame->re_lsb = UCLOGIC_RDESC_UGEE_G5_FRAME_RE_LSB;
+			frame->dev_id_byte =
+				UCLOGIC_RDESC_UGEE_G5_FRAME_DEV_ID_BYTE;
+		}
+
+		rc = uclogic_params_from_pen_and_frame(
+				&params, pen, frame, 0, 0);
+		if (rc != 0) {
+			goto cleanup;
+		}
+		break;
+	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_TABLET_EX07S):
 		/* Ignore non-pen interfaces */
 		if (bInterfaceNumber != 1) {
