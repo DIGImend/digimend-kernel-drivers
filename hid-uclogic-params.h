@@ -94,6 +94,13 @@ struct uclogic_params {
 	 * frame_id is not zero.
 	 */
 	unsigned frame_re_lsb;
+	/*
+	 * Offset of the Wacom-style device ID byte in the frame report, to be
+	 * set to pad device ID (0xf), for compatibility with Wacom drivers.
+	 * Zero if no changes to the report should be made. Only valid if
+	 * frame_id is not zero.
+	 */
+	unsigned frame_dev_id_byte;
 };
 
 /* Initialize a tablet interface and discover its parameters */
@@ -111,7 +118,8 @@ extern int uclogic_params_probe(struct uclogic_params **pparams,
 		".pen_frame_flag = 0x%02x\n"        \
 		".pen_frame_id = %u\n"              \
 		".frame_id = %u\n"                  \
-		".frame_re_lsb = %u\n"
+		".frame_re_lsb = %u\n"              \
+		".frame_dev_id_byte = %u\n"
 
 /* Tablet interface parameters *printf format arguments */
 #define UCLOGIC_PARAMS_FMT_ARGS(_params) \
@@ -124,7 +132,8 @@ extern int uclogic_params_probe(struct uclogic_params **pparams,
 		(_params)->pen_frame_flag,                                  \
 		(_params)->pen_frame_id,                                    \
 		(_params)->frame_id,                                        \
-		(_params)->frame_re_lsb
+		(_params)->frame_re_lsb,                                    \
+		(_params)->frame_dev_id_byte
 
 /* Free resources used by tablet interface's parameters */
 extern void uclogic_params_free(struct uclogic_params *params);

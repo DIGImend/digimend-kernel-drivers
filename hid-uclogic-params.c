@@ -437,6 +437,13 @@ struct uclogic_params_frame {
 	 * not zero.
 	 */
 	unsigned re_lsb;
+	/*
+	 * Offset of the Wacom-style device ID byte in the report, to be set
+	 * to pad device ID (0xf), for compatibility with Wacom drivers. Zero
+	 * if no changes to the report should be made. Only valid if id is not
+	 * zero.
+	 */
+	unsigned dev_id_byte;
 };
 
 /**
@@ -645,6 +652,7 @@ static int uclogic_params_from_pen_and_frame(
 		params->desc_size += frame->desc_size;
 		params->frame_id = frame->id;
 		params->frame_re_lsb = frame->re_lsb;
+		params->frame_dev_id_byte = frame->dev_id_byte;
 	}
 	if (pen != NULL && frame != NULL) {
 		params->pen_frame_flag = pen_frame_flag;
