@@ -31,8 +31,7 @@ you're doing.
 
 If you're using Debian or a derived distro, such as Ubuntu, please try using
 the experimental .deb package. If it works for you, this will remove the need
-to reinstall the driver after each kernel upgrade. If it doesn't work, please
-[report the issue][report_issue].
+to reinstall the driver after each kernel upgrade.
 
 If you're not using a Debian-based distro, or the .deb package didn't work,
 you can try installing the driver using DKMS directly, if you know how, or
@@ -41,8 +40,7 @@ manually as described below.
 ### Installing source package with DKMS ###
 
 If you know how to use DKMS, you can try installing the package with it
-directly, employing the experimental DKMS support. Please [report
-issues][report_issue] if you find any.
+directly, employing the experimental DKMS support.
 
 ### DKMS issue preventing correct installation ###
 
@@ -90,10 +88,6 @@ and reconnect the tablet. Or simply reboot the machine.
 Note that if you built and installed the driver with `make` and `sudo make
 install` as described above, you will need to do that again after each kernel
 upgrade.
-
-See the DIGImend project [support page](http://digimend.github.io/support/)
-for further setup instructions. Please [report issues][report_issue] if you
-find any.
 
 ### SSL errors during installation ###
 
@@ -154,7 +148,6 @@ to ask for help, and to help others!
 [website]: http://digimend.github.io/
 [supported_tablets]: http://digimend.github.io/drivers/digimend/tablets/
 [releases]: https://github.com/DIGImend/digimend-kernel-drivers/releases
-[report_issue]: https://github.com/DIGImend/digimend-kernel-drivers/issues/new
 [patreon_profile]: https://www.patreon.com/spbnick
 [patreon_pledge]: https://www.patreon.com/bePatron?c=930980
 [dkms_issue_pr]: https://github.com/dell/dkms/pull/47
