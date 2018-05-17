@@ -155,7 +155,6 @@ to ask for help, and to help others!
 [supported_tablets]: http://digimend.github.io/drivers/digimend/tablets/
 [releases]: https://github.com/DIGImend/digimend-kernel-drivers/releases
 [report_issue]: https://github.com/DIGImend/digimend-kernel-drivers/issues/new
-[wrapping_up]: http://spbnick.github.io/2016/07/31/Wrapping-up-DIGImend-work.html
 [patreon_profile]: https://www.patreon.com/spbnick
 [patreon_pledge]: https://www.patreon.com/bePatron?c=930980
 [dkms_issue_pr]: https://github.com/dell/dkms/pull/47
