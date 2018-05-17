@@ -108,6 +108,80 @@ installation and operation and can safely be ignored. That is, unless you set
 up module signature verification, but then you would recognize the problem,
 and would be able to fix it.
 
+Configuration
+-------------
+If your tablet is supported, its pen will work after installing these drivers,
+and applications will be able to recognize the pressure after appropriate
+configuration. Refer to the application documentation for instructions on how
+to do that, but in most cases it is enough to simply enable the tablet in the
+application.
+
+By default, your tablet will be handled by the libinput X.org driver
+(`xserver-xorg-input-libinput` package in Debian, Ubuntu, and derived distros,
+`xorg-x11-drv-libinput` in Fedora and derived distros). This driver will
+support reporting pen coordinates and pressure, and some frame controls.
+
+However, it will not support configuring pressure curves, keyboard shortcuts
+for buttons on the tablet frame, or other advanced features. For that you
+will need to use the Wacom driver. To do that, make sure you have the package
+installed (`xserver-xorg-input-wacom` or `xorg-x11-drv-wacom`) and write the
+following to `/etc/X11/xorg.conf.d/50-tablet.conf` file:
+
+    Section "InputClass"
+        Identifier "Tablet"
+        Driver "wacom"
+        MatchDevicePath "/dev/input/event*"
+        MatchUSBID "<VID>:<PID>"
+    EndSection
+
+Here `<VID>` and `<PID>` would be the tablet's USB vendor and product IDs
+respectively, as seen in `lsusb` output. E.g. if your tablet's line in `lsusb`
+output looks like this:
+
+    Bus 001 Device 003: ID 256c:006e
+
+then your `/etc/X11/xorg.conf.d/50-tablet.conf` should look like this:
+
+    Section "InputClass"
+        Identifier "Tablet"
+        Driver "wacom"
+        MatchDevicePath "/dev/input/event*"
+        MatchUSBID "256c:006e"
+    EndSection
+
+Next, log out of your X.org session and login again, or simply restart your
+machine. To verify that the tablet is now handled by the Wacom driver execute
+`xsetwacom list` and check that your tablet appears in the output at least
+once.
+
+After that, you should be able to use the `xsetwacom` tool to configure the
+advanced features.
+
+For example, if `xsetwacom list` produces this output:
+
+    HID 256c:006e Pad pad                   id: 9   type: PAD
+    HID 256c:006e Pen stylus                id: 10  type: STYLUS
+
+you can assign Ctrl-Z ("Undo") key combination to the fifth button on the
+tablet frame this way (note that buttons are numbered 1, 2, 3, 8, 9, 10, and so
+on):
+
+    xsetwacom set "HID 256c:006e Pad pad" button 9 key Ctrl Z
+
+and if `xrandr` output has this line:
+
+    HDMI-3 connected 1440x900+0+0 (normal left inverted right x axis y axis) 408mm x 255mm
+
+you can restrict the tablet input to that display like this:
+
+    xsetwacom set "HID 256c:006e Pen stylus" MapToOutput HDMI-3
+
+See [the `xsetwacom` man page][xsetwacom_manpage] for more parameters and
+details.
+
+Note that so far, in most cases, graphical Wacom tablet configuration tools
+won't work with non-Wacom tablets.
+
 Uninstalling
 ------------
 
@@ -151,6 +225,7 @@ to ask for help, and to help others!
 [patreon_profile]: https://www.patreon.com/spbnick
 [patreon_pledge]: https://www.patreon.com/bePatron?c=930980
 [dkms_issue_pr]: https://github.com/dell/dkms/pull/47
+[xsetwacom_manpage]: https://www.mankier.com/1/xsetwacom
 [howtos]: http://digimend.github.io/support/
 [issues]: https://github.com/DIGImend/digimend-kernel-drivers/issues
 [irc_channel]: https://webchat.freenode.net/?channels=DIGImend
