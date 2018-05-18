@@ -23,5 +23,7 @@ script:
 - lintian -i -I --profile debian --show-overrides ../digimend-dkms_*.changes
 - sudo dpkg -i ../digimend-dkms_*_all.deb
 - sudo dpkg -r digimend-dkms
+# Checks build tarball
+- make dist
 - sudo make install
 - sudo make uninstall
