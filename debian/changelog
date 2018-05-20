@@ -1,3 +1,9 @@
+digimend-dkms (8) unstable; urgency=low
+
+  * Bump version number.
+
+ -- Nikolai Kondrashov <spbnick@gmail.com>  Sun, 20 May 2018 11:26:38 +0300
+
 digimend-dkms (7) unstable; urgency=low
 
   * Add support for building with v4.4 and newer kernels.

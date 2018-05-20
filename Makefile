@@ -10,7 +10,7 @@ UDEV_RULES := /lib/udev/rules.d/90-hid-rebind.rules
 DEPMOD_CONF := /etc/depmod.d/digimend.conf
 HID_REBIND := /sbin/hid-rebind
 PACKAGE_NAME = digimend-kernel-drivers
-PACKAGE_VERSION = 7
+PACKAGE_VERSION = 8
 PACKAGE = $(PACKAGE_NAME)-$(PACKAGE_VERSION)
 modules modules_install clean:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) $@

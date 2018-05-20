@@ -211,4 +211,4 @@ static struct hid_driver polostar_driver = {
 module_hid_driver(polostar_driver);
 
 MODULE_LICENSE("GPL");
-MODULE_VERSION("7");
+MODULE_VERSION("8");
