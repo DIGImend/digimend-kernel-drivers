@@ -825,20 +825,26 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		uclogic_rdesc_##_new_desc_token##_arr,      \
 		uclogic_rdesc_##_new_desc_token##_size);
 
-	switch (hdev->product) {
-	case USB_DEVICE_ID_UCLOGIC_TABLET_PF1209:
+#define VID_PID(_vid, _pid) \
+	(((__u32)(_vid) << 16) | ((__u32)(_pid) & U16_MAX))
+
+	switch (VID_PID(hdev->vendor, hdev->product)) {
+	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+		     USB_DEVICE_ID_UCLOGIC_TABLET_PF1209):
 		rc = WITH_OPT_DESC(PF1209_ORIG, pf1209_fixed);
 		if (rc != 0) {
 			goto cleanup;
 		}
 		break;
-	case USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U:
+	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+		     USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U):
 		rc = WITH_OPT_DESC(WPXXXXU_ORIG, wp4030u_fixed);
 		if (rc != 0) {
 			goto cleanup;
 		}
 		break;
-	case USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U:
+	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+		     USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U):
 		if (hdev->dev_rsize == UCLOGIC_RDESC_WP5540U_V2_ORIG_SIZE &&
 		    bInterfaceNumber == 0) {
 			rc = uclogic_params_pen_v1_probe(&pen, hdev);
@@ -859,19 +865,22 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		}
 
 		break;
-	case USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U:
+	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+		     USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U):
 		rc = WITH_OPT_DESC(WPXXXXU_ORIG, wp8060u_fixed);
 		if (rc != 0) {
 			goto cleanup;
 		}
 		break;
-	case USB_DEVICE_ID_UCLOGIC_TABLET_WP1062:
+	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+		     USB_DEVICE_ID_UCLOGIC_TABLET_WP1062):
 		rc = WITH_OPT_DESC(WP1062_ORIG, wp1062_fixed);
 		if (rc != 0) {
 			goto cleanup;
 		}
 		break;
-	case USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850:
+	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+		     USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850):
 		switch (bInterfaceNumber) {
 		case 0:
 			rc = WITH_OPT_DESC(TWHL850_ORIG0, twhl850_fixed0);
@@ -893,7 +902,8 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 			break;
 		}
 		break;
-	case USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60:
+	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+		     USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60):
 		/*
 		 * If it is not a three-interface version, which is known to
 		 * respond to initialization.
@@ -918,12 +928,20 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 			break;
 		}
 		/* FALL THROUGH */
-	case USB_DEVICE_ID_HUION_TABLET:
-	case USB_DEVICE_ID_YIYNOVA_TABLET:
-	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_81:
-	case USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3:
-	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_45:
-	case USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47:
+	case VID_PID(USB_VENDOR_ID_HUION,
+		     USB_DEVICE_ID_HUION_TABLET):
+	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+		     USB_DEVICE_ID_HUION_TABLET):
+	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+		     USB_DEVICE_ID_YIYNOVA_TABLET):
+	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+		     USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_81):
+	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+		     USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3):
+	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+		     USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_45):
+	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+		     USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47):
 		/* If it's not a pen interface */
 		if (bInterfaceNumber != 0) {
 			rc = uclogic_params_with_pen_unused(&params);
@@ -990,8 +1008,10 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		hid_dbg(hdev, "pen v1 parameters not found\n");
 
 		break;
-	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
-	case USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540:
+	case VID_PID(USB_VENDOR_ID_UGTIZER,
+		     USB_DEVICE_ID_UGTIZER_TABLET_GP0610):
+	case VID_PID(USB_VENDOR_ID_UGEE,
+		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540):
 		/* If this is the pen interface */
 		if (bInterfaceNumber == 1) {
 			rc = uclogic_params_pen_v1_probe(&pen, hdev);
@@ -1011,7 +1031,8 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 			}
 		}
 		break;
-	case USB_DEVICE_ID_UGEE_TABLET_EX07S:
+	case VID_PID(USB_VENDOR_ID_UGEE,
+		     USB_DEVICE_ID_UGEE_TABLET_EX07S):
 		/* Ignore non-pen interfaces */
 		if (bInterfaceNumber != 1) {
 			break;
@@ -1041,6 +1062,7 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		break;
 	}
 
+#undef VID_PID
 #undef WITH_OPT_DESC
 
 	/* Output parameters, if requested */
