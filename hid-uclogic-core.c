@@ -38,6 +38,14 @@ struct uclogic_drvdata {
 	u8 re_state;
 };
 
+/**
+ * uclogic_inrange_timeout - handle pen in-range state timeout.
+ * Emulate input events normally generated when pen goes out of range for
+ * tablets which don't report that.
+ *
+ * @t:	The timer the timeout handler is attached to, stored in a struct
+ *	uclogic_drvdata.
+ */
 static void uclogic_inrange_timeout(struct timer_list *t)
 {
 	struct uclogic_drvdata *drvdata = from_timer(drvdata, t,
