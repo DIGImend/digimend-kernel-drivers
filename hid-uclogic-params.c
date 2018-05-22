@@ -174,7 +174,7 @@ static int uclogic_params_pen_v1_probe(struct uclogic_params_pen **ppen,
 	 * NOTE: This enables fully-functional tablet mode.
 	 */
 	rc = uclogic_params_get_str_desc(&buf, hdev, 100, len);
-	if (rc == -ENOENT) {
+	if (rc == -EPIPE) {
 		hid_dbg(hdev,
 			"string descriptor with pen parameters not found, "
 			"assuming not compatible\n");
@@ -315,12 +315,11 @@ static int uclogic_params_pen_v2_probe(struct uclogic_params_pen **ppen,
 	 * NOTE: This enables fully-functional tablet mode.
 	 */
 	rc = uclogic_params_get_str_desc(&buf, hdev, 200, len);
-	if (rc == -ENOENT) {
+	if (rc == -EPIPE) {
 		hid_dbg(hdev,
 			"string descriptor with pen parameters not found, "
 			"assuming not compatible\n");
-		rc = 0;
-		goto cleanup;
+		goto output;
 	} else if (rc < 0) {
 		hid_err(hdev, "failed retrieving pen parameters: %d\n", rc);
 		goto cleanup;
