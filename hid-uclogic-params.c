@@ -1031,8 +1031,6 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		     USB_DEVICE_ID_UGTIZER_TABLET_GP0610):
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540):
-	case VID_PID(USB_VENDOR_ID_UGEE,
-		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01):
 		/* If this is the pen interface */
 		if (bInterfaceNumber == 1) {
 			rc = uclogic_params_pen_v1_probe(&pen, hdev);
@@ -1042,6 +1040,34 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 			}
 			rc = uclogic_params_from_pen_and_frame(
 					&params, pen, NULL, 0, 0);
+			if (rc != 0) {
+				goto cleanup;
+			}
+		} else {
+			rc = uclogic_params_with_pen_unused(&params);
+			if (rc != 0) {
+				goto cleanup;
+			}
+		}
+		break;
+	case VID_PID(USB_VENDOR_ID_UGEE,
+		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01):
+		/* If this is the pen and frame interface */
+		if (bInterfaceNumber == 1) {
+			rc = uclogic_params_pen_v1_probe(&pen, hdev);
+			if (rc != 0) {
+				hid_err(hdev, "pen probing failed: %d\n", rc);
+				goto cleanup;
+			}
+			rc = uclogic_params_frame_from_desc(
+				&frame,
+				uclogic_rdesc_xppen_deco01_frame_arr,
+				uclogic_rdesc_xppen_deco01_frame_size);
+			if (rc != 0) {
+				goto cleanup;
+			}
+			rc = uclogic_params_from_pen_and_frame(
+					&params, pen, frame, 0, 0);
 			if (rc != 0) {
 				goto cleanup;
 			}
