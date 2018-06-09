@@ -72,10 +72,6 @@ DKMS to restore it if something goes wrong.
 
 To build the drivers run `make` in the package's directory.
 
-Please disregard the possible "Can't read private key" messages. They don't
-affect the driver functionality, unless you set up kernel module signature
-verification.
-
 To install the drivers run `sudo make install` in the package's directory.
 
 Make sure the previous versions of the drivers were unloaded from memory with
