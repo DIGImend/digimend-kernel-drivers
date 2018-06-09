@@ -108,11 +108,18 @@ and would be able to fix it.
 
 Configuration
 -------------
-If your tablet is supported, its pen will work after installing these drivers,
-and applications will be able to recognize the pressure after appropriate
-configuration. Refer to the application documentation for instructions on how
-to do that, but in most cases it is enough to simply enable the tablet in the
-application.
+After installing the drivers, make sure the previous versions of the drivers
+were unloaded. To do that, simply reboot the machine. Alternatively, execute
+the following command:
+
+    sudo modprobe -r hid-kye hid-uclogic hid-polostar hid-viewsonic
+
+and reconnect the tablet.
+
+If your tablet is supported, its pen will work after this, and applications
+will be able to recognize the pressure after appropriate configuration. Refer
+to the application documentation for instructions on how to do that, but in
+most cases it is enough to simply enable the tablet in the application.
 
 By default, your tablet will be handled by the libinput X.org driver
 (`xserver-xorg-input-libinput` package in Debian, Ubuntu, and derived distros,
