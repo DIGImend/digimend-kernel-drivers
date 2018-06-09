@@ -61,12 +61,17 @@ dkms_modules_install: dkms_check
 dkms_modules_uninstall: dkms_check
 	set -e -x; \
 	dkms status $(DKMS_MODULES_NAME) | \
-	    while IFS=', :' read -r modules_name \
-	                            modules_version \
-	                            kernel_version \
-	                            ignore; do \
-	        dkms remove "$$modules_name/$$modules_version" \
-	                    -k "$$kernel_version"; \
+	    while IFS=':' read -r modules status; do \
+	        IFS=', ' read -r modules_name modules_version \
+	                         kernel_version kernel_arch ignore \
+	                     <<<"$$modules"; \
+	        if [ -z "$$kernel_version" ]; then \
+	            dkms remove "$$modules_name/$$modules_version" \
+	                        --all; \
+	        else \
+	            dkms remove "$$modules_name/$$modules_version" \
+	                        -k "$$kernel_version/$$kernel_arch"; \
+	        fi; \
 	    done
 
 dkms_install: dkms_modules_install files_install
