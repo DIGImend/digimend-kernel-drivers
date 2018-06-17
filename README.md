@@ -168,12 +168,15 @@ For example, if `xsetwacom list` produces this output:
     HID 256c:006e Pen stylus                id: 10  type: STYLUS
 
 you can assign Ctrl-Z ("Undo") key combination to the fifth button on the
-tablet frame this way (note that buttons are numbered 1, 2, 3, 8, 9, 10, and so
-on):
+tablet frame this way:
 
     xsetwacom set "HID 256c:006e Pad pad" button 9 key Ctrl Z
 
-and if `xrandr` output has this line:
+Note that buttons are numbered 1, 2, 3, 8, 9, 10, and so on, i.e. buttons 4,
+5, 6, and 7 are not used. They're reserved for vertical and horizontal
+scrolling events by the X server.
+
+Another example: if `xrandr` output has this line:
 
     HDMI-3 connected 1440x900+0+0 (normal left inverted right x axis y axis) 408mm x 255mm
 
