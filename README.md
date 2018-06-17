@@ -17,12 +17,7 @@ maintainer][patreon_profile] to help make more tablets work with Linux.
 Installing
 ----------
 
-Kernel v3.5 or newer is required. Kernel headers or the build tree for the
-running kernel are required.
-
-On Debian-derived systems (such as Ubuntu and Mint) headers can be obtained by
-installing appropriate version of `linux-headers` package. On Red Hat and
-derived distributions the package name is `kernel-headers`.
+Kernel v3.5 or newer is required.
 
 Download appropriate files for one of the releases from the [releases
 page][releases]. The "Download ZIP" link on the right of the GitHub page leads
@@ -31,63 +26,72 @@ you're doing.
 
 ### Installing Debian package ###
 
-If you're using Debian or a derived distro, such as Ubuntu, please try using
-the experimental .deb package. If it works for you, this will remove the need
-to reinstall the driver after each kernel upgrade.
+If you're using Debian or a derived distro, such as Ubuntu, and are installing
+a release, please use the .deb package. If you're not using a Debian-based
+distro, or the .deb package didn't work, you can install the driver using
+DKMS, or manually, as described below.
 
-If you're not using a Debian-based distro, or the .deb package didn't work,
-you can try installing the driver using DKMS directly, if you know how, or
-manually as described below.
+### Installing from source ###
 
-### Installing source package with DKMS ###
+Source is either an unpacked release tarball (.tar.gz file), an unpacked
+source code archive downloaded from GitHub (.zip file), or source code checked
+out from Git.
 
-If you know how to use DKMS, you can try installing the package with it
-directly, employing the experimental DKMS support.
+Before installing from source in any way, make sure you have the headers for
+your kernel installed (on Debian-based systems):
 
-### DKMS issue preventing correct installation ###
+    sudo apt-get install -y "linux-headers-$(uname -r)"
 
-If you're installing Debian packages, or installing source packages with DKMS
-directly, you might hit a bug in DKMS which prevents some of the driver
-modules from installing. If you do, you will see a message like this while
-trying to install the drivers:
+or (on Fedora-based systems):
 
-    hid-uclogic.ko:
-    Running module version sanity check.
-    Error! Module version 7 for hid-uclogic.ko
-    is not newer than what is already found in kernel 4.9.0-5-amd64 (7).
-    You may override by specifying --force.
+    sudo dnf install -y "kernel-devel-uname-r == $(uname -r)"
 
-For details see [upstream pull-request fixing the issue][dkms_issue_pr].
+If you get "Error: Unable to find a match" from the above command, make sure
+your kernel is up-to-date, and if not, update it and try again.
 
-To fix that you can apply the patch linked above yourself, or execute the
-below command:
+#### Installing from source with DKMS ####
 
-    sudo sed -i -e 's/\<unset res$/res=()/' /usr/sbin/dkms
+DKMS (Dynamic Kernel Module Support) is a system for installing out-of-tree
+Linux kernel modules, such as DIGImend kernel drivers. It helps make sure the
+modules are built with correct kernel headers and are properly installed, and
+also automatically reinstalls the modules when the kernel is updated.
 
-Be aware that the operation the above command does is inexact, and might not
-work, or might break DKMS. You've been warned. In any case, simply reinstall
-DKMS to restore it if something goes wrong.
+Installing with DKMS is the recommended way of installing development versions
+of DIGImend kernel drivers.
 
-### Installing source package manually ###
+To install with DKMS, make sure you have the `dkms` package installed (on
+Debian-based distros):
 
-To build the drivers run `make` in the package's directory.
+    sudo apt-get install -y dkms
 
-To install the drivers run `sudo make install` in the package's directory.
+or (on Fedora-based distros):
 
-Make sure the previous versions of the drivers were unloaded from memory with
-the following commands:
+    sudo dnf install -y dkms
 
-    sudo rmmod hid-kye
-    sudo rmmod hid-uclogic
-    sudo rmmod hid-huion
+After that, run the following command from the source directory to install:
 
-and reconnect the tablet. Or simply reboot the machine.
+    sudo make dkms_install
 
-Note that if you built and installed the driver with `make` and `sudo make
-install` as described above, you will need to do that again after each kernel
-upgrade.
+Watch for any errors in the output, and if the drivers installed successfully,
+they will be automatically rebuilt and reinstalled each time the kernel is
+updated.
 
-### SSL errors during installation ###
+#### Installing from source manually ####
+
+To install from source manually, first build the drivers. Run the following
+command in the source directory:
+
+    make
+
+Then, to install the drivers, run this command in the same directory:
+
+    sudo make install
+
+Note that if you built and installed the drivers this way, you will need to
+run `make clean` in the source directory, and then redo the above, after each
+kernel upgrade.
+
+#### SSL errors during installation ####
 
 On Ubuntu, and possibly other distros, the driver installation process
 attempts to cryptographically sign the modules being installed. Most of the
@@ -105,6 +109,30 @@ couldn't find the key to sign with. This does not interfere with module
 installation and operation and can safely be ignored. That is, unless you set
 up module signature verification, but then you would recognize the problem,
 and would be able to fix it.
+
+### DKMS issue preventing correct installation ###
+
+If you're installing Debian packages, or installing from source with DKMS, you
+might hit a bug in DKMS which prevents some of the driver modules from
+installing. If you do, you will see a message like this while trying to
+install the drivers:
+
+    hid-uclogic.ko:
+    Running module version sanity check.
+    Error! Module version 7 for hid-uclogic.ko
+    is not newer than what is already found in kernel 4.9.0-5-amd64 (7).
+    You may override by specifying --force.
+
+For details see [upstream pull-request fixing the issue][dkms_issue_pr].
+
+To fix that you can apply the patch linked above yourself, or execute the
+below command:
+
+    sudo sed -i -e 's/\<unset res$/res=()/' /usr/sbin/dkms
+
+Be aware that the operation of the above command is inexact, and might not
+work, or might break DKMS. You've been warned. In any case, simply reinstall
+DKMS to restore it.
 
 Configuration
 -------------
@@ -192,6 +220,16 @@ won't work with non-Wacom tablets.
 
 Uninstalling
 ------------
+
+### Debian package ###
+
+To uninstall a Debian package simply use your favorite package-management
+tools.
+
+### DKMS-installed package ###
+
+To uninstall a DKMS-installed package execute `make dkms_uninstall` as root in
+the package source directory.
 
 ### Manually-installed package ###
 
