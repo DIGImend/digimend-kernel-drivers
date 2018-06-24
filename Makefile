@@ -62,18 +62,19 @@ dkms_modules_uninstall: dkms_check
 	set -e -x; \
 	dkms status $(DKMS_MODULES_NAME) | \
 	    while IFS=':' read -r modules status; do \
-	        IFS=', ' read -r modules_name modules_version \
-	                         kernel_version kernel_arch ignore \
-	                     <<<"$$modules"; \
-	        if [ -z "$$kernel_version" ]; then \
-	            dkms remove --no-depmod \
-	                        "$$modules_name/$$modules_version" \
-	                        --all; \
-	        else \
-	            dkms remove --no-depmod \
-	                        "$$modules_name/$$modules_version" \
-	                        -k "$$kernel_version/$$kernel_arch"; \
-	        fi; \
+	        echo "$$modules" | { \
+	            IFS=', ' read -r modules_name modules_version \
+	                             kernel_version kernel_arch ignore; \
+	            if [ -z "$$kernel_version" ]; then \
+	                dkms remove --no-depmod \
+	                            "$$modules_name/$$modules_version" \
+	                            --all; \
+	            else \
+	                dkms remove --no-depmod \
+	                            "$$modules_name/$$modules_version" \
+	                            -k "$$kernel_version/$$kernel_arch"; \
+	            fi; \
+	        } \
 	    done
 
 dkms_install: dkms_modules_install files_install
