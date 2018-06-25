@@ -56,7 +56,7 @@ dkms_modules_install: dkms_check
 	fi
 	dkms add .
 	dkms build $(DKMS_MODULES)
-	dkms install --no-depmod $(DKMS_MODULES)
+	dkms install $(DKMS_MODULES)
 
 dkms_modules_uninstall: dkms_check
 	set -e -x; \
@@ -66,11 +66,11 @@ dkms_modules_uninstall: dkms_check
 	            IFS=', ' read -r modules_name modules_version \
 	                             kernel_version kernel_arch ignore; \
 	            if [ -z "$$kernel_version" ]; then \
-	                dkms remove --no-depmod \
+	                dkms remove \
 	                            "$$modules_name/$$modules_version" \
 	                            --all; \
 	            else \
-	                dkms remove --no-depmod \
+	                dkms remove \
 	                            "$$modules_name/$$modules_version" \
 	                            -k "$$kernel_version/$$kernel_arch"; \
 	            fi; \
