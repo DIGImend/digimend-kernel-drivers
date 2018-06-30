@@ -134,6 +134,15 @@ Be aware that the operation of the above command is inexact, and might not
 work, or might break DKMS. You've been warned. In any case, simply reinstall
 DKMS to restore it.
 
+### Systems with Secure Boot enabled ###
+
+If your system has [Secure Boot][secure_boot] enabled, then the installed
+driver modules won't be permitted to load. You will see messages like
+"Required key not available". To make them work, you will need to sign them,
+or disable Secure Boot entirely. See documentation for your Linux distribution
+on how to sign kernel modules, or documentation for your computer's UEFI
+firmware on how to disable Secure Boot.
+
 Configuration
 -------------
 After installing the drivers, make sure the previous versions of the drivers
@@ -274,6 +283,7 @@ to ask for help, and to help others!
 [patreon_profile]: https://www.patreon.com/spbnick
 [patreon_pledge]: https://www.patreon.com/bePatron?c=930980
 [dkms_issue_pr]: https://github.com/dell/dkms/pull/47
+[secure_boot]: https://en.wikipedia.org/wiki/Unified_Extensible_Firmware_Interface#Secure_boot
 [xsetwacom_manpage]: https://www.mankier.com/1/xsetwacom
 [howtos]: http://digimend.github.io/support/
 [issues]: https://github.com/DIGImend/digimend-kernel-drivers/issues
