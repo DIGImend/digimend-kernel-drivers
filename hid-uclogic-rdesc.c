@@ -718,7 +718,7 @@ const size_t uclogic_rdesc_buttonpad_size =
 			sizeof(uclogic_rdesc_buttonpad_arr);
 
 /* fixed uclogic xppen artist 22HD report descriptor (old interface 1) */
-const __u8 uclogic_rdesc_xppen_artist22HD_arr[] = {
+__u8 uclogic_rdesc_xppen_artist22HD_arr[] = {
 	0x05, 0x01,         /*  Usage Page (Desktop),                   */
 	0x09, 0x02,         /*  Usage (Mouse),                          */
 	0xA1, 0x01,         /*  Collection (Application),               */

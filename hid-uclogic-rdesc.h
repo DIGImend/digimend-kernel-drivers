@@ -108,7 +108,7 @@ extern const __u8 uclogic_rdesc_buttonpad_arr[];
 extern const size_t uclogic_rdesc_buttonpad_size;
 
 /* Report descriptor for the XP pen artist 22HD */
-extern const __u8 uclogic_rdesc_xppen_artist22HD_arr[];
+extern __u8 uclogic_rdesc_xppen_artist22HD_arr[];
 extern const size_t uclogic_rdesc_xppen_artist22HD_size;
 
 #endif /* _HID_UCLOGIC_RDESC_H */
