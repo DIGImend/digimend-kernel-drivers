@@ -1,6 +1,28 @@
 digimend-dkms (8) unstable; urgency=low
 
-  * Bump version number.
+  * Rework the UC-Logic driver to support the new Huion tablets, while keeping
+    support of all the other tablets. This brings support for the following
+    tablets (at least):
+    - Huion H430P
+    - Huion H640P
+    - Huion H950P
+    - Huion New 1060 Plus
+    Thank you to Björn Paetzel and Andrey Zabolotnyi for initial
+    implementation and figuring out proximity detection, to Huion for tablet
+    samples and financing the work, and to all the users for testing and bug
+    reports!
+  * Add support for Ugee G5.
+    Thank you for the tablet sample and financing, Neoblast Inc.!
+  * Add support for XP-Pen Deco 01.
+    Thank you for the initial implementation and testing, kodkuce!
+  * Add "dkms_install" and "dkms_uninstall" targets to the Makefile.
+    These should be used now for installing and uninstalling the
+    driver on all non-Debian based distros, as well as for installing and
+    uninstalling the development versions of the driver. Use "install" and
+    "uninstall" only if those didn't work (and report your issue).
+  * Add "dist" target to the Makefile for building tarballs for external
+    packaging. Thank you, Hai Hoang Dang!
+  * Various documentation fixes and improvements.
 
  -- Nikolai Kondrashov <spbnick@gmail.com>  Sun, 20 May 2018 11:26:38 +0300
 
