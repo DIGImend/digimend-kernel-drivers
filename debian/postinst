@@ -4,7 +4,9 @@ set -e
 
 case "$1" in
     configure)
-	udevadm control --reload
+        if ! udevadm control --reload; then
+            echo "udevadm control --reload failed, ignoring" >&2
+        fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
