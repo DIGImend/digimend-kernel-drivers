@@ -1,3 +1,9 @@
+digimend-dkms (9) unstable; urgency=low
+
+  * Bump version number.
+
+ -- Nikolai Kondrashov <spbnick@gmail.com>  Sat, 14 Jul 2018 18:05:43 +0300
+
 digimend-dkms (8) unstable; urgency=low
 
   * Rework the UC-Logic driver to support the new Huion tablets, while keeping
