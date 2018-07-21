@@ -195,7 +195,7 @@ static int uclogic_probe(struct hid_device *hdev,
 	}
 	if (drvdata->params == NULL) {
 		hid_info(hdev, "parameters not found, "
-				"ignoring the interface");
+				"ignoring the interface\n");
 		rc = -ENODEV;
 		goto failure;
 	} else {
@@ -233,7 +233,7 @@ static int uclogic_resume(struct hid_device *hdev)
 	/* Re-initialize the device, but discard parameters */
 	rc = uclogic_params_probe(NULL, hdev);
 	if (rc != 0) {
-		hid_err(hdev, "failed to re-initialize the device");
+		hid_err(hdev, "failed to re-initialize the device\n");
 	}
 
 	return rc;
