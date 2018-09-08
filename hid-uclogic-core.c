@@ -30,6 +30,13 @@
 struct uclogic_drvdata {
 	/* Interface parameters */
 	struct uclogic_params *params;
+	/* Pointer to the replacement report descriptor. NULL if none. */
+	__u8 *desc_ptr;
+	/*
+	 * Size of the replacement report descriptor.
+	 * Only valid if desc_ptr is not NULL
+	 */
+	unsigned int desc_size;
 	/* Pen input device */
 	struct input_dev *pen_input;
 	/* In-range timer */
@@ -70,10 +77,9 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 					unsigned int *rsize)
 {
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
-	struct uclogic_params *params = drvdata->params;
-	if (params->desc_ptr != NULL) {
-		rdesc = params->desc_ptr;
-		*rsize = params->desc_size;
+	if (drvdata->desc_ptr != NULL) {
+		rdesc = drvdata->desc_ptr;
+		*rsize = drvdata->desc_size;
 	}
 	return rdesc;
 }
@@ -121,7 +127,7 @@ static int uclogic_input_configured(struct hid_device *hdev,
 	 * If this is the input corresponding to the pen report
 	 * in need of tweaking.
 	 */
-	if (hi->report->id == params->pen_id) {
+	if (hi->report->id == params->pen.id) {
 		/* Remember the input device so we can simulate events */
 		drvdata->pen_input = hi->input;
 	}
@@ -203,6 +209,16 @@ static int uclogic_probe(struct hid_device *hdev,
 			UCLOGIC_PARAMS_FMT_ARGS(drvdata->params));
 	}
 
+	/* Generate replacement report descriptor */
+	rc = uclogic_params_get_desc(drvdata->params,
+				     &drvdata->desc_ptr,
+				     &drvdata->desc_size);
+	if (rc) {
+		hid_err(hdev, "failed generating replacement "
+				"report descriptor: %d\n", rc);
+		goto failure;
+	}
+
 	rc = hid_parse(hdev);
 	if (rc) {
 		hid_err(hdev, "parse failed\n");
@@ -250,16 +266,16 @@ static int uclogic_raw_event(struct hid_device *hdev,
 	/* Tweak pen reports, if necessary */
 	if (!params->pen_unused &&
 	    (report->type == HID_INPUT_REPORT) &&
-	    (report->id == params->pen_id) &&
+	    (report->id == params->pen.id) &&
 	    (size >= 2)) {
 		/* If it's the "virtual" frame controls report */
 		if (data[1] & params->pen_frame_flag) {
 			/* Change to virtual frame controls report ID */
-			data[0] = params->pen_frame_id;
+			data[0] = params->frame.id;
 			return 0;
 		}
 		/* If in-range reports are inverted */
-		if (params->pen_inrange ==
+		if (params->pen.inrange ==
 			UCLOGIC_PARAMS_PEN_INRANGE_INVERTED) {
 			/* Invert the in-range bit */
 			data[1] ^= 0x40;
@@ -268,7 +284,7 @@ static int uclogic_raw_event(struct hid_device *hdev,
 		 * If report contains fragmented high-resolution pen
 		 * coordinates
 		 */
-		if (size >= 10 && params->pen_fragmented_hires) {
+		if (size >= 10 && params->pen.fragmented_hires) {
 			u8 pressure_low_byte;
 			u8 pressure_high_byte;
 
@@ -290,7 +306,7 @@ static int uclogic_raw_event(struct hid_device *hdev,
 			data[9] = pressure_high_byte;
 		}
 		/* If we need to emulate in-range detection */
-		if (params->pen_inrange == UCLOGIC_PARAMS_PEN_INRANGE_NONE) {
+		if (params->pen.inrange == UCLOGIC_PARAMS_PEN_INRANGE_NONE) {
 			/* Set in-range bit */
 			data[1] |= 0x40;
 			/* (Re-)start in-range timeout */
@@ -301,17 +317,17 @@ static int uclogic_raw_event(struct hid_device *hdev,
 
 	/* Tweak frame control reports, if necessary */
 	if ((report->type == HID_INPUT_REPORT) &&
-	    (report->id == params->frame_id)) {
+	    (report->id == params->frame.id)) {
 		/* If need to, and can, set pad device ID for Wacom drivers */
-		if (params->frame_dev_id_byte > 0 &&
-		    params->frame_dev_id_byte < size) {
-			data[params->frame_dev_id_byte] = 0xf;
+		if (params->frame.dev_id_byte > 0 &&
+		    params->frame.dev_id_byte < size) {
+			data[params->frame.dev_id_byte] = 0xf;
 		}
 		/* If need to, and can, read rotary encoder state change */
-		if (params->frame_re_lsb > 0 &&
-		    params->frame_re_lsb / 8 < size) {
-			unsigned byte = params->frame_re_lsb / 8;
-			unsigned bit = params->frame_re_lsb % 8;
+		if (params->frame.re_lsb > 0 &&
+		    params->frame.re_lsb / 8 < size) {
+			unsigned byte = params->frame.re_lsb / 8;
+			unsigned bit = params->frame.re_lsb % 8;
 			u8 change;
 			u8 prev_state = drvdata->re_state;
 			/* Read Gray-coded state */
