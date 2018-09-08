@@ -34,6 +34,10 @@ extern const char *uclogic_params_pen_inrange_to_str(
 
 /*
  * Tablet interface's pen input parameters.
+ *
+ * Must use declarative (descriptive) language, not imperative, to simplify
+ * understanding and maintain consistency.
+ *
  * Noop (preserving functionality) when filled with zeroes.
  */
 struct uclogic_params_pen {
@@ -55,6 +59,10 @@ struct uclogic_params_pen {
 
 /*
  * Parameters of frame control inputs of a tablet interface.
+ *
+ * Must use declarative (descriptive) language, not imperative, to simplify
+ * understanding and maintain consistency.
+ *
  * Noop (preserving functionality) when filled with zeroes.
  */
 struct uclogic_params_frame {
