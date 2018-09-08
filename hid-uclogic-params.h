@@ -47,12 +47,12 @@ struct uclogic_params_pen {
 	unsigned int desc_size;
 	/* Report ID, if reports should be tweaked, zero if not */
 	unsigned id;
-	/* Type of in-range reporting, only valid if id is not zero */
+	/* Type of in-range reporting, only valid if "id" is not zero */
 	enum uclogic_params_pen_inrange inrange;
 	/*
 	 * True, if reports include fragmented high resolution coords, with
 	 * high-order X and then Y bytes following the pressure field.
-	 * Only valid if id is not zero.
+	 * Only valid if "id" is not zero.
 	 */
 	bool fragmented_hires;
 };
@@ -76,15 +76,15 @@ struct uclogic_params_frame {
 	unsigned id;
 	/*
 	 * Number of the least-significant bit of the 2-bit state of a rotary
-	 * encoder, in the report. Zero if not present. Only valid if id is
+	 * encoder, in the report. Zero if not present. Only valid if "id" is
 	 * not zero.
 	 */
 	unsigned re_lsb;
 	/*
 	 * Offset of the Wacom-style device ID byte in the report, to be set
 	 * to pad device ID (0xf), for compatibility with Wacom drivers. Zero
-	 * if no changes to the report should be made. Only valid if id is not
-	 * zero.
+	 * if no changes to the report should be made. Only valid if "id" is
+	 * not zero.
 	 */
 	unsigned dev_id_byte;
 };
@@ -104,7 +104,7 @@ struct uclogic_params {
 	__u8 *desc_ptr;
 	/*
 	 * Size of the replacement report descriptor.
-	 * Only valid, if desc_ptr is not NULL.
+	 * Only valid, if "desc_ptr" is not NULL.
 	 */
 	unsigned int desc_size;
 	/*
@@ -113,30 +113,30 @@ struct uclogic_params {
 	bool pen_unused;
 	/*
 	 * Pen report ID, if pen reports should be tweaked, zero if not.
-	 * Only valid if pen_unused is false.
+	 * Only valid if "pen_unused" is valid and false.
 	 */
 	unsigned pen_id;
 	/*
 	 * Type of pen in-range reporting.
-	 * Only valid if pen_id is valid and not zero.
+	 * Only valid if "pen_id" is valid and not zero.
 	 */
 	enum uclogic_params_pen_inrange pen_inrange;
 	/*
 	 * True, if pen reports include fragmented high resolution coords,
 	 * with high-order X and then Y bytes following the pressure field
-	 * Only valid if pen_id is valid and not zero.
+	 * Only valid if "pen_id" is valid and not zero.
 	 */
 	bool pen_fragmented_hires;
 	/*
 	 * Bitmask matching frame controls "sub-report" flag in the second
 	 * byte of the pen report, or zero if it's not expected.
-	 * Only valid if pen_id is valid and not zero.
+	 * Only valid if "pen_id" is valid and not zero.
 	 */
 	__u8 pen_frame_flag;
 	/*
 	 * Frame controls report ID. Used as the virtual frame report ID, for
 	 * frame button reports extracted from pen reports, if
-	 * pen_frame_flag is valid and not zero.
+	 * "pen_frame_flag" is valid and not zero.
 	 */
 	unsigned pen_frame_id;
 	/*
@@ -148,14 +148,14 @@ struct uclogic_params {
 	 * Number of the least-significant bit of the 2-bit state of a rotary
 	 * encoder, in the frame report. Cannot point to a 2-bit field
 	 * crossing a byte boundary. Zero if not present. Only valid if
-	 * frame_id is not zero.
+	 * "frame_id" is not zero.
 	 */
 	unsigned frame_re_lsb;
 	/*
 	 * Offset of the Wacom-style device ID byte in the frame report, to be
 	 * set to pad device ID (0xf), for compatibility with Wacom drivers.
 	 * Zero if no changes to the report should be made. Only valid if
-	 * frame_id is not zero.
+	 * "frame_id" is not zero.
 	 */
 	unsigned frame_dev_id_byte;
 };
