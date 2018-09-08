@@ -76,8 +76,8 @@ struct uclogic_params_frame {
 	unsigned id;
 	/*
 	 * Number of the least-significant bit of the 2-bit state of a rotary
-	 * encoder, in the report. Zero if not present. Only valid if "id" is
-	 * not zero.
+	 * encoder, in the report. Cannot point to a 2-bit field crossing a
+	 * byte boundary. Zero if not present. Only valid if "id" is not zero.
 	 */
 	unsigned re_lsb;
 	/*
