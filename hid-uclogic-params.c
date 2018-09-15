@@ -917,6 +917,7 @@ int uclogic_params_init(struct uclogic_params *params,
 		}
 		hid_dbg(hdev, "pen v1 parameters not found\n");
 
+		uclogic_params_init_unused(&p);
 		break;
 	case VID_PID(USB_VENDOR_ID_UGTIZER,
 		     USB_DEVICE_ID_UGTIZER_TABLET_GP0610):
@@ -934,6 +935,7 @@ int uclogic_params_init(struct uclogic_params *params,
 			}
 			if (!found) {
 				hid_warn(hdev, "pen parameters not found");
+				uclogic_params_init_unused(&p);
 			}
 		} else {
 			/* TODO: Consider marking the interface unused */
@@ -991,6 +993,9 @@ int uclogic_params_init(struct uclogic_params *params,
 				UCLOGIC_RDESC_UGEE_G5_FRAME_RE_LSB;
 			p.frame.dev_id_byte =
 				UCLOGIC_RDESC_UGEE_G5_FRAME_DEV_ID_BYTE;
+		} else {
+			hid_warn(hdev, "pen parameters not found");
+			uclogic_params_init_unused(&p);
 		}
 
 		break;
@@ -1017,6 +1022,9 @@ int uclogic_params_init(struct uclogic_params *params,
 					"parameters: %d\n", rc);
 				goto cleanup;
 			}
+		} else {
+			hid_warn(hdev, "pen parameters not found");
+			uclogic_params_init_unused(&p);
 		}
 
 		break;
