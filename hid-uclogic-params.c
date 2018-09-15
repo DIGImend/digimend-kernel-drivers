@@ -721,7 +721,7 @@ int uclogic_params_init(struct uclogic_params *params,
 	struct uclogic_params p = {0, };
 
 	/* Check arguments */
-	if (hdev == NULL) {
+	if (params == NULL || hdev == NULL) {
 		return -EINVAL;
 	}
 
