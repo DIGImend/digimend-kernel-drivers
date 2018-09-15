@@ -780,7 +780,6 @@ int uclogic_params_init(struct uclogic_params *params,
 				goto cleanup;
 			}
 		}
-
 		break;
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U):
