@@ -860,6 +860,7 @@ int uclogic_params_init(struct uclogic_params *params,
 		     USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47):
 		/* If it's not a pen interface */
 		if (bInterfaceNumber != 0) {
+			/* TODO: Consider marking the interface unused */
 			uclogic_params_init_with_pen_unused(&p);
 			break;
 		}
@@ -933,6 +934,7 @@ int uclogic_params_init(struct uclogic_params *params,
 				hid_warn(hdev, "pen parameters not found");
 			}
 		} else {
+			/* TODO: Consider marking the interface unused */
 			uclogic_params_init_with_pen_unused(&p);
 		}
 		break;
@@ -956,6 +958,7 @@ int uclogic_params_init(struct uclogic_params *params,
 				goto cleanup;
 			}
 		} else {
+			/* TODO: Consider marking the interface unused */
 			uclogic_params_init_with_pen_unused(&p);
 		}
 		break;
