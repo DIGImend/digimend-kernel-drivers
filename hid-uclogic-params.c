@@ -779,17 +779,21 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		break;
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U):
-		if (hdev->dev_rsize == UCLOGIC_RDESC_WP5540U_V2_ORIG_SIZE &&
-		    bInterfaceNumber == 0) {
-			/* Try to probe v1 pen parameters */
-			rc = uclogic_params_pen_init_v1(&p->pen,
-							&found, hdev);
-			if (rc != 0) {
-				hid_err(hdev, "pen probing failed: %d\n", rc);
-				goto cleanup;
-			}
-			if (!found) {
-				hid_warn(hdev, "pen parameters not found");
+		if (hdev->dev_rsize == UCLOGIC_RDESC_WP5540U_V2_ORIG_SIZE) {
+			if (bInterfaceNumber == 0) {
+				/* Try to probe v1 pen parameters */
+				rc = uclogic_params_pen_init_v1(&p->pen,
+								&found, hdev);
+				if (rc != 0) {
+					hid_err(hdev,
+						"pen probing failed: %d\n",
+						rc);
+					goto cleanup;
+				}
+				if (!found) {
+					hid_warn(hdev,
+						 "pen parameters not found");
+				}
 			}
 			params = p;
 			p = NULL;
