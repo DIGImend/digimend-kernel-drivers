@@ -771,6 +771,8 @@ int uclogic_params_init(struct uclogic_params *params,
 					hid_warn(hdev,
 						 "pen parameters not found");
 				}
+			} else {
+				uclogic_params_init_unused(&p);
 			}
 		} else {
 			rc = WITH_OPT_DESC(WPXXXXU_ORIG, wp5540u_fixed);
