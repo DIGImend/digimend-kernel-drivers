@@ -29,7 +29,7 @@
 /* Driver data */
 struct uclogic_drvdata {
 	/* Interface parameters */
-	struct uclogic_params *params;
+	struct uclogic_params params;
 	/* Pointer to the replacement report descriptor. NULL if none. */
 	__u8 *desc_ptr;
 	/*
@@ -92,7 +92,7 @@ static int uclogic_input_mapping(struct hid_device *hdev,
 				 int *max)
 {
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
-	struct uclogic_params *params = drvdata->params;
+	struct uclogic_params *params = &drvdata->params;
 
 	/* discard the unused pen interface */
 	if (params->pen_unused && (field->application == HID_DG_PEN))
@@ -113,7 +113,7 @@ static int uclogic_input_configured(struct hid_device *hdev,
 #endif
 {
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
-	struct uclogic_params *params = drvdata->params;
+	struct uclogic_params *params = &drvdata->params;
 	char *name;
 	const char *suffix = NULL;
 	struct hid_field *field;
@@ -173,6 +173,7 @@ static int uclogic_probe(struct hid_device *hdev,
 {
 	int rc;
 	struct uclogic_drvdata *drvdata = NULL;
+	bool params_initialized = false;
 
 	/*
 	 * libinput requires the pad interface to be on a different node
@@ -193,24 +194,23 @@ static int uclogic_probe(struct hid_device *hdev,
 	drvdata->re_state = U8_MAX;
 	hid_set_drvdata(hdev, drvdata);
 
-	/* Initialize the device and retrieve parameters */
-	rc = uclogic_params_probe(&drvdata->params, hdev);
+	/* Initialize the device and retrieve interface parameters */
+	rc = uclogic_params_init(&drvdata->params, hdev);
 	if (rc != 0) {
 		hid_err(hdev, "failed probing parameters: %d\n", rc);
 		goto failure;
 	}
-	if (drvdata->params == NULL) {
-		hid_info(hdev, "parameters not found, "
-				"ignoring the interface\n");
+	params_initialized = true;
+	hid_dbg(hdev, "parameters:\n" UCLOGIC_PARAMS_FMT_STR,
+		UCLOGIC_PARAMS_FMT_ARGS(&drvdata->params));
+	if (drvdata->params.unused) {
+		hid_info(hdev, "interface is unused, ignoring\n");
 		rc = -ENODEV;
 		goto failure;
-	} else {
-		hid_dbg(hdev, "parameters:\n" UCLOGIC_PARAMS_FMT_STR,
-			UCLOGIC_PARAMS_FMT_ARGS(drvdata->params));
 	}
 
 	/* Generate replacement report descriptor */
-	rc = uclogic_params_get_desc(drvdata->params,
+	rc = uclogic_params_get_desc(&drvdata->params,
 				     &drvdata->desc_ptr,
 				     &drvdata->desc_size);
 	if (rc) {
@@ -234,9 +234,8 @@ static int uclogic_probe(struct hid_device *hdev,
 	return 0;
 failure:
 	/* Assume "remove" might not be called if "probe" failed */
-	if (drvdata != NULL) {
-		uclogic_params_free(drvdata->params);
-		drvdata->params = NULL;
+	if (params_initialized) {
+		uclogic_params_cleanup(&drvdata->params);
 	}
 	return rc;
 }
@@ -245,11 +244,14 @@ failure:
 static int uclogic_resume(struct hid_device *hdev)
 {
 	int rc;
+	struct uclogic_params params;
 
 	/* Re-initialize the device, but discard parameters */
-	rc = uclogic_params_probe(NULL, hdev);
+	rc = uclogic_params_init(&params, hdev);
 	if (rc != 0) {
 		hid_err(hdev, "failed to re-initialize the device\n");
+	} else {
+		uclogic_params_cleanup(&params);
 	}
 
 	return rc;
@@ -261,7 +263,7 @@ static int uclogic_raw_event(struct hid_device *hdev,
 				u8 *data, int size)
 {
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
-	struct uclogic_params *params = drvdata->params;
+	struct uclogic_params *params = &drvdata->params;
 
 	/* Tweak pen reports, if necessary */
 	if (!params->pen_unused &&
@@ -358,8 +360,8 @@ static void uclogic_remove(struct hid_device *hdev)
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 	del_timer_sync(&drvdata->inrange_timer);
 	hid_hw_stop(hdev);
-	uclogic_params_free(drvdata->params);
-	drvdata->params = NULL;
+	kfree(drvdata->desc_ptr);
+	uclogic_params_cleanup(&drvdata->params);
 }
 
 static const struct hid_device_id uclogic_devices[] = {

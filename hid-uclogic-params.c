@@ -499,21 +499,21 @@ cleanup:
 }
 
 /**
- * uclogic_params_free - free resources used by struct uclogic_params
- * (tablet interface's input parameters).
+ * uclogic_params_cleanup - free resources used by struct uclogic_params
+ * (tablet interface's parameters).
+ * Can be called repeatedly.
  *
- * @params:	Input parameters to free. Can be NULL.
+ * @params:	Input parameters to cleanup. Cannot be NULL.
  */
-void uclogic_params_free(struct uclogic_params *params)
+void uclogic_params_cleanup(struct uclogic_params *params)
 {
-	if (params != NULL) {
+	if (!params->unused) {
 		kfree(params->desc_ptr);
 		if (!params->pen_unused) {
 			uclogic_params_pen_cleanup(&params->pen);
 		}
 		uclogic_params_frame_cleanup(&params->frame);
 		memset(params, 0, sizeof(*params));
-		kfree(params);
 	}
 }
 
@@ -601,44 +601,52 @@ int uclogic_params_get_desc(const struct uclogic_params *params,
 }
 
 /**
- * uclogic_params_with_opt_desc() - create tablet interface parameters with an
- * optional replacement report descriptor. Only modify report descriptor, if
- * the original report descriptor matches the expected size.
+ * uclogic_params_init_unused() - initialize tablet interface parameters,
+ * specifying the interface is unused.
  *
- * @pparams: 		Location for the pointer to resulting parameters (to
- * 			be freed with uclogic_params_free()). Not modified in
- * 			case of error. Can be NULL to have parameters
- * 			discarded after creation.
+ * @params: 		Parameters to initialize (to be cleaned with
+ * 			uclogic_params_cleanup()). Cannot be NULL.
+ */
+static void uclogic_params_init_unused(struct uclogic_params *params)
+{
+	params->unused = true;
+}
+
+/**
+ * uclogic_params_init_with_opt_desc() - initialize tablet interface
+ * parameters with an optional replacement report descriptor. Only modify
+ * report descriptor, if the original report descriptor matches the expected
+ * size.
+ *
+ * @params: 		Parameters to initialize (to be cleaned with
+ * 			uclogic_params_cleanup()). Not modified in case of
+ * 			error. Cannot be NULL.
  * @hdev:		The HID device of the tablet interface create the
  * 			parameters for. Cannot be NULL.
  * @orig_desc_size:	Expected size of the original report descriptor to
  * 			be replaced.
  * @desc_ptr:		Pointer to the replacement report descriptor.
+ * 			Can be NULL, if desc_size is zero.
  * @desc_size:		Size of the replacement report descriptor.
  *
  * Return:
  * 	Zero, if successful. -EINVAL if an invalid argument was passed.
  * 	-ENOMEM, if failed to allocate memory.
  */
-static int uclogic_params_with_opt_desc(struct uclogic_params **pparams,
-					struct hid_device *hdev,
-					unsigned int orig_desc_size,
-					__u8 *desc_ptr,
-					unsigned int desc_size)
+static int uclogic_params_init_with_opt_desc(struct uclogic_params *params,
+					     struct hid_device *hdev,
+					     unsigned int orig_desc_size,
+					     __u8 *desc_ptr,
+					     unsigned int desc_size)
 {
+	__u8 *desc_copy_ptr = NULL;
+	unsigned int desc_copy_size;
 	int rc;
-	/* The resulting parameters */
-	struct uclogic_params *params = NULL;
 
 	/* Check arguments */
-	if (hdev == NULL) {
-		return -EINVAL;
-	}
-
-	/* Create parameters */
-	params = kzalloc(sizeof(*params), GFP_KERNEL);
-	if (params == NULL) {
-		rc = -ENOMEM;
+	if (params == NULL || hdev == NULL ||
+	    (desc_ptr == NULL && desc_size != 0)) {
+		rc = -EINVAL;
 		goto cleanup;
 	}
 
@@ -646,88 +654,62 @@ static int uclogic_params_with_opt_desc(struct uclogic_params **pparams,
 	if (hdev->dev_rsize == orig_desc_size) {
 		hid_dbg(hdev, "device report descriptor matches "
 				"the expected size, replacing\n");
-		params->desc_ptr = kmemdup(desc_ptr, desc_size, GFP_KERNEL);
-		if (params->desc_ptr == NULL) {
+		desc_copy_ptr = kmemdup(desc_ptr, desc_size, GFP_KERNEL);
+		if (desc_copy_ptr == NULL) {
 			rc = -ENOMEM;
 			goto cleanup;
 		}
-		params->desc_size = desc_size;
+		desc_copy_size = desc_size;
 	} else {
 		hid_dbg(hdev,
 			"device report descriptor doesn't match "
 			"the expected size (%u != %u), preserving\n",
 			hdev->dev_rsize, orig_desc_size);
-
+		desc_copy_ptr = NULL;
+		desc_copy_size = 0;
 	}
 
-	/* Output parameters, if requested */
-	if (pparams != NULL) {
-		*pparams = params;
-		params = NULL;
-	}
+	/* Output parameters */
+	memset(params, 0, sizeof(*params));
+	params->desc_ptr = desc_copy_ptr;
+	desc_copy_ptr = NULL;
+	params->desc_size = desc_copy_size;
 
 	rc = 0;
 cleanup:
-	uclogic_params_free(params);
+	kfree(desc_copy_ptr);
 	return rc;
 }
 
 /**
- * uclogic_params_with_pen_unused() - create tablet interface parameters
- * preserving original reports and generic HID processing, but disabling pen
- * usage.
+ * uclogic_params_init_with_pen_unused() - initialize tablet interface
+ * parameters preserving original reports and generic HID processing, but
+ * disabling pen usage.
  *
- * @pparams: 		Location for the pointer to resulting parameters (to
- * 			be freed with uclogic_params_free()). Not modified in
- * 			case of error. Can be NULL to have parameters
- * 			discarded after creation.
- *
- * Return:
- * 	Zero, if successful.
- * 	-ENOMEM, if failed to allocate memory.
+ * @params: 		Parameters to initialize (to be cleaned with
+ * 			uclogic_params_cleanup()). Not modified in case of
+ * 			error. Cannot be NULL.
  */
-static int uclogic_params_with_pen_unused(struct uclogic_params **pparams)
+static void uclogic_params_init_with_pen_unused(struct uclogic_params *params)
 {
-	int rc;
-	/* The resulting parameters */
-	struct uclogic_params *params = NULL;
-
-	/* Create parameters */
-	params = kzalloc(sizeof(*params), GFP_KERNEL);
-	if (params == NULL) {
-		rc = -ENOMEM;
-		goto cleanup;
-	}
+	memset(params, 0, sizeof(*params));
 	params->pen_unused = true;
-
-	/* Output parameters, if requested */
-	if (pparams != NULL) {
-		*pparams = params;
-		params = NULL;
-	}
-
-	rc = 0;
-cleanup:
-	uclogic_params_free(params);
-	return rc;
 }
 
 /**
- * uclogic_params_probe() - initialize a tablet interface and discover its
+ * uclogic_params_init() - initialize a tablet interface and discover its
  * parameters.
  *
- * @pparams: 	Location for the pointer to resulting parameters (to be
- * 		freed with uclogic_params_free()), or for NULL if the
- * 		parameters were not found.  Not modified in case of error.
- * 		Can be NULL to have parameters discarded after retrieval.
+ * @params: 	Parameters to fill in (to be cleaned with uclogic_params_cleanup()).
+ * 		Not modified in case of error. Cannot be NULL.
  * @hdev:	The HID device of the tablet interface to initialize and get
  * 		parameters from. Cannot be NULL.
  *
  * Return:
  * 	Zero, if successful. A negative errno code on error.
  */
-int uclogic_params_probe(struct uclogic_params **pparams,
-			 struct hid_device *hdev)
+int uclogic_params_init(struct uclogic_params *params,
+			struct hid_device *hdev)
 {
 	int rc;
 	struct usb_device *udev = hid_to_usb_dev(hdev);
@@ -735,26 +717,17 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
 	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
 	bool found;
-	/* The parameters being filled in */
-	struct uclogic_params *p = NULL;
-	/* The resulting parameters */
-	struct uclogic_params *params = NULL;
+	/* The resulting parameters (noop) */
+	struct uclogic_params p = {0, };
 
 	/* Check arguments */
 	if (hdev == NULL) {
 		return -EINVAL;
 	}
 
-	/* Create void, no-op parameters to fill in */
-	p = kzalloc(sizeof(*p), GFP_KERNEL);
-	if (p == NULL) {
-		rc = -ENOMEM;
-		goto cleanup;
-	}
-
 #define WITH_OPT_DESC(_orig_desc_token, _new_desc_token) \
-	uclogic_params_with_opt_desc(                       \
-		&params, hdev,                              \
+	uclogic_params_init_with_opt_desc(                  \
+		&p, hdev,                                   \
 		UCLOGIC_RDESC_##_orig_desc_token##_SIZE,    \
 		uclogic_rdesc_##_new_desc_token##_arr,      \
 		uclogic_rdesc_##_new_desc_token##_size);
@@ -782,7 +755,7 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		if (hdev->dev_rsize == UCLOGIC_RDESC_WP5540U_V2_ORIG_SIZE) {
 			if (bInterfaceNumber == 0) {
 				/* Try to probe v1 pen parameters */
-				rc = uclogic_params_pen_init_v1(&p->pen,
+				rc = uclogic_params_pen_init_v1(&p.pen,
 								&found, hdev);
 				if (rc != 0) {
 					hid_err(hdev,
@@ -795,8 +768,6 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 						 "pen parameters not found");
 				}
 			}
-			params = p;
-			p = NULL;
 		} else {
 			rc = WITH_OPT_DESC(WPXXXXU_ORIG, wp5540u_fixed);
 			if (rc != 0) {
@@ -884,15 +855,12 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		     USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47):
 		/* If it's not a pen interface */
 		if (bInterfaceNumber != 0) {
-			rc = uclogic_params_with_pen_unused(&params);
-			if (rc != 0) {
-				goto cleanup;
-			}
+			uclogic_params_init_with_pen_unused(&p);
 			break;
 		}
 
 		/* Try to probe v2 pen parameters */
-		rc = uclogic_params_pen_init_v2(&p->pen, &found, hdev);
+		rc = uclogic_params_pen_init_v2(&p.pen, &found, hdev);
 		if (rc != 0) {
 			hid_err(hdev,
 				"failed probing pen v2 parameters: %d\n", rc);
@@ -900,7 +868,7 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 			hid_dbg(hdev, "pen v2 parameters found\n");
 			/* Create v2 buttonpad parameters */
 			rc = uclogic_params_frame_init_with_desc(
-					&p->frame,
+					&p.frame,
 					uclogic_rdesc_buttonpad_v2_arr,
 					uclogic_rdesc_buttonpad_v2_size,
 					UCLOGIC_RDESC_BUTTONPAD_V2_ID);
@@ -910,15 +878,13 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 				goto cleanup;
 			}
 			/* Set bitmask marking frame reports in pen reports */
-			p->pen_frame_flag = 0x20;
-			params = p;
-			p = NULL;
+			p.pen_frame_flag = 0x20;
 			break;
 		}
 		hid_dbg(hdev, "pen v2 parameters not found\n");
 
 		/* Try to probe v1 pen parameters */
-		rc = uclogic_params_pen_init_v1(&p->pen, &found, hdev);
+		rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
 		if (rc != 0) {
 			hid_err(hdev,
 				"failed probing pen v1 parameters: %d\n", rc);
@@ -926,7 +892,7 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 			hid_dbg(hdev, "pen v1 parameters found\n");
 			/* Try to probe v1 buttonpad */
 			rc = uclogic_params_frame_init_v1_buttonpad(
-							&p->frame,
+							&p.frame,
 							&found, hdev);
 			if (rc != 0) {
 				hid_err(hdev, "v1 buttonpad probing "
@@ -937,10 +903,8 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 				(found ? "" : " not"));
 			if (found) {
 				/* Set bitmask marking frame reports */
-				p->pen_frame_flag = 0x20;
+				p.pen_frame_flag = 0x20;
 			}
-			params = p;
-			p = NULL;
 			break;
 		}
 		hid_dbg(hdev, "pen v1 parameters not found\n");
@@ -955,8 +919,7 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		/* If this is the pen interface */
 		if (bInterfaceNumber == 1) {
 			/* Probe v1 pen parameters */
-			rc = uclogic_params_pen_init_v1(&p->pen,
-							&found, hdev);
+			rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
 			if (rc != 0) {
 				hid_err(hdev, "pen probing failed: %d\n", rc);
 				goto cleanup;
@@ -964,13 +927,8 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 			if (!found) {
 				hid_warn(hdev, "pen parameters not found");
 			}
-			params = p;
-			p = NULL;
 		} else {
-			rc = uclogic_params_with_pen_unused(&params);
-			if (rc != 0) {
-				goto cleanup;
-			}
+			uclogic_params_init_with_pen_unused(&p);
 		}
 		break;
 	case VID_PID(USB_VENDOR_ID_UGEE,
@@ -978,44 +936,39 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 		/* If this is the pen and frame interface */
 		if (bInterfaceNumber == 1) {
 			/* Probe v1 pen parameters */
-			rc = uclogic_params_pen_init_v1(&p->pen,
-							&found, hdev);
+			rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
 			if (rc != 0) {
 				hid_err(hdev, "pen probing failed: %d\n", rc);
 				goto cleanup;
 			}
 			/* Initialize frame parameters */
 			rc = uclogic_params_frame_init_with_desc(
-				&p->frame,
+				&p.frame,
 				uclogic_rdesc_xppen_deco01_frame_arr,
 				uclogic_rdesc_xppen_deco01_frame_size,
 				0);
 			if (rc != 0) {
 				goto cleanup;
 			}
-			params = p;
-			p = NULL;
 		} else {
-			rc = uclogic_params_with_pen_unused(&params);
-			if (rc != 0) {
-				goto cleanup;
-			}
+			uclogic_params_init_with_pen_unused(&p);
 		}
 		break;
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_TABLET_G5):
 		/* Ignore non-pen interfaces */
 		if (bInterfaceNumber != 1) {
+			uclogic_params_init_unused(&p);
 			break;
 		}
 
-		rc = uclogic_params_pen_init_v1(&p->pen, &found, hdev);
+		rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
 		if (rc != 0) {
 			hid_err(hdev, "pen probing failed: %d\n", rc);
 			goto cleanup;
 		} else if (found) {
 			rc = uclogic_params_frame_init_with_desc(
-				&p->frame,
+				&p.frame,
 				uclogic_rdesc_ugee_g5_frame_arr,
 				uclogic_rdesc_ugee_g5_frame_size,
 				UCLOGIC_RDESC_UGEE_G5_FRAME_ID);
@@ -1024,29 +977,28 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 					"parameters: %d\n", rc);
 				goto cleanup;
 			}
-			p->frame.re_lsb =
+			p.frame.re_lsb =
 				UCLOGIC_RDESC_UGEE_G5_FRAME_RE_LSB;
-			p->frame.dev_id_byte =
+			p.frame.dev_id_byte =
 				UCLOGIC_RDESC_UGEE_G5_FRAME_DEV_ID_BYTE;
 		}
 
-		params = p;
-		p = NULL;
 		break;
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_TABLET_EX07S):
 		/* Ignore non-pen interfaces */
 		if (bInterfaceNumber != 1) {
+			uclogic_params_init_unused(&p);
 			break;
 		}
 
-		rc = uclogic_params_pen_init_v1(&p->pen, &found, hdev);
+		rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
 		if (rc != 0) {
 			hid_err(hdev, "pen probing failed: %d\n", rc);
 			goto cleanup;
 		} else if (found) {
 			rc = uclogic_params_frame_init_with_desc(
-				&p->frame,
+				&p.frame,
 				uclogic_rdesc_ugee_ex07_buttonpad_arr,
 				uclogic_rdesc_ugee_ex07_buttonpad_size,
 				0);
@@ -1057,23 +1009,16 @@ int uclogic_params_probe(struct uclogic_params **pparams,
 			}
 		}
 
-		params = p;
-		p = NULL;
 		break;
 	}
 
 #undef VID_PID
 #undef WITH_OPT_DESC
 
-	/* Output parameters, if requested */
-	if (pparams != NULL) {
-		*pparams = params;
-		params = NULL;
-	}
-
-	rc = 0;
+	/* Output parameters */
+	memcpy(params, &p, sizeof(*params));
+	return 0;
 cleanup:
-	uclogic_params_free(p);
-	uclogic_params_free(params);
+	uclogic_params_cleanup(&p);
 	return rc;
 }

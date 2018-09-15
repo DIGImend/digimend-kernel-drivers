@@ -105,8 +105,13 @@ struct uclogic_params_frame {
  */
 struct uclogic_params {
 	/*
+	 * True if the whole interface is unused, false otherwise.
+	 */
+	bool unused;
+	/*
 	 * Pointer to the common part of the replacement report descriptor,
 	 * allocated with kmalloc. NULL if no common part is needed.
+	 * Only valid, if "unused" is false.
 	 */
 	__u8 *desc_ptr;
 	/*
@@ -115,16 +120,18 @@ struct uclogic_params {
 	 */
 	unsigned int desc_size;
 	/*
-	 * True, if pen usage in report descriptor is unused, if present.
+	 * True, if pen usage in report descriptor is unused, when present.
+	 * Only valid, if "unused" is false.
 	 */
 	bool pen_unused;
 	/*
 	 * Pen parameters and optional report descriptor part.
-	 * Only valid if "pen_unused" is false.
+	 * Only valid if "pen_unused" is valid and false.
 	 */
 	struct uclogic_params_pen pen;
 	/*
 	 * Frame control parameters and optional report descriptor part.
+	 * Only valid, if "unused" is false.
 	 */
 	struct uclogic_params_frame frame;
 	/*
@@ -136,11 +143,12 @@ struct uclogic_params {
 };
 
 /* Initialize a tablet interface and discover its parameters */
-extern int uclogic_params_probe(struct uclogic_params **pparams,
+extern int uclogic_params_init(struct uclogic_params *params,
 				struct hid_device *hdev);
 
 /* Tablet interface parameters *printf format string */
 #define UCLOGIC_PARAMS_FMT_STR \
+		".unused = %s\n"                    \
 		".desc_ptr = %p\n"                  \
 		".desc_size = %u\n"                 \
 		".pen_unused = %s\n"                \
@@ -158,6 +166,7 @@ extern int uclogic_params_probe(struct uclogic_params **pparams,
 
 /* Tablet interface parameters *printf format arguments */
 #define UCLOGIC_PARAMS_FMT_ARGS(_params) \
+		((_params)->unused ? "true" : "false"),                     \
 		(_params)->desc_ptr,                                        \
 		(_params)->desc_size,                                       \
 		((_params)->pen_unused ? "true" : "false"),                 \
@@ -179,6 +188,6 @@ extern int uclogic_params_get_desc(const struct uclogic_params *params,
 					unsigned int *psize);
 
 /* Free resources used by tablet interface's parameters */
-extern void uclogic_params_free(struct uclogic_params *params);
+extern void uclogic_params_cleanup(struct uclogic_params *params);
 
 #endif /* _HID_UCLOGIC_PARAMS_H */
