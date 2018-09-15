@@ -41,9 +41,15 @@ extern const char *uclogic_params_pen_inrange_to_str(
  * Noop (preserving functionality) when filled with zeroes.
  */
 struct uclogic_params_pen {
-	/* Pointer to report descriptor allocated with kmalloc */
+	/*
+	 * Pointer to report descriptor describing the inputs.
+	 * Allocated with kmalloc.
+	 */
 	__u8 *desc_ptr;
-	/* Size of the report descriptor */
+	/*
+	 * Size of the report descriptor.
+	 * Only valid, if "desc_ptr" is not NULL.
+	 */
 	unsigned int desc_size;
 	/* Report ID, if reports should be tweaked, zero if not */
 	unsigned id;
@@ -66,9 +72,15 @@ struct uclogic_params_pen {
  * Noop (preserving functionality) when filled with zeroes.
  */
 struct uclogic_params_frame {
-	/* Pointer to report descriptor allocated with kmalloc */
+	/*
+	 * Pointer to report descriptor describing the inputs.
+	 * Allocated with kmalloc.
+	 */
 	__u8 *desc_ptr;
-	/* Size of the report descriptor */
+	/*
+	 * Size of the report descriptor.
+	 * Only valid, if "desc_ptr" is not NULL.
+	 */
 	unsigned int desc_size;
 	/*
 	 * Report ID, if reports should be tweaked, zero if not.
