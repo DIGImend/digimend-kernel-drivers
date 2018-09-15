@@ -870,6 +870,7 @@ int uclogic_params_init(struct uclogic_params *params,
 		if (rc != 0) {
 			hid_err(hdev,
 				"failed probing pen v2 parameters: %d\n", rc);
+			goto cleanup;
 		} else if (found) {
 			hid_dbg(hdev, "pen v2 parameters found\n");
 			/* Create v2 buttonpad parameters */
@@ -894,6 +895,7 @@ int uclogic_params_init(struct uclogic_params *params,
 		if (rc != 0) {
 			hid_err(hdev,
 				"failed probing pen v1 parameters: %d\n", rc);
+			goto cleanup;
 		} else if (found) {
 			hid_dbg(hdev, "pen v1 parameters found\n");
 			/* Try to probe v1 buttonpad */
