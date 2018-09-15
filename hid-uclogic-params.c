@@ -725,6 +725,10 @@ int uclogic_params_init(struct uclogic_params *params,
 		return -EINVAL;
 	}
 
+	/*
+	 * Set replacement report descriptor if the original matches the
+	 * specified size. Otherwise keep interface unchanged.
+	 */
 #define WITH_OPT_DESC(_orig_desc_token, _new_desc_token) \
 	uclogic_params_init_with_opt_desc(                  \
 		&p, hdev,                                   \
