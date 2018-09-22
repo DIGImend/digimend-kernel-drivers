@@ -507,7 +507,7 @@ cleanup:
  */
 void uclogic_params_cleanup(struct uclogic_params *params)
 {
-	if (!params->unused) {
+	if (!params->invalid) {
 		kfree(params->desc_ptr);
 		if (!params->pen_unused) {
 			uclogic_params_pen_cleanup(&params->pen);
@@ -601,15 +601,15 @@ int uclogic_params_get_desc(const struct uclogic_params *params,
 }
 
 /**
- * uclogic_params_init_unused() - initialize tablet interface parameters,
- * specifying the interface is unused.
+ * uclogic_params_init_invalid() - initialize tablet interface parameters,
+ * specifying the interface is invalid.
  *
  * @params: 		Parameters to initialize (to be cleaned with
  * 			uclogic_params_cleanup()). Cannot be NULL.
  */
-static void uclogic_params_init_unused(struct uclogic_params *params)
+static void uclogic_params_init_invalid(struct uclogic_params *params)
 {
-	params->unused = true;
+	params->invalid = true;
 }
 
 /**
@@ -739,6 +739,25 @@ int uclogic_params_init(struct uclogic_params *params,
 #define VID_PID(_vid, _pid) \
 	(((__u32)(_vid) << 16) | ((__u32)(_pid) & U16_MAX))
 
+	/*
+	 * Handle specific interfaces for specific tablets.
+	 *
+	 * Observe the following logic:
+	 *
+	 * If the interface is recognized as producing certain useful input:
+	 * 	Mark interface as valid.
+	 * 	Output interface parameters.
+	 * Else, if the interface is recognized as *not* producing any useful
+	 * input:
+	 * 	Mark interface as invalid.
+	 * Else:
+	 * 	Mark interface as valid.
+	 * 	Output noop parameters.
+	 *
+	 * Rule of thumb: it is better to disable a broken interface than let
+	 * 		  it spew garbage input.
+	 */
+
 	switch (VID_PID(hdev->vendor, hdev->product)) {
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_TABLET_PF1209):
@@ -772,7 +791,7 @@ int uclogic_params_init(struct uclogic_params *params,
 						 "pen parameters not found");
 				}
 			} else {
-				uclogic_params_init_unused(&p);
+				uclogic_params_init_invalid(&p);
 			}
 		} else {
 			rc = WITH_OPT_DESC(WPXXXXU_ORIG, wp5540u_fixed);
@@ -860,7 +879,7 @@ int uclogic_params_init(struct uclogic_params *params,
 		     USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47):
 		/* If it's not a pen interface */
 		if (bInterfaceNumber != 0) {
-			/* TODO: Consider marking the interface unused */
+			/* TODO: Consider marking the interface invalid */
 			uclogic_params_init_with_pen_unused(&p);
 			break;
 		}
@@ -917,7 +936,7 @@ int uclogic_params_init(struct uclogic_params *params,
 		}
 		hid_dbg(hdev, "pen v1 parameters not found\n");
 
-		uclogic_params_init_unused(&p);
+		uclogic_params_init_invalid(&p);
 		break;
 	case VID_PID(USB_VENDOR_ID_UGTIZER,
 		     USB_DEVICE_ID_UGTIZER_TABLET_GP0610):
@@ -935,10 +954,10 @@ int uclogic_params_init(struct uclogic_params *params,
 			}
 			if (!found) {
 				hid_warn(hdev, "pen parameters not found");
-				uclogic_params_init_unused(&p);
+				uclogic_params_init_invalid(&p);
 			}
 		} else {
-			/* TODO: Consider marking the interface unused */
+			/* TODO: Consider marking the interface invalid */
 			uclogic_params_init_with_pen_unused(&p);
 		}
 		break;
@@ -962,7 +981,7 @@ int uclogic_params_init(struct uclogic_params *params,
 				goto error;
 			}
 		} else {
-			/* TODO: Consider marking the interface unused */
+			/* TODO: Consider marking the interface invalid */
 			uclogic_params_init_with_pen_unused(&p);
 		}
 		break;
@@ -970,7 +989,7 @@ int uclogic_params_init(struct uclogic_params *params,
 		     USB_DEVICE_ID_UGEE_TABLET_G5):
 		/* Ignore non-pen interfaces */
 		if (bInterfaceNumber != 1) {
-			uclogic_params_init_unused(&p);
+			uclogic_params_init_invalid(&p);
 			break;
 		}
 
@@ -995,7 +1014,7 @@ int uclogic_params_init(struct uclogic_params *params,
 				UCLOGIC_RDESC_UGEE_G5_FRAME_DEV_ID_BYTE;
 		} else {
 			hid_warn(hdev, "pen parameters not found");
-			uclogic_params_init_unused(&p);
+			uclogic_params_init_invalid(&p);
 		}
 
 		break;
@@ -1003,7 +1022,7 @@ int uclogic_params_init(struct uclogic_params *params,
 		     USB_DEVICE_ID_UGEE_TABLET_EX07S):
 		/* Ignore non-pen interfaces */
 		if (bInterfaceNumber != 1) {
-			uclogic_params_init_unused(&p);
+			uclogic_params_init_invalid(&p);
 			break;
 		}
 
@@ -1024,7 +1043,7 @@ int uclogic_params_init(struct uclogic_params *params,
 			}
 		} else {
 			hid_warn(hdev, "pen parameters not found");
-			uclogic_params_init_unused(&p);
+			uclogic_params_init_invalid(&p);
 		}
 
 		break;

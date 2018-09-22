@@ -203,8 +203,8 @@ static int uclogic_probe(struct hid_device *hdev,
 	params_initialized = true;
 	hid_dbg(hdev, "parameters:\n" UCLOGIC_PARAMS_FMT_STR,
 		UCLOGIC_PARAMS_FMT_ARGS(&drvdata->params));
-	if (drvdata->params.unused) {
-		hid_info(hdev, "interface is unused, ignoring\n");
+	if (drvdata->params.invalid) {
+		hid_info(hdev, "interface is invalid, ignoring\n");
 		rc = -ENODEV;
 		goto failure;
 	}

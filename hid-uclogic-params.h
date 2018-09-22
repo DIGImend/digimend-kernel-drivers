@@ -117,13 +117,13 @@ struct uclogic_params_frame {
  */
 struct uclogic_params {
 	/*
-	 * True if the whole interface is unused, false otherwise.
+	 * True if the whole interface is invalid, false otherwise.
 	 */
-	bool unused;
+	bool invalid;
 	/*
 	 * Pointer to the common part of the replacement report descriptor,
 	 * allocated with kmalloc. NULL if no common part is needed.
-	 * Only valid, if "unused" is false.
+	 * Only valid, if "invalid" is false.
 	 */
 	__u8 *desc_ptr;
 	/*
@@ -132,8 +132,8 @@ struct uclogic_params {
 	 */
 	unsigned int desc_size;
 	/*
-	 * True, if pen usage in report descriptor is unused, when present.
-	 * Only valid, if "unused" is false.
+	 * True, if pen usage in report descriptor is invalid, when present.
+	 * Only valid, if "invalid" is false.
 	 */
 	bool pen_unused;
 	/*
@@ -143,7 +143,7 @@ struct uclogic_params {
 	struct uclogic_params_pen pen;
 	/*
 	 * Frame control parameters and optional report descriptor part.
-	 * Only valid, if "unused" is false.
+	 * Only valid, if "invalid" is false.
 	 */
 	struct uclogic_params_frame frame;
 	/*
@@ -160,7 +160,7 @@ extern int uclogic_params_init(struct uclogic_params *params,
 
 /* Tablet interface parameters *printf format string */
 #define UCLOGIC_PARAMS_FMT_STR \
-		".unused = %s\n"                    \
+		".invalid = %s\n"                   \
 		".desc_ptr = %p\n"                  \
 		".desc_size = %u\n"                 \
 		".pen_unused = %s\n"                \
@@ -178,7 +178,7 @@ extern int uclogic_params_init(struct uclogic_params *params,
 
 /* Tablet interface parameters *printf format arguments */
 #define UCLOGIC_PARAMS_FMT_ARGS(_params) \
-		((_params)->unused ? "true" : "false"),                     \
+		((_params)->invalid ? "true" : "false"),                    \
 		(_params)->desc_ptr,                                        \
 		(_params)->desc_size,                                       \
 		((_params)->pen_unused ? "true" : "false"),                 \
