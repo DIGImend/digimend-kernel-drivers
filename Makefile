@@ -18,17 +18,22 @@ DKMS_MODULES = $(DKMS_MODULES_NAME)/$(PACKAGE_VERSION)
 modules modules_install clean:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) $@
 
-files_install:
+depmod_conf_install:
 	install -D -m 0644 digimend.conf $(DEPMOD_CONF)
 	depmod -a
+
+depmod_conf_uninstall:
+	rm -vf $(DEPMOD_CONF)
+	depmod -a
+
+hid_rebind_install:
 	install hid-rebind $(HID_REBIND)
 	install -m 0644 90-hid-rebind.rules $(UDEV_RULES)
 	udevadm control --reload
 
-files_uninstall:
-	rm -vf $(UDEV_RULES) $(HID_REBIND) $(DEPMOD_CONF)
+hid_rebind_uninstall:
+	rm -vf $(UDEV_RULES) $(HID_REBIND)
 	udevadm control --reload
-	depmod -a
 
 modules_uninstall:
 	rm -vf /lib/modules/*/extra/hid-kye.ko \
@@ -36,9 +41,9 @@ modules_uninstall:
 	       /lib/modules/*/extra/hid-uclogic.ko \
 	       /lib/modules/*/extra/hid-viewsonic.ko
 
-install: modules_install files_install
+install: modules_install hid_rebind_install depmod_conf_install
 
-uninstall: modules_uninstall files_uninstall
+uninstall: modules_uninstall hid_rebind_uninstall depmod_conf_uninstall
 
 dkms_check:
 	@if ! which dkms >/dev/null; then \
@@ -77,9 +82,9 @@ dkms_modules_uninstall: dkms_check
 	        } \
 	    done
 
-dkms_install: dkms_modules_install files_install
+dkms_install: dkms_modules_install hid_rebind_install
 
-dkms_uninstall: dkms_modules_uninstall files_uninstall
+dkms_uninstall: dkms_modules_uninstall hid_rebind_uninstall
 
 dist:
 	git archive --format=tar.gz --prefix=$(PACKAGE)/ HEAD > $(PACKAGE).tar.gz
