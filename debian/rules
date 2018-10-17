@@ -38,4 +38,4 @@ override_dh_dkms:
 override_dh_install:
 	dh_install Makefile *.c *.h usbhid usr/src/digimend-${version}/
 	dh_install 90-hid-rebind.rules lib/udev/rules.d/
-	dh_install hid-rebind sbin/
+	dh_install hid-rebind lib/udev/
