@@ -1,16 +1,16 @@
 SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:0000099A:00002620", \
-	RUN+="/sbin/hid-rebind"
+	RUN+="hid-rebind"
 SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:0000256C:*", \
-	RUN+="/sbin/hid-rebind"
+	RUN+="hid-rebind"
 SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:00005543:*", \
-	RUN+="/sbin/hid-rebind"
+	RUN+="hid-rebind"
 SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:00000458:*", \
-	RUN+="/sbin/hid-rebind"
+	RUN+="hid-rebind"
 SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:00002179:*", \
-	RUN+="/sbin/hid-rebind"
+	RUN+="hid-rebind"
 SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:000028BD:*", \
-	RUN+="/sbin/hid-rebind"
+	RUN+="hid-rebind"
 SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:00000543:0000E621", \
-	RUN+="/sbin/hid-rebind"
+	RUN+="hid-rebind"
 SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:00002133:00000018", \
-	RUN+="/sbin/hid-rebind"
+	RUN+="hid-rebind"
