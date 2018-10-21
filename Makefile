@@ -28,7 +28,7 @@ depmod_conf_uninstall:
 
 hid_rebind_install:
 	install -D -m 0755 hid-rebind $(HID_REBIND)
-	install -D -m 0644 90-hid-rebind.rules $(UDEV_RULES)
+	install -D -m 0644 udev.rules $(UDEV_RULES)
 
 hid_rebind_uninstall:
 	rm -vf $(UDEV_RULES) $(HID_REBIND)
