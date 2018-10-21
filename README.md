@@ -158,16 +158,30 @@ will be able to recognize the pressure after appropriate configuration. Refer
 to the application documentation for instructions on how to do that, but in
 most cases it is enough to simply enable the tablet in the application.
 
+### X.org drivers ###
+
 By default, your tablet will be handled by the libinput X.org driver
 (`xserver-xorg-input-libinput` package in Debian, Ubuntu, and derived distros,
 `xorg-x11-drv-libinput` in Fedora and derived distros). This driver will
 support reporting pen coordinates and pressure, and some frame controls.
 
-However, it will not support configuring pressure curves, keyboard shortcuts
-for buttons on the tablet frame, or other advanced features. For that you
-will need to use the Wacom driver. To do that, make sure you have the package
-installed (`xserver-xorg-input-wacom` or `xorg-x11-drv-wacom`) and write the
-following to `/etc/X11/xorg.conf.d/50-tablet.conf` file:
+Some tablets, however, can work with the Wacom driver, which has support for
+configuring pressure curves, keyboard shortcuts for buttons on the tablet
+frame, and other advanced features. This driver package includes configuration
+enabling Wacom driver for tablets that are known to work with it.
+
+For those tablets, all you need to do is make sure the Wacom driver is
+installed, which is done automatically when installing the driver from the
+.deb package. In other cases, you can install the driver package
+(`xserver-xorg-input-wacom` or `xorg-x11-drv-wacom`) yourself. To verify that
+your tablet is handled by the Wacom driver, see if its devices appear in the
+output of `xsetwacom list`.
+
+### Enabling Wacom X.org driver ###
+
+If this driver package hasn't configured your tablet to work with the Wacom
+driver, but you know it works, or would like to try to make it work, you can
+write the following to `/etc/X11/xorg.conf.d/50-tablet.conf` file:
 
     Section "InputClass"
         Identifier "Tablet"
@@ -180,7 +194,7 @@ Here `<VID>` and `<PID>` would be the tablet's USB vendor and product IDs
 respectively, as seen in `lsusb` output. E.g. if your tablet's line in `lsusb`
 output looks like this:
 
-    Bus 001 Device 003: ID 256c:006e
+    Bus 001 Device 003: ID 1234:abcd
 
 then your `/etc/X11/xorg.conf.d/50-tablet.conf` should look like this:
 
@@ -188,16 +202,18 @@ then your `/etc/X11/xorg.conf.d/50-tablet.conf` should look like this:
         Identifier "Tablet"
         Driver "wacom"
         MatchDevicePath "/dev/input/event*"
-        MatchUSBID "256c:006e"
+        MatchUSBID "1234:abcd"
     EndSection
 
-Next, log out of your X.org session and login again, or simply restart your
-machine. To verify that the tablet is now handled by the Wacom driver execute
-`xsetwacom list` and check that your tablet appears in the output at least
-once.
+You will need to log out of your X.org session and login again, or simply
+restart your machine for these changes to take effect. If your configuration
+worked, please open an issue, or contribute code directly, to have
+configuration for your tablet included into this driver package.
 
-After that, you should be able to use the `xsetwacom` tool to configure the
-advanced features.
+### Configuring Wacom X.org driver ###
+
+If your tablet is handled by the Wacom driver, you should be able to use the
+`xsetwacom` tool to configure the advanced features.
 
 For example, if `xsetwacom list` produces this output:
 
@@ -224,8 +240,11 @@ you can restrict the tablet input to that display like this:
 See [the `xsetwacom` man page][xsetwacom_manpage] for more parameters and
 details.
 
+### Wacom GUI configuration tools ###
+
 Note that so far, in most cases, graphical Wacom tablet configuration tools
-won't work with non-Wacom tablets.
+won't work with non-Wacom tablets, and you will need to use the `xsetwacom`
+tool, even if the Wacom X.org driver supports them.
 
 Uninstalling
 ------------

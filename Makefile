@@ -10,6 +10,7 @@ DESTDIR =
 UDEV_RULES = $(DESTDIR)/lib/udev/rules.d/90-digimend.rules
 DEPMOD_CONF = $(DESTDIR)/etc/depmod.d/digimend.conf
 HID_REBIND = $(DESTDIR)/lib/udev/hid-rebind
+XORG_CONF := $(DESTDIR)/usr/share/X11/xorg.conf.d/50-digimend.conf
 PACKAGE_NAME = digimend-kernel-drivers
 PACKAGE_VERSION = 9
 PACKAGE = $(PACKAGE_NAME)-$(PACKAGE_VERSION)
@@ -26,6 +27,12 @@ depmod_conf_install:
 depmod_conf_uninstall:
 	rm -vf $(DEPMOD_CONF)
 
+xorg_conf_install:
+	install -D -m 0644 xorg.conf $(XORG_CONF)
+
+xorg_conf_uninstall:
+	rm -vf $(XORG_CONF)
+
 udev_rules_install:
 	install -D -m 0755 hid-rebind $(HID_REBIND)
 	install -D -m 0644 udev.rules $(UDEV_RULES)
@@ -39,11 +46,11 @@ modules_uninstall:
 	       /lib/modules/*/extra/hid-uclogic.ko \
 	       /lib/modules/*/extra/hid-viewsonic.ko
 
-install: modules_install udev_rules_install depmod_conf_install
+install: modules_install udev_rules_install depmod_conf_install xorg_conf_install
 	udevadm control --reload
 	depmod -a
 
-uninstall: modules_uninstall udev_rules_uninstall depmod_conf_uninstall
+uninstall: modules_uninstall udev_rules_uninstall depmod_conf_uninstall xorg_conf_uninstall
 	udevadm control --reload
 	depmod -a
 
@@ -90,10 +97,10 @@ dkms_modules_uninstall: dkms_check
 	        } \
 	    done
 
-dkms_install: dkms_modules_install udev_rules_install
+dkms_install: dkms_modules_install udev_rules_install xorg_conf_install
 	udevadm control --reload
 
-dkms_uninstall: dkms_modules_uninstall udev_rules_uninstall
+dkms_uninstall: dkms_modules_uninstall udev_rules_uninstall xorg_conf_uninstall
 	udevadm control --reload
 
 dist:
