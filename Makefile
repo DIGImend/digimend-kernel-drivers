@@ -21,7 +21,7 @@ modules modules_install clean:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) $@
 
 depmod_conf_install:
-	install -D -m 0644 digimend.conf $(DEPMOD_CONF)
+	install -D -m 0644 depmod.conf $(DEPMOD_CONF)
 
 depmod_conf_uninstall:
 	rm -vf $(DEPMOD_CONF)
