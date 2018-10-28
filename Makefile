@@ -22,20 +22,16 @@ modules modules_install clean:
 
 depmod_conf_install:
 	install -D -m 0644 digimend.conf $(DEPMOD_CONF)
-	depmod -a
 
 depmod_conf_uninstall:
 	rm -vf $(DEPMOD_CONF)
-	depmod -a
 
 hid_rebind_install:
 	install hid-rebind $(HID_REBIND)
 	install -m 0644 90-hid-rebind.rules $(UDEV_RULES)
-	udevadm control --reload
 
 hid_rebind_uninstall:
 	rm -vf $(UDEV_RULES) $(HID_REBIND)
-	udevadm control --reload
 
 modules_uninstall:
 	rm -vf /lib/modules/*/extra/hid-kye.ko \
@@ -44,8 +40,12 @@ modules_uninstall:
 	       /lib/modules/*/extra/hid-viewsonic.ko
 
 install: modules_install hid_rebind_install depmod_conf_install
+	udevadm control --reload
+	depmod -a
 
 uninstall: modules_uninstall hid_rebind_uninstall depmod_conf_uninstall
+	udevadm control --reload
+	depmod -a
 
 dkms_check:
 	@if ! which dkms >/dev/null; then \
@@ -91,8 +91,10 @@ dkms_modules_uninstall: dkms_check
 	    done
 
 dkms_install: dkms_modules_install hid_rebind_install
+	udevadm control --reload
 
 dkms_uninstall: dkms_modules_uninstall hid_rebind_uninstall
+	udevadm control --reload
 
 dist:
 	git archive --format=tar.gz --prefix=$(PACKAGE)/ HEAD > $(PACKAGE).tar.gz
