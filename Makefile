@@ -15,6 +15,7 @@ PACKAGE_VERSION = 9
 PACKAGE = $(PACKAGE_NAME)-$(PACKAGE_VERSION)
 DKMS_MODULES_NAME = digimend
 DKMS_MODULES = $(DKMS_MODULES_NAME)/$(PACKAGE_VERSION)
+DKMS_SOURCE_DIR = $(DESTDIR)/usr/src/$(DKMS_MODULES_NAME)-$(PACKAGE_VERSION)
 
 modules modules_install clean:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) $@
@@ -53,6 +54,12 @@ dkms_check:
 	    echo "and \"make\" is running under sudo, or as root."; \
 	    exit 1; \
 	fi
+
+dkms_source_install:
+	install -m 0755 -d $(DKMS_SOURCE_DIR)
+	install -m 0644 Makefile *.[hc] $(DKMS_SOURCE_DIR)
+	install -m 0755 -d $(DKMS_SOURCE_DIR)/usbhid
+	install -m 0644 usbhid/*.[hc] $(DKMS_SOURCE_DIR)/usbhid
 
 dkms_modules_install: dkms_check
 	@if dkms status $(DKMS_MODULES_NAME) | grep . >/dev/null; then \
