@@ -31,11 +31,7 @@ override_dh_auto_build:
 override_dh_auto_test:
 
 override_dh_auto_install:
+	$(MAKE) DESTDIR=$(CURDIR)/debian/digimend-dkms dkms_source_install hid_rebind_install
 
 override_dh_dkms:
 	dh_dkms -p digimend-dkms -V -- dkms.conf
-
-override_dh_install:
-	dh_install Makefile *.c *.h usbhid usr/src/digimend-${version}/
-	dh_install 90-hid-rebind.rules lib/udev/rules.d/
-	dh_install hid-rebind lib/udev/
