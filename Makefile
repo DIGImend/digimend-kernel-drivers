@@ -26,11 +26,11 @@ depmod_conf_install:
 depmod_conf_uninstall:
 	rm -vf $(DEPMOD_CONF)
 
-hid_rebind_install:
+udev_rules_install:
 	install -D -m 0755 hid-rebind $(HID_REBIND)
 	install -D -m 0644 udev.rules $(UDEV_RULES)
 
-hid_rebind_uninstall:
+udev_rules_uninstall:
 	rm -vf $(UDEV_RULES) $(HID_REBIND)
 
 modules_uninstall:
@@ -39,11 +39,11 @@ modules_uninstall:
 	       /lib/modules/*/extra/hid-uclogic.ko \
 	       /lib/modules/*/extra/hid-viewsonic.ko
 
-install: modules_install hid_rebind_install depmod_conf_install
+install: modules_install udev_rules_install depmod_conf_install
 	udevadm control --reload
 	depmod -a
 
-uninstall: modules_uninstall hid_rebind_uninstall depmod_conf_uninstall
+uninstall: modules_uninstall udev_rules_uninstall depmod_conf_uninstall
 	udevadm control --reload
 	depmod -a
 
@@ -90,10 +90,10 @@ dkms_modules_uninstall: dkms_check
 	        } \
 	    done
 
-dkms_install: dkms_modules_install hid_rebind_install
+dkms_install: dkms_modules_install udev_rules_install
 	udevadm control --reload
 
-dkms_uninstall: dkms_modules_uninstall hid_rebind_uninstall
+dkms_uninstall: dkms_modules_uninstall udev_rules_uninstall
 	udevadm control --reload
 
 dist:
