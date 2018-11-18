@@ -110,12 +110,13 @@ installation and operation and can safely be ignored. That is, unless you set
 up module signature verification, but then you would recognize the problem,
 and would be able to fix it.
 
-### DKMS issue preventing correct installation ###
+### DKMS issues preventing correct installation ###
 
 If you're installing Debian packages, or installing from source with DKMS, you
-might hit a bug in DKMS which prevents some of the driver modules from
-installing. If you do, you will see a message like this while trying to
-install the drivers:
+might hit one of DKMS bugs which prevent some of the driver modules from
+installing.
+
+They make DKMS produce messages like this:
 
     hid-uclogic.ko:
     Running module version sanity check.
@@ -123,12 +124,23 @@ install the drivers:
     is not newer than what is already found in kernel 4.9.0-5-amd64 (7).
     You may override by specifying --force.
 
-For details see [upstream pull-request fixing the issue][dkms_issue_pr].
+or this:
 
-To fix that you can apply the patch linked above yourself, or execute the
-below command:
+    hid-uclogic.ko.xz:
+    Running module version sanity check.
+    Error! Module version 9 for hid-uclogic.ko.xz
+    is not newer than what is already found in kernel 3.10.0-862.14.4.el7.x86_64 (27A2028780DCB320780F53D).
 
-    sudo sed -i -e 's/\<unset res$/res=()/' /usr/sbin/dkms
+while trying to install the drivers.
+
+Fixes for these were accepted upstream ([first fix][dkms_issue1_pr] and
+[second fix][dkms_issue2_pr]) and should eventually appear in distributions.
+Meanwhile, to fix the issues, you can apply these yourself, or execute the
+following command:
+
+    sudo sed -i \
+             -e '/^get_module_verinfo()/,+3 s/\<unset res$\|\<res=()$/res=("" "" "")/' \
+	     /usr/sbin/dkms
 
 Be aware that the operation of the above command is inexact, and might not
 work, or might break DKMS. You've been warned. In any case, simply reinstall
@@ -301,7 +313,8 @@ to ask for help, and to help others!
 [releases]: https://github.com/DIGImend/digimend-kernel-drivers/releases
 [patreon_profile]: https://www.patreon.com/spbnick
 [patreon_pledge]: https://www.patreon.com/bePatron?c=930980
-[dkms_issue_pr]: https://github.com/dell/dkms/pull/47
+[dkms_issue1_pr]: https://github.com/dell/dkms/pull/47
+[dkms_issue2_pr]: https://github.com/dell/dkms/pull/66
 [secure_boot]: https://en.wikipedia.org/wiki/Unified_Extensible_Firmware_Interface#Secure_boot
 [xsetwacom_manpage]: https://www.mankier.com/1/xsetwacom
 [howtos]: http://digimend.github.io/support/
