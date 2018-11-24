@@ -722,7 +722,8 @@ int uclogic_params_init(struct uclogic_params *params,
 
 	/* Check arguments */
 	if (params == NULL || hdev == NULL) {
-		return -EINVAL;
+		rc = -EINVAL;
+		goto cleanup;
 	}
 
 	/*
@@ -763,14 +764,14 @@ int uclogic_params_init(struct uclogic_params *params,
 		     USB_DEVICE_ID_UCLOGIC_TABLET_PF1209):
 		rc = WITH_OPT_DESC(PF1209_ORIG, pf1209_fixed);
 		if (rc != 0) {
-			goto error;
+			goto cleanup;
 		}
 		break;
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U):
 		rc = WITH_OPT_DESC(WPXXXXU_ORIG, wp4030u_fixed);
 		if (rc != 0) {
-			goto error;
+			goto cleanup;
 		}
 		break;
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
@@ -784,7 +785,7 @@ int uclogic_params_init(struct uclogic_params *params,
 					hid_err(hdev,
 						"pen probing failed: %d\n",
 						rc);
-					goto error;
+					goto cleanup;
 				}
 				if (!found) {
 					hid_warn(hdev,
@@ -796,7 +797,7 @@ int uclogic_params_init(struct uclogic_params *params,
 		} else {
 			rc = WITH_OPT_DESC(WPXXXXU_ORIG, wp5540u_fixed);
 			if (rc != 0) {
-				goto error;
+				goto cleanup;
 			}
 		}
 		break;
@@ -804,14 +805,14 @@ int uclogic_params_init(struct uclogic_params *params,
 		     USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U):
 		rc = WITH_OPT_DESC(WPXXXXU_ORIG, wp8060u_fixed);
 		if (rc != 0) {
-			goto error;
+			goto cleanup;
 		}
 		break;
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_TABLET_WP1062):
 		rc = WITH_OPT_DESC(WP1062_ORIG, wp1062_fixed);
 		if (rc != 0) {
-			goto error;
+			goto cleanup;
 		}
 		break;
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
@@ -820,19 +821,19 @@ int uclogic_params_init(struct uclogic_params *params,
 		case 0:
 			rc = WITH_OPT_DESC(TWHL850_ORIG0, twhl850_fixed0);
 			if (rc != 0) {
-				goto error;
+				goto cleanup;
 			}
 			break;
 		case 1:
 			rc = WITH_OPT_DESC(TWHL850_ORIG1, twhl850_fixed1);
 			if (rc != 0) {
-				goto error;
+				goto cleanup;
 			}
 			break;
 		case 2:
 			rc = WITH_OPT_DESC(TWHL850_ORIG2, twhl850_fixed2);
 			if (rc != 0) {
-				goto error;
+				goto cleanup;
 			}
 			break;
 		}
@@ -849,14 +850,14 @@ int uclogic_params_init(struct uclogic_params *params,
 				rc = WITH_OPT_DESC(TWHA60_ORIG0,
 							twha60_fixed0);
 				if (rc != 0) {
-					goto error;
+					goto cleanup;
 				}
 				break;
 			case 1:
 				rc = WITH_OPT_DESC(TWHA60_ORIG1,
 							twha60_fixed1);
 				if (rc != 0) {
-					goto error;
+					goto cleanup;
 				}
 				break;
 			}
@@ -889,7 +890,7 @@ int uclogic_params_init(struct uclogic_params *params,
 		if (rc != 0) {
 			hid_err(hdev,
 				"failed probing pen v2 parameters: %d\n", rc);
-			goto error;
+			goto cleanup;
 		} else if (found) {
 			hid_dbg(hdev, "pen v2 parameters found\n");
 			/* Create v2 buttonpad parameters */
@@ -901,7 +902,7 @@ int uclogic_params_init(struct uclogic_params *params,
 			if (rc != 0) {
 				hid_err(hdev, "failed creating v2 buttonpad "
 					"parameters: %d\n", rc);
-				goto error;
+				goto cleanup;
 			}
 			/* Set bitmask marking frame reports in pen reports */
 			p.pen_frame_flag = 0x20;
@@ -914,7 +915,7 @@ int uclogic_params_init(struct uclogic_params *params,
 		if (rc != 0) {
 			hid_err(hdev,
 				"failed probing pen v1 parameters: %d\n", rc);
-			goto error;
+			goto cleanup;
 		} else if (found) {
 			hid_dbg(hdev, "pen v1 parameters found\n");
 			/* Try to probe v1 buttonpad */
@@ -924,7 +925,7 @@ int uclogic_params_init(struct uclogic_params *params,
 			if (rc != 0) {
 				hid_err(hdev, "v1 buttonpad probing "
 					"failed: %d\n", rc);
-				goto error;
+				goto cleanup;
 			}
 			hid_dbg(hdev, "buttonpad v1 parameters%s found\n",
 				(found ? "" : " not"));
@@ -950,7 +951,7 @@ int uclogic_params_init(struct uclogic_params *params,
 			rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
 			if (rc != 0) {
 				hid_err(hdev, "pen probing failed: %d\n", rc);
-				goto error;
+				goto cleanup;
 			}
 			if (!found) {
 				hid_warn(hdev, "pen parameters not found");
@@ -969,7 +970,7 @@ int uclogic_params_init(struct uclogic_params *params,
 			rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
 			if (rc != 0) {
 				hid_err(hdev, "pen probing failed: %d\n", rc);
-				goto error;
+				goto cleanup;
 			}
 			/* Initialize frame parameters */
 			rc = uclogic_params_frame_init_with_desc(
@@ -978,7 +979,7 @@ int uclogic_params_init(struct uclogic_params *params,
 				uclogic_rdesc_xppen_deco01_frame_size,
 				0);
 			if (rc != 0) {
-				goto error;
+				goto cleanup;
 			}
 		} else {
 			/* TODO: Consider marking the interface invalid */
@@ -996,7 +997,7 @@ int uclogic_params_init(struct uclogic_params *params,
 		rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
 		if (rc != 0) {
 			hid_err(hdev, "pen probing failed: %d\n", rc);
-			goto error;
+			goto cleanup;
 		} else if (found) {
 			rc = uclogic_params_frame_init_with_desc(
 				&p.frame,
@@ -1006,7 +1007,7 @@ int uclogic_params_init(struct uclogic_params *params,
 			if (rc != 0) {
 				hid_err(hdev, "failed creating buttonpad "
 					"parameters: %d\n", rc);
-				goto error;
+				goto cleanup;
 			}
 			p.frame.re_lsb =
 				UCLOGIC_RDESC_UGEE_G5_FRAME_RE_LSB;
@@ -1029,7 +1030,7 @@ int uclogic_params_init(struct uclogic_params *params,
 		rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
 		if (rc != 0) {
 			hid_err(hdev, "pen probing failed: %d\n", rc);
-			goto error;
+			goto cleanup;
 		} else if (found) {
 			rc = uclogic_params_frame_init_with_desc(
 				&p.frame,
@@ -1039,7 +1040,7 @@ int uclogic_params_init(struct uclogic_params *params,
 			if (rc != 0) {
 				hid_err(hdev, "failed creating buttonpad "
 					"parameters: %d\n", rc);
-				goto error;
+				goto cleanup;
 			}
 		} else {
 			hid_warn(hdev, "pen parameters not found");
@@ -1054,9 +1055,9 @@ int uclogic_params_init(struct uclogic_params *params,
 
 	/* Output parameters */
 	memcpy(params, &p, sizeof(*params));
-	return 0;
-error:
+	memset(&p, 0, sizeof(p));
+	rc = 0;
+cleanup:
 	uclogic_params_cleanup(&p);
-	WARN_ON(rc == 0);
 	return rc;
 }
