@@ -697,6 +697,105 @@ static void uclogic_params_init_with_pen_unused(struct uclogic_params *params)
 }
 
 /**
+ * uclogic_params_init() - initialize a Huion tablet interface and discover
+ * its parameters.
+ *
+ * @params: 	Parameters to fill in (to be cleaned with uclogic_params_cleanup()).
+ * 		Not modified in case of error. Cannot be NULL.
+ * @hdev:	The HID device of the tablet interface to initialize and get
+ * 		parameters from. Cannot be NULL.
+ *
+ * Return:
+ * 	Zero, if successful. A negative errno code on error.
+ */
+static int uclogic_params_huion_init(struct uclogic_params *params,
+				     struct hid_device *hdev)
+{
+	int rc;
+	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
+	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
+	bool found;
+	/* The resulting parameters (noop) */
+	struct uclogic_params p = {0, };
+
+	/* Check arguments */
+	if (params == NULL || hdev == NULL) {
+		rc = -EINVAL;
+		goto cleanup;
+	}
+
+	/* If it's not a pen interface */
+	if (bInterfaceNumber != 0) {
+		/* TODO: Consider marking the interface invalid */
+		uclogic_params_init_with_pen_unused(&p);
+		goto output;
+	}
+
+	/* Try to probe v2 pen parameters */
+	rc = uclogic_params_pen_init_v2(&p.pen, &found, hdev);
+	if (rc != 0) {
+		hid_err(hdev,
+			"failed probing pen v2 parameters: %d\n", rc);
+		goto cleanup;
+	} else if (found) {
+		hid_dbg(hdev, "pen v2 parameters found\n");
+		/* Create v2 buttonpad parameters */
+		rc = uclogic_params_frame_init_with_desc(
+				&p.frame,
+				uclogic_rdesc_buttonpad_v2_arr,
+				uclogic_rdesc_buttonpad_v2_size,
+				UCLOGIC_RDESC_BUTTONPAD_V2_ID);
+		if (rc != 0) {
+			hid_err(hdev, "failed creating v2 buttonpad "
+				"parameters: %d\n", rc);
+			goto cleanup;
+		}
+		/* Set bitmask marking frame reports in pen reports */
+		p.pen_frame_flag = 0x20;
+		goto output;
+	}
+	hid_dbg(hdev, "pen v2 parameters not found\n");
+
+	/* Try to probe v1 pen parameters */
+	rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
+	if (rc != 0) {
+		hid_err(hdev,
+			"failed probing pen v1 parameters: %d\n", rc);
+		goto cleanup;
+	} else if (found) {
+		hid_dbg(hdev, "pen v1 parameters found\n");
+		/* Try to probe v1 buttonpad */
+		rc = uclogic_params_frame_init_v1_buttonpad(
+						&p.frame,
+						&found, hdev);
+		if (rc != 0) {
+			hid_err(hdev, "v1 buttonpad probing "
+				"failed: %d\n", rc);
+			goto cleanup;
+		}
+		hid_dbg(hdev, "buttonpad v1 parameters%s found\n",
+			(found ? "" : " not"));
+		if (found) {
+			/* Set bitmask marking frame reports */
+			p.pen_frame_flag = 0x20;
+		}
+		goto output;
+	}
+	hid_dbg(hdev, "pen v1 parameters not found\n");
+
+	uclogic_params_init_invalid(&p);
+
+output:
+	/* Output parameters */
+	memcpy(params, &p, sizeof(*params));
+	memset(&p, 0, sizeof(p));
+	rc = 0;
+cleanup:
+	uclogic_params_cleanup(&p);
+	return rc;
+}
+
+/**
  * uclogic_params_init() - initialize a tablet interface and discover its
  * parameters.
  *
@@ -878,66 +977,10 @@ int uclogic_params_init(struct uclogic_params *params,
 		     USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_45):
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47):
-		/* If it's not a pen interface */
-		if (bInterfaceNumber != 0) {
-			/* TODO: Consider marking the interface invalid */
-			uclogic_params_init_with_pen_unused(&p);
-			break;
-		}
-
-		/* Try to probe v2 pen parameters */
-		rc = uclogic_params_pen_init_v2(&p.pen, &found, hdev);
+		rc = uclogic_params_huion_init(&p, hdev);
 		if (rc != 0) {
-			hid_err(hdev,
-				"failed probing pen v2 parameters: %d\n", rc);
 			goto cleanup;
-		} else if (found) {
-			hid_dbg(hdev, "pen v2 parameters found\n");
-			/* Create v2 buttonpad parameters */
-			rc = uclogic_params_frame_init_with_desc(
-					&p.frame,
-					uclogic_rdesc_buttonpad_v2_arr,
-					uclogic_rdesc_buttonpad_v2_size,
-					UCLOGIC_RDESC_BUTTONPAD_V2_ID);
-			if (rc != 0) {
-				hid_err(hdev, "failed creating v2 buttonpad "
-					"parameters: %d\n", rc);
-				goto cleanup;
-			}
-			/* Set bitmask marking frame reports in pen reports */
-			p.pen_frame_flag = 0x20;
-			break;
 		}
-		hid_dbg(hdev, "pen v2 parameters not found\n");
-
-		/* Try to probe v1 pen parameters */
-		rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
-		if (rc != 0) {
-			hid_err(hdev,
-				"failed probing pen v1 parameters: %d\n", rc);
-			goto cleanup;
-		} else if (found) {
-			hid_dbg(hdev, "pen v1 parameters found\n");
-			/* Try to probe v1 buttonpad */
-			rc = uclogic_params_frame_init_v1_buttonpad(
-							&p.frame,
-							&found, hdev);
-			if (rc != 0) {
-				hid_err(hdev, "v1 buttonpad probing "
-					"failed: %d\n", rc);
-				goto cleanup;
-			}
-			hid_dbg(hdev, "buttonpad v1 parameters%s found\n",
-				(found ? "" : " not"));
-			if (found) {
-				/* Set bitmask marking frame reports */
-				p.pen_frame_flag = 0x20;
-			}
-			break;
-		}
-		hid_dbg(hdev, "pen v1 parameters not found\n");
-
-		uclogic_params_init_invalid(&p);
 		break;
 	case VID_PID(USB_VENDOR_ID_UGTIZER,
 		     USB_DEVICE_ID_UGTIZER_TABLET_GP0610):
