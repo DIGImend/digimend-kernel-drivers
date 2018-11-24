@@ -712,11 +712,15 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 				     struct hid_device *hdev)
 {
 	int rc;
+	struct usb_device *udev = hid_to_usb_dev(hdev);
 	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
 	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
 	bool found;
 	/* The resulting parameters (noop) */
 	struct uclogic_params p = {0, };
+	static const char transition_ver[] = "HUION_T153_160607";
+	char *ver_ptr = NULL;
+	const size_t ver_len = sizeof(transition_ver) + 1;
 
 	/* Check arguments */
 	if (params == NULL || hdev == NULL) {
@@ -731,30 +735,55 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 		goto output;
 	}
 
-	/* Try to probe v2 pen parameters */
-	rc = uclogic_params_pen_init_v2(&p.pen, &found, hdev);
-	if (rc != 0) {
-		hid_err(hdev,
-			"failed probing pen v2 parameters: %d\n", rc);
+	/* Try to get firmware version */
+	ver_ptr = kzalloc(ver_len, GFP_KERNEL);
+	if (ver_ptr == NULL) {
+		rc = -ENOMEM;
 		goto cleanup;
-	} else if (found) {
-		hid_dbg(hdev, "pen v2 parameters found\n");
-		/* Create v2 buttonpad parameters */
-		rc = uclogic_params_frame_init_with_desc(
-				&p.frame,
-				uclogic_rdesc_buttonpad_v2_arr,
-				uclogic_rdesc_buttonpad_v2_size,
-				UCLOGIC_RDESC_BUTTONPAD_V2_ID);
-		if (rc != 0) {
-			hid_err(hdev, "failed creating v2 buttonpad "
-				"parameters: %d\n", rc);
-			goto cleanup;
-		}
-		/* Set bitmask marking frame reports in pen reports */
-		p.pen_frame_flag = 0x20;
-		goto output;
 	}
-	hid_dbg(hdev, "pen v2 parameters not found\n");
+	rc = usb_string(udev, 201, ver_ptr, ver_len);
+	if (ver_ptr == NULL) {
+		rc = -ENOMEM;
+		goto cleanup;
+	}
+	if (rc == -EPIPE) {
+		*ver_ptr = '\0';
+	} else if (rc < 0) {
+		hid_err(hdev,
+			"failed retrieving Huion firmware version: %d\n", rc);
+		goto cleanup;
+	}
+
+	/* If this is a transition firmware */
+	if (strcmp(ver_ptr, transition_ver) == 0) {
+		hid_dbg(hdev, "transition firmware detected, "
+				"not probing pen v2 parameters\n");
+	} else {
+		/* Try to probe v2 pen parameters */
+		rc = uclogic_params_pen_init_v2(&p.pen, &found, hdev);
+		if (rc != 0) {
+			hid_err(hdev,
+				"failed probing pen v2 parameters: %d\n", rc);
+			goto cleanup;
+		} else if (found) {
+			hid_dbg(hdev, "pen v2 parameters found\n");
+			/* Create v2 buttonpad parameters */
+			rc = uclogic_params_frame_init_with_desc(
+					&p.frame,
+					uclogic_rdesc_buttonpad_v2_arr,
+					uclogic_rdesc_buttonpad_v2_size,
+					UCLOGIC_RDESC_BUTTONPAD_V2_ID);
+			if (rc != 0) {
+				hid_err(hdev, "failed creating v2 buttonpad "
+					"parameters: %d\n", rc);
+				goto cleanup;
+			}
+			/* Set bitmask marking frame reports in pen reports */
+			p.pen_frame_flag = 0x20;
+			goto output;
+		}
+		hid_dbg(hdev, "pen v2 parameters not found\n");
+	}
 
 	/* Try to probe v1 pen parameters */
 	rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
@@ -791,6 +820,7 @@ output:
 	memset(&p, 0, sizeof(p));
 	rc = 0;
 cleanup:
+	kfree(ver_ptr);
 	uclogic_params_cleanup(&p);
 	return rc;
 }
