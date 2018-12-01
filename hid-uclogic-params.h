@@ -149,7 +149,8 @@ struct uclogic_params {
 	/*
 	 * Bitmask matching frame controls "sub-report" flag in the second
 	 * byte of the pen report, or zero if it's not expected.
-	 * Only valid if both "pen" and "frame" are valid.
+	 * Only valid if both "pen" and "frame" are valid, and "frame.id" is
+	 * not zero.
 	 */
 	__u8 pen_frame_flag;
 };

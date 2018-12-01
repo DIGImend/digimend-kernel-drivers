@@ -271,7 +271,8 @@ static int uclogic_raw_event(struct hid_device *hdev,
 	    (report->id == params->pen.id) &&
 	    (size >= 2)) {
 		/* If it's the "virtual" frame controls report */
-		if (data[1] & params->pen_frame_flag) {
+		if (params->frame.id != 0 &&
+		    data[1] & params->pen_frame_flag) {
 			/* Change to virtual frame controls report ID */
 			data[0] = params->frame.id;
 			return 0;
