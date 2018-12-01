@@ -484,7 +484,7 @@ static int uclogic_params_frame_init_v1_buttonpad(
 				frame,
 				uclogic_rdesc_buttonpad_v1_arr,
 				uclogic_rdesc_buttonpad_v1_size,
-				0);
+				UCLOGIC_RDESC_BUTTONPAD_V1_ID);
 		if (rc != 0) {
 			goto cleanup;
 		}
