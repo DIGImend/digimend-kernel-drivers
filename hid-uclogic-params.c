@@ -284,7 +284,12 @@ static int uclogic_params_pen_init_v2(struct uclogic_params_pen *pen,
 	 * NOTE: This enables fully-functional tablet mode.
 	 */
 	rc = uclogic_params_get_str_desc(&buf, hdev, 200, len);
-	if (rc == -EPIPE) {
+	if (rc == -EIO) {
+		hid_dbg(hdev,
+			"I/O error retrieving string descriptor with "
+			"pen parameters, assuming not compatible\n");
+		goto finish;
+	} else if (rc == -EPIPE) {
 		hid_dbg(hdev,
 			"string descriptor with pen parameters not found, "
 			"assuming not compatible\n");
