@@ -1,8 +1,14 @@
 digimend-dkms (9) unstable; urgency=low
 
-  * Bump version number.
+  * Add support for XP-Pen G640.
+  * Fix support for Ugee M540.
+  * Fix support for Huion WH1409.
+  * Add installation of X.org configuration, which requests the Wacom driver
+    to handle all known compatible tablets, by default. Any X.org
+    configuration for the same tablets in /etc would still override this.
+  * Move installed hid-rebind to /lib/udev
 
- -- Nikolai Kondrashov <spbnick@gmail.com>  Sat, 14 Jul 2018 18:05:43 +0300
+ -- Nikolai Kondrashov <spbnick@gmail.com>  Sat, 15 Dec 2018 17:47:50 +0200
 
 digimend-dkms (8) unstable; urgency=low
 
