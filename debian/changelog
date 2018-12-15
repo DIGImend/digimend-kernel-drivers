@@ -1,3 +1,9 @@
+digimend-dkms (10) unstable; urgency=low
+
+  * Bump version number.
+
+ -- Nikolai Kondrashov <spbnick@gmail.com>  Sat, 15 Dec 2018 18:17:23 +0200
+
 digimend-dkms (9) unstable; urgency=low
 
   * Add support for XP-Pen G640.
