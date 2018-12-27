@@ -50,6 +50,8 @@ const char *uclogic_params_pen_inrange_to_str(
  * @pbuf:	Location for the kmalloc-allocated buffer pointer containing
  * 		the retrieved descriptor. Not modified in case of error.
  * 		Can be NULL to have retrieved descriptor discarded.
+ * @hdev:	The HID device of the tablet interface to retrieve the string
+ * 		descriptor from. Cannot be NULL.
  * @idx:	Index of the string descriptor to request from the device.
  * @len:	Length of the buffer to allocate and the data to retrieve.
  *
@@ -64,6 +66,12 @@ static int uclogic_params_get_str_desc(__u8 **pbuf, struct hid_device *hdev,
 	int rc;
 	struct usb_device *udev = hid_to_usb_dev(hdev);
 	__u8 *buf = NULL;
+
+	/* Check arguments */
+	if (hdev == NULL) {
+		rc = -EINVAL;
+		goto cleanup;
+	}
 
 	buf = kmalloc(len, GFP_KERNEL);
 	if (buf == NULL) {
