@@ -643,7 +643,7 @@ const size_t uclogic_rdesc_pen_v2_template_size =
 /**
  * Expand to the contents of a generic buttonpad report descriptor.
  *
- * @_padding	Padding from the end of button bits at bit 44, until
+ * @_padding:	Padding from the end of button bits at bit 44, until
  * 		the end of the report, in bits.
  */
 #define UCLOGIC_RDESC_BUTTONPAD_BYTES(_padding) \
