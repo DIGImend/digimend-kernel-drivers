@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Definitions from the Linux kernel's private header
  * drivers/hid/hid-ids.h
