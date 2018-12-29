@@ -53,7 +53,7 @@ struct uclogic_params_pen {
 	 */
 	unsigned int desc_size;
 	/* Report ID, if reports should be tweaked, zero if not */
-	unsigned id;
+	unsigned int id;
 	/* Type of in-range reporting, only valid if "id" is not zero */
 	enum uclogic_params_pen_inrange inrange;
 	/*
@@ -86,20 +86,20 @@ struct uclogic_params_frame {
 	/*
 	 * Report ID, if reports should be tweaked, zero if not.
 	 */
-	unsigned id;
+	unsigned int id;
 	/*
 	 * Number of the least-significant bit of the 2-bit state of a rotary
 	 * encoder, in the report. Cannot point to a 2-bit field crossing a
 	 * byte boundary. Zero if not present. Only valid if "id" is not zero.
 	 */
-	unsigned re_lsb;
+	unsigned int re_lsb;
 	/*
 	 * Offset of the Wacom-style device ID byte in the report, to be set
 	 * to pad device ID (0xf), for compatibility with Wacom drivers. Zero
 	 * if no changes to the report should be made. Only valid if "id" is
 	 * not zero.
 	 */
-	unsigned dev_id_byte;
+	unsigned int dev_id_byte;
 };
 
 /*

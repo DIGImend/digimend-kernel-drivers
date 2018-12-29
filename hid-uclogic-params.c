@@ -408,7 +408,7 @@ static int uclogic_params_frame_init_with_desc(
 					struct uclogic_params_frame *frame,
 					const __u8 *desc_ptr,
 					size_t desc_size,
-					unsigned id)
+					unsigned int id)
 {
 	__u8 *copy_desc_ptr;
 

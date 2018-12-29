@@ -330,8 +330,8 @@ static int uclogic_raw_event(struct hid_device *hdev,
 		/* If need to, and can, read rotary encoder state change */
 		if (params->frame.re_lsb > 0 &&
 		    params->frame.re_lsb / 8 < size) {
-			unsigned byte = params->frame.re_lsb / 8;
-			unsigned bit = params->frame.re_lsb % 8;
+			unsigned int byte = params->frame.re_lsb / 8;
+			unsigned int bit = params->frame.re_lsb % 8;
 
 			u8 change;
 			u8 prev_state = drvdata->re_state;
