@@ -1,26 +1,26 @@
 language: c
 sudo: required
 compiler:
-  - gcc
+    - gcc
 os: linux
 before_install:
-- sudo apt-get -qq update
-- sudo apt-get install -y dpkg-dev debhelper dkms lintian sparse python-ply python-git
-- sudo apt-get install linux-headers-`uname -r`
+    - sudo apt-get -qq update
+    - sudo apt-get install -y dpkg-dev debhelper dkms lintian sparse python-ply python-git
+    - sudo apt-get install linux-headers-`uname -r`
 before_script:
-- git clone --quiet --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git ../linux
+    - git clone --quiet --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git ../linux
 script:
-        - "PYTHONIOENCODING=UTF-8 ../linux/scripts/checkpatch.pl --ignore COMPLEX_MACRO,TRAILING_STATEMENTS --show-types -f *.[hc] | tee ../checkpatch.log || [ $? == 1 ] && ! grep -q '^\(ERROR\|ImportError\):' ../checkpatch.log"
-- make C=1 W=1 KCFLAGS=-Werror
-# Testing dkms install/uninstall
-- sudo make dkms_install
-- sudo make dkms_uninstall
-# Testing Debian package installation, configuration, and uninstall
-- dpkg-buildpackage -b -uc
-# Checks Debian packages for common inconsistencies and errors
-- lintian -i -I --profile debian --show-overrides ../digimend-dkms_*.changes
-- sudo apt-get install -y ../digimend-dkms_*_all.deb
-- sudo apt-get remove -y digimend-dkms
-- make dist
-- sudo make install
-- sudo make uninstall
+    - "PYTHONIOENCODING=UTF-8 ../linux/scripts/checkpatch.pl --ignore COMPLEX_MACRO,TRAILING_STATEMENTS --show-types -f *.[hc] | tee ../checkpatch.log || [ $? == 1 ] && ! grep -q '^\(ERROR\|ImportError\):' ../checkpatch.log"
+    - make C=1 W=1 KCFLAGS=-Werror
+    # Testing dkms install/uninstall
+    - sudo make dkms_install
+    - sudo make dkms_uninstall
+    # Testing Debian package installation, configuration, and uninstall
+    - dpkg-buildpackage -b -uc
+    # Checks Debian packages for common inconsistencies and errors
+    - lintian -i -I --profile debian --show-overrides ../digimend-dkms_*.changes
+    - sudo apt-get install -y ../digimend-dkms_*_all.deb
+    - sudo apt-get remove -y digimend-dkms
+    - make dist
+    - sudo make install
+    - sudo make uninstall
