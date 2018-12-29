@@ -858,7 +858,7 @@ int uclogic_params_init(struct uclogic_params *params,
 		&p, hdev,                                   \
 		UCLOGIC_RDESC_##_orig_desc_token##_SIZE,    \
 		uclogic_rdesc_##_new_desc_token##_arr,      \
-		uclogic_rdesc_##_new_desc_token##_size);
+		uclogic_rdesc_##_new_desc_token##_size)
 
 #define VID_PID(_vid, _pid) \
 	(((__u32)(_vid) << 16) | ((__u32)(_pid) & U16_MAX))
