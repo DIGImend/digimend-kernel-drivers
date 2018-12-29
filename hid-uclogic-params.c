@@ -692,8 +692,9 @@ static void uclogic_params_init_with_pen_unused(struct uclogic_params *params)
  * uclogic_params_init() - initialize a Huion tablet interface and discover
  * its parameters.
  *
- * @params:	Parameters to fill in (to be cleaned with uclogic_params_cleanup()).
- *		Not modified in case of error. Cannot be NULL.
+ * @params:	Parameters to fill in (to be cleaned with
+ *		uclogic_params_cleanup()). Not modified in case of error.
+ *		Cannot be NULL.
  * @hdev:	The HID device of the tablet interface to initialize and get
  *		parameters from. Cannot be NULL.
  *
@@ -821,8 +822,9 @@ cleanup:
  * uclogic_params_init() - initialize a tablet interface and discover its
  * parameters.
  *
- * @params:	Parameters to fill in (to be cleaned with uclogic_params_cleanup()).
- *		Not modified in case of error. Cannot be NULL.
+ * @params:	Parameters to fill in (to be cleaned with
+ *		uclogic_params_cleanup()). Not modified in case of error.
+ *		Cannot be NULL.
  * @hdev:	The HID device of the tablet interface to initialize and get
  *		parameters from. Cannot be NULL.
  *
