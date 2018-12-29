@@ -25,7 +25,7 @@
  *
  * @inrange:	The in-range reporting type to convert.
  *
- * Return:
+ * Returns:
  * 	The string representing the type, or NULL if the type is unknown.
  */
 const char *uclogic_params_pen_inrange_to_str(
@@ -56,7 +56,7 @@ const char *uclogic_params_pen_inrange_to_str(
  * @idx:	Index of the string descriptor to request from the device.
  * @len:	Length of the buffer to allocate and the data to retrieve.
  *
- * Return:
+ * Returns:
  * 	number of bytes retrieved (<= len),
  * 	-EPIPE, if the descriptor was not found, or
  *	another negative errno code in case of other error.
@@ -131,7 +131,7 @@ static void uclogic_params_pen_cleanup(struct uclogic_params_pen *pen)
  * @hdev:	The HID device of the tablet interface to initialize and get
  * 		parameters from. Cannot be NULL.
  *
- * Return:
+ * Returns:
  * 	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_pen_init_v1(struct uclogic_params_pen *pen,
@@ -237,7 +237,7 @@ cleanup:
  *
  * @p:	The pointer to the number buffer.
  *
- * Return:
+ * Returns:
  * 	The retrieved number
  */
 static s32 uclogic_params_get_le24(const void *p)
@@ -259,7 +259,7 @@ static s32 uclogic_params_get_le24(const void *p)
  * @hdev:	The HID device of the tablet interface to initialize and get
  * 		parameters from. Cannot be NULL.
  *
- * Return:
+ * Returns:
  * 	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_pen_init_v2(struct uclogic_params_pen *pen,
@@ -401,7 +401,7 @@ static void uclogic_params_frame_cleanup(struct uclogic_params_frame *frame)
  * @id:		Report ID used for frame reports, if they should be tweaked,
  * 		zero if not.
  *
- * Return:
+ * Returns:
  * 	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_frame_init_with_desc(
@@ -439,7 +439,7 @@ static int uclogic_params_frame_init_with_desc(
  * @hdev:	The HID device of the tablet interface to initialize and get
  * 		parameters from. Cannot be NULL.
  *
- * Return:
+ * Returns:
  * 	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_frame_init_v1_buttonpad(
@@ -528,7 +528,7 @@ void uclogic_params_cleanup(struct uclogic_params *params)
  * 		there's no replacement report descriptor. Not modified in case
  * 		of error. Cannot be NULL.
  *
- * Return:
+ * Returns:
  * 	Zero, if successful.
  * 	-EINVAL, if invalid arguments are supplied.
  * 	-ENOMEM, if failed to allocate memory.
@@ -622,7 +622,7 @@ static void uclogic_params_init_invalid(struct uclogic_params *params)
  * 			Can be NULL, if desc_size is zero.
  * @desc_size:		Size of the replacement report descriptor.
  *
- * Return:
+ * Returns:
  * 	Zero, if successful. -EINVAL if an invalid argument was passed.
  * 	-ENOMEM, if failed to allocate memory.
  */
@@ -697,7 +697,7 @@ static void uclogic_params_init_with_pen_unused(struct uclogic_params *params)
  * @hdev:	The HID device of the tablet interface to initialize and get
  * 		parameters from. Cannot be NULL.
  *
- * Return:
+ * Returns:
  * 	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_huion_init(struct uclogic_params *params,
@@ -826,7 +826,7 @@ cleanup:
  * @hdev:	The HID device of the tablet interface to initialize and get
  * 		parameters from. Cannot be NULL.
  *
- * Return:
+ * Returns:
  * 	Zero, if successful. A negative errno code on error.
  */
 int uclogic_params_init(struct uclogic_params *params,

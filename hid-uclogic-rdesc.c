@@ -829,7 +829,7 @@ const size_t uclogic_rdesc_xppen_deco01_frame_size =
  * @param_list:		List of template parameters.
  * @param_num:		Number of parameters in the list.
  *
- * Return:
+ * Returns:
  * 	Kmalloc-allocated pointer to the created report descriptor,
  * 	or NULL if allocation failed.
  */
