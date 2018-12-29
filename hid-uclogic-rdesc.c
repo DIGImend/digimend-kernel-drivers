@@ -820,7 +820,7 @@ const size_t uclogic_rdesc_xppen_deco01_frame_size =
 /**
  * uclogic_rdesc_template_apply() - apply report descriptor parameters to a
  * report descriptor template, creating a report descriptor. Copies the
- * template over to the new report descriptor and replaces every occurence of
+ * template over to the new report descriptor and replaces every occurrence of
  * UCLOGIC_RDESC_PH_HEAD, followed by an index byte, with the value from the
  * parameter list at that index.
  *
