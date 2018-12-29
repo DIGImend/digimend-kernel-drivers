@@ -94,8 +94,8 @@ static __u8 pt1001_rdesc_fixed[] = {
 	0x09, 0xE2,         /*      Usage (Mute),                       */
 	0x09, 0xE9,         /*      Usage (Volume Inc),                 */
 	0x09, 0xEA,         /*      Usage (Volume Dec),                 */
-	0x81, 0x62,         /*      Input (Variable, No Preferred,
-	                                   Null State), */
+	0x81, 0x62,         /*      Input (Variable, No Preferred,      */
+			    /*             Null State),                 */
 	0x95, 0x06,         /*      Report Count (6),                   */
 	0x75, 0x01,         /*      Report Size (1),                    */
 	0x81, 0x03,         /*      Input (Constant, Variable),         */
