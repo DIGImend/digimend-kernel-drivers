@@ -5,8 +5,9 @@ compiler:
 os: linux
 before_install:
     - sudo apt-get -qq update
-    - sudo apt-get install -y dpkg-dev debhelper dkms lintian sparse python-ply python-git
+    - sudo apt-get install -y dpkg-dev debhelper dkms lintian sparse
     - sudo apt-get install linux-headers-`uname -r`
+    - pip install --user ply GitPython
 before_script:
     - git clone --quiet --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git ../linux
 script:
