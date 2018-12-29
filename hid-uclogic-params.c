@@ -242,7 +242,7 @@ cleanup:
  */
 static s32 uclogic_params_get_le24(const void *p)
 {
-	const __u8* b = p;
+	const __u8 *b = p;
 	return b[0] | (b[1] << 8UL) | (b[2] << 16UL);
 }
 
