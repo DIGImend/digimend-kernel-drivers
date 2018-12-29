@@ -420,14 +420,12 @@ static int uclogic_params_frame_init_with_desc(
 {
 	__u8 *copy_desc_ptr;
 
-	if (frame == NULL || (desc_ptr == NULL && desc_size != 0)) {
+	if (frame == NULL || (desc_ptr == NULL && desc_size != 0))
 		return -EINVAL;
-	}
 
 	copy_desc_ptr = kmemdup(desc_ptr, desc_size, GFP_KERNEL);
-	if (copy_desc_ptr == NULL) {
+	if (copy_desc_ptr == NULL)
 		return -ENOMEM;
-	}
 
 	memset(frame, 0, sizeof(*frame));
 	frame->desc_ptr = copy_desc_ptr;
@@ -494,9 +492,8 @@ static int uclogic_params_frame_init_v1_buttonpad(
 				uclogic_rdesc_buttonpad_v1_arr,
 				uclogic_rdesc_buttonpad_v1_size,
 				UCLOGIC_RDESC_BUTTONPAD_V1_ID);
-		if (rc != 0) {
+		if (rc != 0)
 			goto cleanup;
-		}
 		found = true;
 	}
 
@@ -518,9 +515,8 @@ void uclogic_params_cleanup(struct uclogic_params *params)
 {
 	if (!params->invalid) {
 		kfree(params->desc_ptr);
-		if (!params->pen_unused) {
+		if (!params->pen_unused)
 			uclogic_params_pen_cleanup(&params->pen);
-		}
 		uclogic_params_frame_cleanup(&params->frame);
 		memset(params, 0, sizeof(*params));
 	}
@@ -555,9 +551,8 @@ int uclogic_params_get_desc(const struct uclogic_params *params,
 	__u8 *desc = NULL;
 
 	/* Check arguments */
-	if (params == NULL || pdesc == NULL || psize == NULL) {
+	if (params == NULL || pdesc == NULL || psize == NULL)
 		return -EINVAL;
-	}
 
 	size = 0;
 
@@ -565,23 +560,19 @@ int uclogic_params_get_desc(const struct uclogic_params *params,
 	pen_present = (!params->pen_unused && params->pen.desc_ptr != NULL);
 	frame_present = (params->frame.desc_ptr != NULL);
 
-	if (common_present) {
+	if (common_present)
 		size += params->desc_size;
-	}
-	if (pen_present) {
+	if (pen_present)
 		size += params->pen.desc_size;
-	}
-	if (frame_present) {
+	if (frame_present)
 		size += params->frame.desc_size;
-	}
 
 	if (common_present || pen_present || frame_present) {
 		__u8 *p;
 
 		desc = kmalloc(size, GFP_KERNEL);
-		if (desc == NULL) {
+		if (desc == NULL)
 			return -ENOMEM;
-		}
 		p = desc;
 
 		if (common_present) {
@@ -901,16 +892,14 @@ int uclogic_params_init(struct uclogic_params *params,
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_TABLET_PF1209):
 		rc = WITH_OPT_DESC(PF1209_ORIG, pf1209_fixed);
-		if (rc != 0) {
+		if (rc != 0)
 			goto cleanup;
-		}
 		break;
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U):
 		rc = WITH_OPT_DESC(WPXXXXU_ORIG, wp4030u_fixed);
-		if (rc != 0) {
+		if (rc != 0)
 			goto cleanup;
-		}
 		break;
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U):
@@ -934,45 +923,39 @@ int uclogic_params_init(struct uclogic_params *params,
 			}
 		} else {
 			rc = WITH_OPT_DESC(WPXXXXU_ORIG, wp5540u_fixed);
-			if (rc != 0) {
+			if (rc != 0)
 				goto cleanup;
-			}
 		}
 		break;
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U):
 		rc = WITH_OPT_DESC(WPXXXXU_ORIG, wp8060u_fixed);
-		if (rc != 0) {
+		if (rc != 0)
 			goto cleanup;
-		}
 		break;
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_TABLET_WP1062):
 		rc = WITH_OPT_DESC(WP1062_ORIG, wp1062_fixed);
-		if (rc != 0) {
+		if (rc != 0)
 			goto cleanup;
-		}
 		break;
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850):
 		switch (bInterfaceNumber) {
 		case 0:
 			rc = WITH_OPT_DESC(TWHL850_ORIG0, twhl850_fixed0);
-			if (rc != 0) {
+			if (rc != 0)
 				goto cleanup;
-			}
 			break;
 		case 1:
 			rc = WITH_OPT_DESC(TWHL850_ORIG1, twhl850_fixed1);
-			if (rc != 0) {
+			if (rc != 0)
 				goto cleanup;
-			}
 			break;
 		case 2:
 			rc = WITH_OPT_DESC(TWHL850_ORIG2, twhl850_fixed2);
-			if (rc != 0) {
+			if (rc != 0)
 				goto cleanup;
-			}
 			break;
 		}
 		break;
@@ -987,16 +970,14 @@ int uclogic_params_init(struct uclogic_params *params,
 			case 0:
 				rc = WITH_OPT_DESC(TWHA60_ORIG0,
 							twha60_fixed0);
-				if (rc != 0) {
+				if (rc != 0)
 					goto cleanup;
-				}
 				break;
 			case 1:
 				rc = WITH_OPT_DESC(TWHA60_ORIG1,
 							twha60_fixed1);
-				if (rc != 0) {
+				if (rc != 0)
 					goto cleanup;
-				}
 				break;
 			}
 			break;
@@ -1017,9 +998,8 @@ int uclogic_params_init(struct uclogic_params *params,
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47):
 		rc = uclogic_params_huion_init(&p, hdev);
-		if (rc != 0) {
+		if (rc != 0)
 			goto cleanup;
-		}
 		break;
 	case VID_PID(USB_VENDOR_ID_UGTIZER,
 		     USB_DEVICE_ID_UGTIZER_TABLET_GP0610):
@@ -1060,9 +1040,8 @@ int uclogic_params_init(struct uclogic_params *params,
 				uclogic_rdesc_xppen_deco01_frame_arr,
 				uclogic_rdesc_xppen_deco01_frame_size,
 				0);
-			if (rc != 0) {
+			if (rc != 0)
 				goto cleanup;
-			}
 		} else {
 			/* TODO: Consider marking the interface invalid */
 			uclogic_params_init_with_pen_unused(&p);

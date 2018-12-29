@@ -59,9 +59,9 @@ static void uclogic_inrange_timeout(struct timer_list *t)
 	struct uclogic_drvdata *drvdata = from_timer(drvdata, t,
 							inrange_timer);
 	struct input_dev *input = drvdata->pen_input;
-	if (input == NULL) {
+
+	if (input == NULL)
 		return;
-	}
 	input_report_abs(input, ABS_PRESSURE, 0);
 	/* If BTN_TOUCH state is changing */
 	if (test_bit(BTN_TOUCH, input->key)) {
@@ -235,9 +235,8 @@ static int uclogic_probe(struct hid_device *hdev,
 	return 0;
 failure:
 	/* Assume "remove" might not be called if "probe" failed */
-	if (params_initialized) {
+	if (params_initialized)
 		uclogic_params_cleanup(&drvdata->params);
-	}
 	return rc;
 }
 
@@ -249,11 +248,10 @@ static int uclogic_resume(struct hid_device *hdev)
 
 	/* Re-initialize the device, but discard parameters */
 	rc = uclogic_params_init(&params, hdev);
-	if (rc != 0) {
+	if (rc != 0)
 		hid_err(hdev, "failed to re-initialize the device\n");
-	} else {
+	else
 		uclogic_params_cleanup(&params);
-	}
 
 	return rc;
 }
