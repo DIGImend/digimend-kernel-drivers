@@ -597,8 +597,7 @@ static __u8 *kye_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 			rdesc[71] == 0x75 && rdesc[72] == 0x08 &&
 			rdesc[73] == 0x95 && rdesc[74] == 0x01) {
 			hid_info(hdev,
-				 "fixing up Kye/Genius Ergo Mouse "
-				 "report descriptor\n");
+				 "fixing up Kye/Genius Ergo Mouse report descriptor\n");
 			rdesc[62] = 0x09;
 			rdesc[64] = 0x04;
 			rdesc[66] = 0x07;

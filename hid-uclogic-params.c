@@ -164,17 +164,14 @@ static int uclogic_params_pen_init_v1(struct uclogic_params_pen *pen,
 	rc = uclogic_params_get_str_desc(&buf, hdev, 100, len);
 	if (rc == -EPIPE) {
 		hid_dbg(hdev,
-			"string descriptor with pen parameters not found, "
-			"assuming not compatible\n");
+			"string descriptor with pen parameters not found, assuming not compatible\n");
 		goto finish;
 	} else if (rc < 0) {
 		hid_err(hdev, "failed retrieving pen parameters: %d\n", rc);
 		goto cleanup;
 	} else if (rc != len) {
 		hid_dbg(hdev,
-			"string descriptor with pen parameters has "
-			"invalid length (got %d, expected %d), "
-			"assuming not compatible\n",
+			"string descriptor with pen parameters has invalid length (got %d, expected %d), assuming not compatible\n",
 			rc, len);
 		goto finish;
 	}
@@ -295,17 +292,14 @@ static int uclogic_params_pen_init_v2(struct uclogic_params_pen *pen,
 	rc = uclogic_params_get_str_desc(&buf, hdev, 200, len);
 	if (rc == -EPIPE) {
 		hid_dbg(hdev,
-			"string descriptor with pen parameters not found, "
-			"assuming not compatible\n");
+			"string descriptor with pen parameters not found, assuming not compatible\n");
 		goto finish;
 	} else if (rc < 0) {
 		hid_err(hdev, "failed retrieving pen parameters: %d\n", rc);
 		goto cleanup;
 	} else if (rc != len) {
 		hid_dbg(hdev,
-			"string descriptor with pen parameters has "
-			"invalid length (got %d, expected %d), "
-			"assuming not compatible\n",
+			"string descriptor with pen parameters has invalid length (got %d, expected %d), assuming not compatible\n",
 			rc, len);
 		goto finish;
 	} else {
@@ -321,9 +315,7 @@ static int uclogic_params_pen_init_v2(struct uclogic_params_pen *pen,
 		     i += 2);
 		if (i >= len) {
 			hid_dbg(hdev,
-				"string descriptor with pen parameters "
-				"seems to contain only text, "
-				"assuming not compatible\n");
+				"string descriptor with pen parameters seems to contain only text, assuming not compatible\n");
 			goto finish;
 		}
 	}
@@ -478,13 +470,14 @@ static int uclogic_params_frame_init_v1_buttonpad(
 
 	rc = usb_string(usb_dev, 123, str_buf, str_len);
 	if (rc == -EPIPE) {
-		hid_dbg(hdev, "generic button -enabling string descriptor "
-				"not found\n");
+		hid_dbg(hdev,
+			"generic button -enabling string descriptor not found\n");
 	} else if (rc < 0) {
 		goto cleanup;
 	} else if (strncmp(str_buf, "HK On", rc) != 0) {
-		hid_dbg(hdev, "invalid response to enabling generic "
-				"buttons: \"%s\"\n", str_buf);
+		hid_dbg(hdev,
+			"invalid response to enabling generic buttons: \"%s\"\n",
+			str_buf);
 	} else {
 		hid_dbg(hdev, "generic buttons enabled\n");
 		rc = uclogic_params_frame_init_with_desc(
@@ -652,8 +645,8 @@ static int uclogic_params_init_with_opt_desc(struct uclogic_params *params,
 
 	/* Replace report descriptor, if it matches */
 	if (hdev->dev_rsize == orig_desc_size) {
-		hid_dbg(hdev, "device report descriptor matches "
-				"the expected size, replacing\n");
+		hid_dbg(hdev,
+			"device report descriptor matches the expected size, replacing\n");
 		desc_copy_ptr = kmemdup(desc_ptr, desc_size, GFP_KERNEL);
 		if (desc_copy_ptr == NULL) {
 			rc = -ENOMEM;
@@ -662,8 +655,7 @@ static int uclogic_params_init_with_opt_desc(struct uclogic_params *params,
 		desc_copy_size = desc_size;
 	} else {
 		hid_dbg(hdev,
-			"device report descriptor doesn't match "
-			"the expected size (%u != %u), preserving\n",
+			"device report descriptor doesn't match the expected size (%u != %u), preserving\n",
 			hdev->dev_rsize, orig_desc_size);
 		desc_copy_ptr = NULL;
 		desc_copy_size = 0;
@@ -756,8 +748,8 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 
 	/* If this is a transition firmware */
 	if (strcmp(ver_ptr, transition_ver) == 0) {
-		hid_dbg(hdev, "transition firmware detected, "
-				"not probing pen v2 parameters\n");
+		hid_dbg(hdev,
+			"transition firmware detected, not probing pen v2 parameters\n");
 	} else {
 		/* Try to probe v2 pen parameters */
 		rc = uclogic_params_pen_init_v2(&p.pen, &found, hdev);
@@ -774,8 +766,9 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 					uclogic_rdesc_buttonpad_v2_size,
 					UCLOGIC_RDESC_BUTTONPAD_V2_ID);
 			if (rc != 0) {
-				hid_err(hdev, "failed creating v2 buttonpad "
-					"parameters: %d\n", rc);
+				hid_err(hdev,
+					"failed creating v2 buttonpad parameters: %d\n",
+					rc);
 				goto cleanup;
 			}
 			/* Set bitmask marking frame reports in pen reports */
@@ -798,8 +791,7 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 						&p.frame,
 						&found, hdev);
 		if (rc != 0) {
-			hid_err(hdev, "v1 buttonpad probing "
-				"failed: %d\n", rc);
+			hid_err(hdev, "v1 buttonpad probing failed: %d\n", rc);
 			goto cleanup;
 		}
 		hid_dbg(hdev, "buttonpad v1 parameters%s found\n",
@@ -1066,8 +1058,9 @@ int uclogic_params_init(struct uclogic_params *params,
 				uclogic_rdesc_ugee_g5_frame_size,
 				UCLOGIC_RDESC_UGEE_G5_FRAME_ID);
 			if (rc != 0) {
-				hid_err(hdev, "failed creating buttonpad "
-					"parameters: %d\n", rc);
+				hid_err(hdev,
+					"failed creating buttonpad parameters: %d\n",
+					rc);
 				goto cleanup;
 			}
 			p.frame.re_lsb =
@@ -1099,8 +1092,9 @@ int uclogic_params_init(struct uclogic_params *params,
 				uclogic_rdesc_ugee_ex07_buttonpad_size,
 				0);
 			if (rc != 0) {
-				hid_err(hdev, "failed creating buttonpad "
-					"parameters: %d\n", rc);
+				hid_err(hdev,
+					"failed creating buttonpad parameters: %d\n",
+					rc);
 				goto cleanup;
 			}
 		} else {

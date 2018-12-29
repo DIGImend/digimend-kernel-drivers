@@ -216,8 +216,9 @@ static int uclogic_probe(struct hid_device *hdev,
 				     &drvdata->desc_ptr,
 				     &drvdata->desc_size);
 	if (rc) {
-		hid_err(hdev, "failed generating replacement "
-				"report descriptor: %d\n", rc);
+		hid_err(hdev,
+			"failed generating replacement report descriptor: %d\n",
+			rc);
 		goto failure;
 	}
 
