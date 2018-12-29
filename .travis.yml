@@ -11,7 +11,7 @@ before_install:
 before_script:
     - git clone --quiet --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git ../linux
 script:
-    - "PYTHONIOENCODING=UTF-8 ../linux/scripts/checkpatch.pl --ignore COMPLEX_MACRO,TRAILING_STATEMENTS --show-types -f *.[hc] | tee ../checkpatch.log || [ $? == 1 ] && ! grep -q '^\(ERROR\|ImportError\):' ../checkpatch.log"
+    - "PYTHONIOENCODING=UTF-8 ../linux/scripts/checkpatch.pl --ignore COMPLEX_MACRO,TRAILING_STATEMENTS --show-types -f *.[hc] | tee ../checkpatch.log || [ $? == 1 ] && ! grep -q '^\\(ERROR\\|ImportError\\):' ../checkpatch.log"
     - make C=1 W=1 KCFLAGS=-Werror
     # Testing dkms install/uninstall
     - sudo make dkms_install
