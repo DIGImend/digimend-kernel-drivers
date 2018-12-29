@@ -37,7 +37,7 @@
 /*
  * Define a replacement of timer_setup found in newer kernels.
  * NOTE Casting function pointers like this is a dirty hack,
- * 	but will probably work, and should do for now.
+ *	but will probably work, and should do for now.
  */
 #define timer_setup(timer, callback, flags) \
 	__setup_timer((timer), (void (*)(unsigned long))(callback), \

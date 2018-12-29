@@ -69,8 +69,8 @@ extern __u8 uclogic_rdesc_twhl850_fixed2_arr[];
 extern const size_t uclogic_rdesc_twhl850_fixed2_size;
 
 /* Size of the original descriptors of TWHA60 tablet */
-#define UCLOGIC_RDESC_TWHA60_ORIG0_SIZE 	254
-#define UCLOGIC_RDESC_TWHA60_ORIG1_SIZE 	139
+#define UCLOGIC_RDESC_TWHA60_ORIG0_SIZE		254
+#define UCLOGIC_RDESC_TWHA60_ORIG1_SIZE		139
 
 /* Fixed TWHA60 report descriptor, interface 0 (stylus) */
 extern __u8 uclogic_rdesc_twha60_fixed0_arr[];

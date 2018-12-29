@@ -26,7 +26,7 @@
  * @inrange:	The in-range reporting type to convert.
  *
  * Returns:
- * 	The string representing the type, or NULL if the type is unknown.
+ *	The string representing the type, or NULL if the type is unknown.
  */
 const char *uclogic_params_pen_inrange_to_str(
 			enum uclogic_params_pen_inrange inrange)
@@ -49,16 +49,16 @@ const char *uclogic_params_pen_inrange_to_str(
  * character encoding conversion.
  *
  * @pbuf:	Location for the kmalloc-allocated buffer pointer containing
- * 		the retrieved descriptor. Not modified in case of error.
- * 		Can be NULL to have retrieved descriptor discarded.
+ *		the retrieved descriptor. Not modified in case of error.
+ *		Can be NULL to have retrieved descriptor discarded.
  * @hdev:	The HID device of the tablet interface to retrieve the string
- * 		descriptor from. Cannot be NULL.
+ *		descriptor from. Cannot be NULL.
  * @idx:	Index of the string descriptor to request from the device.
  * @len:	Length of the buffer to allocate and the data to retrieve.
  *
  * Returns:
- * 	number of bytes retrieved (<= len),
- * 	-EPIPE, if the descriptor was not found, or
+ *	number of bytes retrieved (<= len),
+ *	-EPIPE, if the descriptor was not found, or
  *	another negative errno code in case of other error.
  */
 static int uclogic_params_get_str_desc(__u8 **pbuf, struct hid_device *hdev,
@@ -122,17 +122,17 @@ static void uclogic_params_pen_cleanup(struct uclogic_params_pen *pen)
  * uclogic_params_pen_init_v1() - initialize tablet interface pen
  * input and retrieve its parameters from the device, using v1 protocol.
  *
- * @pen: 	Pointer to the pen parameters to initialize (to be
- * 		cleaned up with uclogic_params_pen_cleanup()). Not modified in
- * 		case of error, or if parameters are not found. Cannot be NULL.
+ * @pen:	Pointer to the pen parameters to initialize (to be
+ *		cleaned up with uclogic_params_pen_cleanup()). Not modified in
+ *		case of error, or if parameters are not found. Cannot be NULL.
  * @pfound:	Location for a flag which is set to true if the parameters
- * 		were found, and to false if not (e.g. device was
- * 		incompatible). Not modified in case of error. Cannot be NULL.
+ *		were found, and to false if not (e.g. device was
+ *		incompatible). Not modified in case of error. Cannot be NULL.
  * @hdev:	The HID device of the tablet interface to initialize and get
- * 		parameters from. Cannot be NULL.
+ *		parameters from. Cannot be NULL.
  *
  * Returns:
- * 	Zero, if successful. A negative errno code on error.
+ *	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_pen_init_v1(struct uclogic_params_pen *pen,
 					bool *pfound,
@@ -238,7 +238,7 @@ cleanup:
  * @p:	The pointer to the number buffer.
  *
  * Returns:
- * 	The retrieved number
+ *	The retrieved number
  */
 static s32 uclogic_params_get_le24(const void *p)
 {
@@ -250,17 +250,17 @@ static s32 uclogic_params_get_le24(const void *p)
  * uclogic_params_pen_init_v2() - initialize tablet interface pen
  * input and retrieve its parameters from the device, using v2 protocol.
  *
- * @pen: 	Pointer to the pen parameters to initialize (to be
- * 		cleaned up with uclogic_params_pen_cleanup()). Not modified in
- * 		case of error, or if parameters are not found. Cannot be NULL.
+ * @pen:	Pointer to the pen parameters to initialize (to be
+ *		cleaned up with uclogic_params_pen_cleanup()). Not modified in
+ *		case of error, or if parameters are not found. Cannot be NULL.
  * @pfound:	Location for a flag which is set to true if the parameters
- * 		were found, and to false if not (e.g. device was
- * 		incompatible). Not modified in case of error. Cannot be NULL.
+ *		were found, and to false if not (e.g. device was
+ *		incompatible). Not modified in case of error. Cannot be NULL.
  * @hdev:	The HID device of the tablet interface to initialize and get
- * 		parameters from. Cannot be NULL.
+ *		parameters from. Cannot be NULL.
  *
  * Returns:
- * 	Zero, if successful. A negative errno code on error.
+ *	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_pen_init_v2(struct uclogic_params_pen *pen,
 					bool *pfound,
@@ -393,16 +393,16 @@ static void uclogic_params_frame_cleanup(struct uclogic_params_frame *frame)
  * uclogic_params_frame_init_with_desc() - initialize tablet's frame control
  * parameters with a static report descriptor.
  *
- * @frame: 	Pointer to the frame parameters to initialize (to be cleaned
- * 		up with uclogic_params_frame_cleanup()). Not modified in case
- * 		of error. Cannot be NULL.
+ * @frame:	Pointer to the frame parameters to initialize (to be cleaned
+ *		up with uclogic_params_frame_cleanup()). Not modified in case
+ *		of error. Cannot be NULL.
  * @desc_ptr:	Report descriptor pointer. Can be NULL, if desc_size is zero.
  * @desc_size:	Report descriptor size.
  * @id:		Report ID used for frame reports, if they should be tweaked,
- * 		zero if not.
+ *		zero if not.
  *
  * Returns:
- * 	Zero, if successful. A negative errno code on error.
+ *	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_frame_init_with_desc(
 					struct uclogic_params_frame *frame,
@@ -430,17 +430,17 @@ static int uclogic_params_frame_init_with_desc(
  * uclogic_params_frame_init_v1_buttonpad() - initialize abstract buttonpad
  * on a v1 tablet interface.
  *
- * @frame: 	Pointer to the frame parameters to initialize (to be cleaned
- * 		up with uclogic_params_frame_cleanup()). Not modified in case
- * 		of error, or if parameters are not found. Cannot be NULL.
+ * @frame:	Pointer to the frame parameters to initialize (to be cleaned
+ *		up with uclogic_params_frame_cleanup()). Not modified in case
+ *		of error, or if parameters are not found. Cannot be NULL.
  * @pfound:	Location for a flag which is set to true if the parameters
- * 		were found, and to false if not (e.g. device was
- * 		incompatible). Not modified in case of error. Cannot be NULL.
+ *		were found, and to false if not (e.g. device was
+ *		incompatible). Not modified in case of error. Cannot be NULL.
  * @hdev:	The HID device of the tablet interface to initialize and get
- * 		parameters from. Cannot be NULL.
+ *		parameters from. Cannot be NULL.
  *
  * Returns:
- * 	Zero, if successful. A negative errno code on error.
+ *	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_frame_init_v1_buttonpad(
 					struct uclogic_params_frame *frame,
@@ -519,19 +519,19 @@ void uclogic_params_cleanup(struct uclogic_params *params)
  * Get a replacement report descriptor for a tablet's interface.
  *
  * @params:	The parameters of a tablet interface to get report
- * 		descriptor for. Cannot be NULL.
+ *		descriptor for. Cannot be NULL.
  * @pdesc:	Location for the resulting, kmalloc-allocated report
- * 		descriptor pointer, or for NULL, if there's no replacement
- * 		report descriptor. Not modified in case of error. Cannot be
- * 		NULL.
+ *		descriptor pointer, or for NULL, if there's no replacement
+ *		report descriptor. Not modified in case of error. Cannot be
+ *		NULL.
  * @psize:	Location for the resulting report descriptor size, not set if
- * 		there's no replacement report descriptor. Not modified in case
- * 		of error. Cannot be NULL.
+ *		there's no replacement report descriptor. Not modified in case
+ *		of error. Cannot be NULL.
  *
  * Returns:
- * 	Zero, if successful.
- * 	-EINVAL, if invalid arguments are supplied.
- * 	-ENOMEM, if failed to allocate memory.
+ *	Zero, if successful.
+ *	-EINVAL, if invalid arguments are supplied.
+ *	-ENOMEM, if failed to allocate memory.
  */
 int uclogic_params_get_desc(const struct uclogic_params *params,
 				__u8 **pdesc,
@@ -597,8 +597,8 @@ int uclogic_params_get_desc(const struct uclogic_params *params,
  * uclogic_params_init_invalid() - initialize tablet interface parameters,
  * specifying the interface is invalid.
  *
- * @params: 		Parameters to initialize (to be cleaned with
- * 			uclogic_params_cleanup()). Cannot be NULL.
+ * @params:		Parameters to initialize (to be cleaned with
+ *			uclogic_params_cleanup()). Cannot be NULL.
  */
 static void uclogic_params_init_invalid(struct uclogic_params *params)
 {
@@ -611,20 +611,20 @@ static void uclogic_params_init_invalid(struct uclogic_params *params)
  * report descriptor, if the original report descriptor matches the expected
  * size.
  *
- * @params: 		Parameters to initialize (to be cleaned with
- * 			uclogic_params_cleanup()). Not modified in case of
- * 			error. Cannot be NULL.
+ * @params:		Parameters to initialize (to be cleaned with
+ *			uclogic_params_cleanup()). Not modified in case of
+ *			error. Cannot be NULL.
  * @hdev:		The HID device of the tablet interface create the
- * 			parameters for. Cannot be NULL.
+ *			parameters for. Cannot be NULL.
  * @orig_desc_size:	Expected size of the original report descriptor to
- * 			be replaced.
+ *			be replaced.
  * @desc_ptr:		Pointer to the replacement report descriptor.
- * 			Can be NULL, if desc_size is zero.
+ *			Can be NULL, if desc_size is zero.
  * @desc_size:		Size of the replacement report descriptor.
  *
  * Returns:
- * 	Zero, if successful. -EINVAL if an invalid argument was passed.
- * 	-ENOMEM, if failed to allocate memory.
+ *	Zero, if successful. -EINVAL if an invalid argument was passed.
+ *	-ENOMEM, if failed to allocate memory.
  */
 static int uclogic_params_init_with_opt_desc(struct uclogic_params *params,
 					     struct hid_device *hdev,
@@ -678,9 +678,9 @@ cleanup:
  * parameters preserving original reports and generic HID processing, but
  * disabling pen usage.
  *
- * @params: 		Parameters to initialize (to be cleaned with
- * 			uclogic_params_cleanup()). Not modified in case of
- * 			error. Cannot be NULL.
+ * @params:		Parameters to initialize (to be cleaned with
+ *			uclogic_params_cleanup()). Not modified in case of
+ *			error. Cannot be NULL.
  */
 static void uclogic_params_init_with_pen_unused(struct uclogic_params *params)
 {
@@ -692,13 +692,13 @@ static void uclogic_params_init_with_pen_unused(struct uclogic_params *params)
  * uclogic_params_init() - initialize a Huion tablet interface and discover
  * its parameters.
  *
- * @params: 	Parameters to fill in (to be cleaned with uclogic_params_cleanup()).
- * 		Not modified in case of error. Cannot be NULL.
+ * @params:	Parameters to fill in (to be cleaned with uclogic_params_cleanup()).
+ *		Not modified in case of error. Cannot be NULL.
  * @hdev:	The HID device of the tablet interface to initialize and get
- * 		parameters from. Cannot be NULL.
+ *		parameters from. Cannot be NULL.
  *
  * Returns:
- * 	Zero, if successful. A negative errno code on error.
+ *	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_huion_init(struct uclogic_params *params,
 				     struct hid_device *hdev)
@@ -821,13 +821,13 @@ cleanup:
  * uclogic_params_init() - initialize a tablet interface and discover its
  * parameters.
  *
- * @params: 	Parameters to fill in (to be cleaned with uclogic_params_cleanup()).
- * 		Not modified in case of error. Cannot be NULL.
+ * @params:	Parameters to fill in (to be cleaned with uclogic_params_cleanup()).
+ *		Not modified in case of error. Cannot be NULL.
  * @hdev:	The HID device of the tablet interface to initialize and get
- * 		parameters from. Cannot be NULL.
+ *		parameters from. Cannot be NULL.
  *
  * Returns:
- * 	Zero, if successful. A negative errno code on error.
+ *	Zero, if successful. A negative errno code on error.
  */
 int uclogic_params_init(struct uclogic_params *params,
 			struct hid_device *hdev)
@@ -867,17 +867,17 @@ int uclogic_params_init(struct uclogic_params *params,
 	 * Observe the following logic:
 	 *
 	 * If the interface is recognized as producing certain useful input:
-	 * 	Mark interface as valid.
-	 * 	Output interface parameters.
+	 *	Mark interface as valid.
+	 *	Output interface parameters.
 	 * Else, if the interface is recognized as *not* producing any useful
 	 * input:
-	 * 	Mark interface as invalid.
+	 *	Mark interface as invalid.
 	 * Else:
-	 * 	Mark interface as valid.
-	 * 	Output noop parameters.
+	 *	Mark interface as valid.
+	 *	Output noop parameters.
 	 *
 	 * Rule of thumb: it is better to disable a broken interface than let
-	 * 		  it spew garbage input.
+	 *		  it spew garbage input.
 	 */
 
 	switch (VID_PID(hdev->vendor, hdev->product)) {

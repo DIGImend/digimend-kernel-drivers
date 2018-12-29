@@ -645,7 +645,7 @@ const size_t uclogic_rdesc_pen_v2_template_size =
  * Expand to the contents of a generic buttonpad report descriptor.
  *
  * @_padding:	Padding from the end of button bits at bit 44, until
- * 		the end of the report, in bits.
+ *		the end of the report, in bits.
  */
 #define UCLOGIC_RDESC_BUTTONPAD_BYTES(_padding) \
 	0x05, 0x01,     /*  Usage Page (Desktop),               */ \
@@ -830,8 +830,8 @@ const size_t uclogic_rdesc_xppen_deco01_frame_size =
  * @param_num:		Number of parameters in the list.
  *
  * Returns:
- * 	Kmalloc-allocated pointer to the created report descriptor,
- * 	or NULL if allocation failed.
+ *	Kmalloc-allocated pointer to the created report descriptor,
+ *	or NULL if allocation failed.
  */
 __u8 *uclogic_rdesc_template_apply(const __u8 *template_ptr,
 				   size_t template_size,
