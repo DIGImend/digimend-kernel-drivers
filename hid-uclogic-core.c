@@ -78,6 +78,7 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 					unsigned int *rsize)
 {
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
+
 	if (drvdata->desc_ptr != NULL) {
 		rdesc = drvdata->desc_ptr;
 		*rsize = drvdata->desc_size;
@@ -330,6 +331,7 @@ static int uclogic_raw_event(struct hid_device *hdev,
 		    params->frame.re_lsb / 8 < size) {
 			unsigned byte = params->frame.re_lsb / 8;
 			unsigned bit = params->frame.re_lsb % 8;
+
 			u8 change;
 			u8 prev_state = drvdata->re_state;
 			/* Read Gray-coded state */
@@ -358,6 +360,7 @@ static int uclogic_raw_event(struct hid_device *hdev,
 static void uclogic_remove(struct hid_device *hdev)
 {
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
+
 	del_timer_sync(&drvdata->inrange_timer);
 	hid_hw_stop(hdev);
 	kfree(drvdata->desc_ptr);
