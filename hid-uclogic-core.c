@@ -104,7 +104,7 @@ static int uclogic_input_mapping(struct hid_device *hdev,
 	return 0;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 4, 0)
+#if KERNEL_VERSION(4, 4, 0) > LINUX_VERSION_CODE
 #define RETURN_SUCCESS return
 static void uclogic_input_configured(struct hid_device *hdev,
 		struct hid_input *hi)
