@@ -13,7 +13,8 @@ website][website].
 
 Consider [becoming a patron][patreon_pledge] of the [project
 maintainer][patreon_profile] to help make more tablets work with Linux.
-You can also [support the maintainer on Liberapay][liberapay_profile].
+You can also [support the maintainer on Liberapay][liberapay_profile], or you
+can [buy him a coffee][buymeacoffee_profile]!
 
 Installing
 ----------
@@ -315,6 +316,7 @@ to ask for help, and to help others!
 [patreon_profile]: https://www.patreon.com/spbnick
 [patreon_pledge]: https://www.patreon.com/bePatron?c=930980
 [liberapay_profile]: https://liberapay.com/spbnick/
+[buymeacoffee_profile]: https://www.buymeacoffee.com/spbnick
 [dkms_issue1_pr]: https://github.com/dell/dkms/pull/47
 [dkms_issue2_pr]: https://github.com/dell/dkms/pull/66
 [secure_boot]: https://en.wikipedia.org/wiki/Unified_Extensible_Firmware_Interface#Secure_boot
