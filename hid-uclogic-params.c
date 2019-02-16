@@ -135,8 +135,8 @@ static void uclogic_params_pen_cleanup(struct uclogic_params_pen *pen)
  *	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_pen_init_v1(struct uclogic_params_pen *pen,
-					bool *pfound,
-					struct hid_device *hdev)
+				      bool *pfound,
+				      struct hid_device *hdev)
 {
 	int rc;
 	bool found = false;
