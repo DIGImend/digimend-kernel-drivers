@@ -16,9 +16,7 @@
 #include <linux/device.h>
 #include <linux/hid.h>
 #include <linux/module.h>
-#include <linux/usb.h>
 #include <linux/timer.h>
-#include <asm/unaligned.h>
 #include "usbhid/usbhid.h"
 #include "hid-uclogic-params.h"
 
