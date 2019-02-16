@@ -2,10 +2,15 @@ language: c
 sudo: required
 compiler:
     - gcc
-os: linux
+matrix:
+    include:
+        - os: linux
+          dist: xenial
+        - os: linux
+          dist: trusty
 before_install:
     - sudo apt-get -qq update
-    - sudo apt-get install -y dpkg-dev debhelper dkms lintian sparse
+    - sudo apt-get install -y dpkg-dev debhelper dkms lintian sparse fakeroot
     - sudo apt-get install linux-headers-`uname -r`
     - pip install --user ply GitPython
 before_script:
