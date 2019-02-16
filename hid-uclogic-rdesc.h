@@ -135,13 +135,13 @@ extern const size_t uclogic_rdesc_buttonpad_v2_size;
 extern const __u8 uclogic_rdesc_ugee_ex07_buttonpad_arr[];
 extern const size_t uclogic_rdesc_ugee_ex07_buttonpad_size;
 
-/* Fixed report descriptor for Ugee G5 frame controls */
-extern const __u8 uclogic_rdesc_ugee_g5_frame_arr[];
-extern const size_t uclogic_rdesc_ugee_g5_frame_size;
-
 /* Fixed report descriptor for XP-Pen Deco 01 frame controls */
 extern const __u8 uclogic_rdesc_xppen_deco01_frame_arr[];
 extern const size_t uclogic_rdesc_xppen_deco01_frame_size;
+
+/* Fixed report descriptor for Ugee G5 frame controls */
+extern const __u8 uclogic_rdesc_ugee_g5_frame_arr[];
+extern const size_t uclogic_rdesc_ugee_g5_frame_size;
 
 /* Report ID of Ugee G5 frame control reports */
 #define UCLOGIC_RDESC_UGEE_G5_FRAME_ID 0x06
