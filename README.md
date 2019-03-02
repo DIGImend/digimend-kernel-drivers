@@ -307,7 +307,7 @@ If you have any problems with the drivers, look through [HOWTOs][howtos] on
 at [the issues page on GitHub][issues].
 
 If you find somebody has already reported your issue and it's not resolved
-yet, leave a thumbs-up (:thumbsup:) reaction on the first post in the issue.
+yet, leave a thumbs-up :thumbsup: reaction on the first post in the issue.
 This will let developers identify popular issues and pick them first for
 solving!
 
