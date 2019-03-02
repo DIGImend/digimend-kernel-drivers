@@ -304,9 +304,15 @@ Support
 
 If you have any problems with the drivers, look through [HOWTOs][howtos] on
 [the project website][website], and search for solutions and report new issues
-at [the issues page on GitHub][issues]. Join the [#DIGImend channel on
-irc.freenode.net][irc_channel] to discuss the drivers, tablets, development,
-to ask for help, and to help others!
+at [the issues page on GitHub][issues].
+
+If you find somebody has already reported your issue and it's not resolved
+yet, leave a thumbs-up (:thumbsup:) reaction on the first post in the issue.
+This will let developers identify popular issues and pick them first for
+solving!
+
+Join the [#DIGImend channel on irc.freenode.net][irc_channel] to discuss the
+drivers, tablets, development, to ask for help, and to help others!
 
 [travis_ci_badge]: https://travis-ci.org/DIGImend/digimend-kernel-drivers.svg?branch=master
 [travis_ci_page]: https://travis-ci.org/DIGImend/digimend-kernel-drivers
