@@ -396,7 +396,7 @@ static int uclogic_raw_event(struct hid_device *hdev,
 		    data[1] & params->pen_frame_flag) {
 			/* Change to virtual frame controls report ID */
 			data[0] = params->frame.id;
-			return 0;
+			return uclogic_raw_event_frame(drvdata, data, size);
 		}
 		return uclogic_raw_event_pen(drvdata, data, size);
 	}
