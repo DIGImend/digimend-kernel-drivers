@@ -30,6 +30,7 @@ static __u8 artist133_rdesc_fixed[] = {
     0xA1, 0x00,                     /*      Collection (Physical),          */
     0x09, 0x42,                     /*          Usage (Tip Switch),         */
     0x09, 0x44,                     /*          Usage (Barrel Switch),      */
+    // changed from eraser to tablet pick
     0x09, 0x46,                     /*          Usage (Tablet Pick),        */
     0x15, 0x00,                     /*          Logical Minimum (0),        */
     0x25, 0x01,                     /*          Logical Maximum (1),        */
