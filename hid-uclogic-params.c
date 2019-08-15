@@ -234,6 +234,87 @@ cleanup:
 }
 
 /**
+ * uclogic_params_pen_init_mast10() - initialize tablet interface pen
+ * input and retrieve its parameters from the device, using v1 protocol.
+ *
+ * @pen:	Pointer to the pen parameters to initialize (to be
+ *		cleaned up with uclogic_params_pen_cleanup()). Not modified in
+ *		case of error, or if parameters are not found. Cannot be NULL.
+ * @pfound:	Location for a flag which is set to true if the parameters
+ *		were found, and to false if not (e.g. device was
+ *		incompatible). Not modified in case of error. Cannot be NULL.
+ * @hdev:	The HID device of the tablet interface to initialize and get
+ *		parameters from. Cannot be NULL.
+ *
+ * Returns:
+ *	Zero, if successful. A negative errno code on error.
+ */
+static int uclogic_params_pen_init_mast10(struct uclogic_params_pen *pen,
+				      bool *pfound,
+				      struct hid_device *hdev)
+{
+	int rc;
+	bool found = false;
+	/* Buffer for (part of) the string descriptor */
+	__u8 *buf = NULL;
+	/* Minimum descriptor length required, maximum seen so far is 18 */
+	const int len = 12;
+	__u8 *desc_copy_ptr = NULL;
+
+	/* Check arguments */
+	if (pen == NULL || pfound == NULL || hdev == NULL) {
+		rc = -EINVAL;
+		goto cleanup;
+	}
+
+	/*
+	 * Read string descriptor containing pen input parameters.
+	 * The specific string descriptor and data were discovered by sniffing
+	 * the Windows driver traffic.
+	 * NOTE: This enables fully-functional tablet mode.
+	 */
+	rc = uclogic_params_get_str_desc(&buf, hdev, 100, len);
+	if (rc == -EPIPE) {
+		hid_dbg(hdev,
+			"string descriptor with pen parameters not found, assuming not compatible\n");
+		goto finish;
+	} else if (rc < 0) {
+		hid_err(hdev, "failed retrieving pen parameters: %d\n", rc);
+		goto cleanup;
+	} else if (rc != len) {
+		hid_dbg(hdev,
+			"string descriptor with pen parameters has invalid length (got %d, expected %d), assuming not compatible\n",
+			rc, len);
+		goto finish;
+	}
+
+	kfree(buf);
+	buf = NULL;
+
+	desc_copy_ptr = kmemdup(uclogic_rdesc_mast10_template_arr, uclogic_rdesc_mast10_template_size, GFP_KERNEL);
+	if (desc_copy_ptr == NULL) {
+		rc = -ENOMEM;
+		goto cleanup;
+	}
+
+	/*
+	 * Fill-in the parameters
+	 */
+	memset(pen, 0, sizeof(*pen));
+	pen->desc_ptr = desc_copy_ptr;
+	desc_copy_ptr = NULL;
+	pen->desc_size = uclogic_rdesc_mast10_template_size;
+	found = true;
+finish:
+	*pfound = found;
+	rc = 0;
+cleanup:
+	kfree(desc_copy_ptr);
+	kfree(buf);
+	return rc;
+}
+
+/**
  * uclogic_params_get_le24() - get a 24-bit little-endian number from a
  * buffer.
  *
@@ -989,6 +1070,19 @@ int uclogic_params_init(struct uclogic_params *params,
 		     USB_DEVICE_ID_HUION_TABLET):
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_YIYNOVA_TABLET):
+		if (hdev->dev_rsize == UCLOGIC_RDESC_MAST10_ORIG0_SIZE &&
+			bInterfaceNumber == 0) {
+			rc = uclogic_params_pen_init_mast10(&p.pen, &found, hdev);
+			if (rc != 0) {
+				hid_err(hdev, "pen probing failed: %d\n", rc);
+				goto cleanup;
+			}
+			if (!found) {
+				hid_warn(hdev, "pen parameters not found");
+				uclogic_params_init_invalid(&p);
+			}
+			break;
+		}
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_81):
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,

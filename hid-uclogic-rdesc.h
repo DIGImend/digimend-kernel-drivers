@@ -152,4 +152,11 @@ extern const size_t uclogic_rdesc_ugee_g5_frame_size;
 /* Least-significant bit of Ugee G5 frame rotary encoder state */
 #define UCLOGIC_RDESC_UGEE_G5_FRAME_RE_LSB 38
 
+/* Size of the original descriptors of Mast10 tablet */
+#define UCLOGIC_RDESC_MAST10_ORIG0_SIZE 192
+
+/* Fixed report descriptor for Mast10 tablet */
+extern __u8 uclogic_rdesc_mast10_fixed0_arr[];
+extern const size_t uclogic_rdesc_mast10_fixed0_size;
+
 #endif /* _HID_UCLOGIC_RDESC_H */
