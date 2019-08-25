@@ -908,16 +908,16 @@ const __u8 uclogic_rdesc_xppen_a156p_frame_arr[] = {
 	0x75, 0x01,         /*          Report Size (1),            */
 	0x95, 0x08,         /*          Report Count (8),           */
 	0x81, 0x01,         /*          Input (Constant),           */
-	0x05, 0x09,         /*          Usage Page (Button),        */ 
-	0x19, 0x01,         /*          Usage Minimum (01h),        */ 
-	0x29, 0x08,         /*          Usage Maximum (08h),        */ 
-	0x95, 0x08,         /*          Report Count (8),          */ 
+	0x05, 0x07,         /*          Usage Page (Keypad),        */
+	0x19, 0x3A,         /*          Usage Minimum (F1h),        */
+	0x29, 0x41,         /*          Usage Maximum (F8h),        */
+	0x95, 0x08,         /*          Report Count (8),           */
 	0x81, 0x02,         /*          Input (Variable),           */
 	0x95, 0x20,         /*          Report Count (32),           */
 	0x81, 0x01,         /*          Input (Constant),           */
-	0x19, 0x09,         /*          Usage Minimum (09h),        */ 
-	0x29, 0x0A,         /*          Usage Maximum (0Ah),        */ 
-	0x95, 0x02,         /*          Report Count (2),          */ 
+	0x19, 0x42,         /*          Usage Minimum (F9h),        */
+	0x29, 0x43,         /*          Usage Maximum (F10h),        */
+	0x95, 0x02,         /*          Report Count (2),          */
 	0x81, 0x02,         /*          Input (Variable),           */
 	0x95, 0x16,         /*          Report Count (22),           */
 	0x81, 0x01,         /*          Input (Constant),           */
