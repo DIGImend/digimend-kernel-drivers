@@ -24,6 +24,7 @@
 
 #include "compat.h"
 #include <linux/version.h>
+#include <asm/unaligned.h>
 
 /* Driver data */
 struct uclogic_drvdata {
@@ -354,6 +355,41 @@ static int uclogic_raw_event(struct hid_device *hdev,
 					(change << bit);
 			/* Remember state */
 			drvdata->re_state = state;
+		}
+	}
+
+	/* A156P tilt compensation */
+	if(hdev->product == USB_DEVICE_ID_UGEE_XPPEN_TABLET_A156P && 
+		hdev->vendor == USB_VENDOR_ID_UGEE) {
+		const u16 tangents[] = {
+			3, 7, 10, 14, 17, 21, 24, 27, 31, 34, 37, 41, 44, 47, 50, 54, 57, 60, 64, 67,
+			70, 74, 77, 81, 84, 88, 91, 95, 98, 102, 106, 109, 113, 117, 121, 125, 129,
+			133, 137, 142, 146, 151, 155, 160, 165, 170, 175, 180, 186, 192, 198, 204,
+			210, 217, 224, 232, 239, 248, 256, 265, 275, 285, 296, 308
+		};
+		s8 tilt = data[8];
+		s8 abs_tilt;
+		s32 skew;
+
+		if(tilt != 0) {
+			abs_tilt = abs(tilt);
+			skew = get_unaligned_le16(&data[2]) - (tilt / abs_tilt) * tangents[abs_tilt];
+			if(skew < 0)
+				skew = 0;
+			else if(skew > 34419)
+				skew = 34419;
+			put_unaligned_le16(skew, &data[2]);
+		}
+
+		tilt = data[9];
+		if(tilt != 0) {
+			abs_tilt = abs(tilt);
+			skew = get_unaligned_le16(&data[4]) - (tilt / abs_tilt) * tangents[abs_tilt];
+			if(skew < 0)
+				skew = 0;
+			else if(skew > 19461)
+				skew = 19461;
+			put_unaligned_le16(skew, &data[4]);
 		}
 	}
 
