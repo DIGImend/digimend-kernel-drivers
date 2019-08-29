@@ -371,41 +371,43 @@ static int uclogic_raw_event(struct hid_device *hdev,
 		const s32 discriminant = 7071068;
 		s8 tx = data[8];
 		s8 ty = data[9];
-		s8 abs_tx = abs(tx);
-		s8 abs_ty = abs(ty);
-		s32 width, height;
+		s8 abs_tilt;
+		s32 skew;
 
 		if(tx != 0 && ty != 0) {
-			width = get_unaligned_le16(&data[2]) - 
-				(tx / abs_tx) * tangents[abs_tx] * discriminant / 10000000;
-			height = get_unaligned_le16(&data[4]) - 
-				(ty / abs_ty) * tangents[abs_ty] * discriminant / 10000000;
+			abs_tilt = abs(tx);
+			skew = get_unaligned_le16(&data[2]) -
+				(tx / abs_tilt) * tangents[abs_tilt] * discriminant / 10000000;
+			if(skew < 0)
+				skew = 0;
+			if (skew > 34419) 
+				skew = 34419;
+			put_unaligned_le16(skew, &data[2]);
 
-			if(width < 0)
-				width = 0;
-			if (width > 34419) 
-				width = 34419;
-			if(height < 0)
-				height = 0;
-			if(height > 19461)
-				height = 19461;
-
-			put_unaligned_le16(width, &data[2]);
-			put_unaligned_le16(height, &data[4]);
+			abs_tilt = abs(ty);
+			skew = get_unaligned_le16(&data[4]) -
+				(ty / abs_tilt) * tangents[abs_tilt] * discriminant / 10000000;
+			if(skew < 0)
+				skew = 0;
+			if(skew > 19461)
+				skew = 19461;
+			put_unaligned_le16(skew, &data[4]);
 		} else if (tx != 0) {
-			width = get_unaligned_le16(&data[2]) - (tx / abs_tx) * tangents[abs_tx];
-			if(width < 0)
-				width = 0;
-			else if(width > 34419)
-				width = 34419;
-			put_unaligned_le16(width, &data[2]);
+			abs_tilt = abs(tx);
+			skew = get_unaligned_le16(&data[2]) - (tx / abs_tilt) * tangents[abs_tilt];
+			if(skew < 0)
+				skew = 0;
+			else if(skew > 34419)
+				skew = 34419;
+			put_unaligned_le16(skew, &data[2]);
 		} else if (ty != 0) {
-			height = get_unaligned_le16(&data[4]) - (ty / abs_ty) * tangents[abs_ty];
-			if(height < 0)
-				height = 0;
-			else if(height > 19461)
-				height = 19461;
-			put_unaligned_le16(height, &data[4]);
+			abs_tilt = abs(ty);
+			skew = get_unaligned_le16(&data[4]) - (ty / abs_tilt) * tangents[abs_tilt];
+			if(skew < 0)
+				skew = 0;
+			else if(skew > 19461)
+				skew = 19461;
+			put_unaligned_le16(skew, &data[4]);
 		}
 	}
 
