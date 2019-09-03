@@ -901,7 +901,7 @@ const __u8 uclogic_rdesc_xppen_a156p_frame_arr[] = {
 	0xA1, 0x01,         /*  Collection (Application),           */
 	0x85, UCLOGIC_RDESC_BUTTONPAD_V1_ID,
 				/*      Report ID (Virtual report),     */
-	0x05, 0x0D,         /*      Usage Page (Digitizer),         */
+	0x05, 0x0D,         /*     Usage Page (Digitizer),           */
 	0x09, 0x39,         /*      Usage (Tablet Function Keys),   */
 	0xA0,                   /*      Collection (Physical),          */
 	0x14,                   /*          Logical Minimum (0),        */
