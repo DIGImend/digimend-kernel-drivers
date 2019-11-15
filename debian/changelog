@@ -1,3 +1,12 @@
+digimend-kernel (10-1) unstable; urgency=medium
+
+  * repackaged for Debian
+  * redefined this source package as "3.0 (quilt)" instead of native
+  * upgraded dh level to 11, Standards-Version to 4.4.0
+  * modified Vcs-Git and Vcs-Browser
+
+ -- Georges Khaznadar <georgesk@debian.org>  Fri, 15 Nov 2019 17:34:32 +0100
+
 digimend-dkms (10) unstable; urgency=low
 
   * Bump version number.

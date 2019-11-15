@@ -18,6 +18,8 @@ include /usr/share/dpkg/default.mk
 
 version := $(shell dpkg-parsechangelog --show-field Version | cut -d'-' -f1)
 
+PACKAGE = digimend-kernel
+
 # main packaging script based on dh7 syntax
 %:
 	dh $@ --with dkms
@@ -31,7 +33,7 @@ override_dh_auto_build:
 override_dh_auto_test:
 
 override_dh_auto_install:
-	$(MAKE) DESTDIR=$(CURDIR)/debian/digimend-dkms dkms_source_install udev_rules_install xorg_conf_install
+	$(MAKE) DESTDIR=$(CURDIR)/debian/$(PACKAGE) dkms_source_install udev_rules_install xorg_conf_install
 
 override_dh_dkms:
-	dh_dkms -p digimend-dkms -V -- dkms.conf
+	dh_dkms -p $(PACKAGE) -V -- dkms.conf
