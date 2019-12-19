@@ -19,7 +19,7 @@ DKMS_MODULES = $(DKMS_MODULES_NAME)/$(PACKAGE_VERSION)
 DKMS_SOURCE_DIR = $(DESTDIR)/usr/src/$(DKMS_MODULES_NAME)-$(PACKAGE_VERSION)
 
 modules modules_install clean:
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) $@
+	$(MAKE) -C $(KDIR) M=$(PWD) SUBDIRS=$(PWD) $@
 
 depmod_conf_install:
 	install -D -m 0644 depmod.conf $(DEPMOD_CONF)
