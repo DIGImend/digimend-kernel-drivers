@@ -8,6 +8,8 @@ matrix:
           dist: xenial
         - os: linux
           dist: trusty
+        - os: linux
+          dist: bionic
 before_install:
     - sudo apt-get -qq update
     - sudo apt-get install -y dpkg-dev debhelper dkms lintian sparse fakeroot
