@@ -676,8 +676,8 @@ cleanup:
 }
 
 /**
- * uclogic_params_init() - initialize a Huion tablet interface and discover
- * its parameters.
+ * uclogic_params_huion_init() - initialize a Huion tablet interface and
+ * discover its parameters.
  *
  * @params:	Parameters to fill in (to be cleaned with
  *		uclogic_params_cleanup()). Not modified in case of error.
