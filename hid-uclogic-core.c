@@ -370,7 +370,7 @@ static int uclogic_raw_event(struct hid_device *hdev,
 		return 0;
 	}
 
-	do {
+	while (true) {
 		/* Tweak pen reports, if necessary */
 		if ((report_id == params->pen.id) && (size >= 2)) {
 			subreport_list_end =
@@ -398,7 +398,9 @@ static int uclogic_raw_event(struct hid_device *hdev,
 		if (report_id == params->frame.id) {
 			return uclogic_raw_event_frame(drvdata, data, size);
 		}
-	} while (false);
+
+		break;
+	}
 
 	return 0;
 }
