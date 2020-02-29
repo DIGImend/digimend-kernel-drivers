@@ -652,11 +652,11 @@ const size_t uclogic_rdesc_pen_v2_template_size =
 			sizeof(uclogic_rdesc_pen_v2_template_arr);
 
 /**
- * Expand to the contents of a generic buttonpad report descriptor.
+ * Expand to the contents of a generic frame report descriptor.
  *
  * @_size:	Size of the report to pad to, including report ID, bytes.
  */
-#define UCLOGIC_RDESC_BUTTONPAD_BYTES(_size) \
+#define UCLOGIC_RDESC_FRAME_BYTES(_size) \
 	0x05, 0x01,     /*  Usage Page (Desktop),               */ \
 	0x09, 0x07,     /*  Usage (Keypad),                     */ \
 	0xA1, 0x01,     /*  Collection (Application),           */ \
@@ -697,22 +697,22 @@ const size_t uclogic_rdesc_pen_v2_template_size =
 	0xC0,           /*      End Collection,                 */ \
 	0xC0            /*  End Collection                      */
 
-/* Fixed report descriptor for (tweaked) v1 buttonpad reports */
-const __u8 uclogic_rdesc_buttonpad_v1_arr[] = {
-	UCLOGIC_RDESC_BUTTONPAD_BYTES(8)
+/* Fixed report descriptor for (tweaked) v1 frame reports */
+const __u8 uclogic_rdesc_frame_v1_arr[] = {
+	UCLOGIC_RDESC_FRAME_BYTES(8)
 };
-const size_t uclogic_rdesc_buttonpad_v1_size =
-			sizeof(uclogic_rdesc_buttonpad_v1_arr);
+const size_t uclogic_rdesc_frame_v1_size =
+			sizeof(uclogic_rdesc_frame_v1_arr);
 
-/* Fixed report descriptor for (tweaked) v2 buttonpad reports */
-const __u8 uclogic_rdesc_buttonpad_v2_arr[] = {
-	UCLOGIC_RDESC_BUTTONPAD_BYTES(12)
+/* Fixed report descriptor for (tweaked) v2 frame reports */
+const __u8 uclogic_rdesc_frame_v2_arr[] = {
+	UCLOGIC_RDESC_FRAME_BYTES(12)
 };
-const size_t uclogic_rdesc_buttonpad_v2_size =
-			sizeof(uclogic_rdesc_buttonpad_v2_arr);
+const size_t uclogic_rdesc_frame_v2_size =
+			sizeof(uclogic_rdesc_frame_v2_arr);
 
-/* Fixed report descriptor for Ugee EX07 buttonpad */
-const __u8 uclogic_rdesc_ugee_ex07_buttonpad_arr[] = {
+/* Fixed report descriptor for Ugee EX07 frame */
+const __u8 uclogic_rdesc_ugee_ex07_frame_arr[] = {
 	0x05, 0x01,             /*  Usage Page (Desktop),                   */
 	0x09, 0x07,             /*  Usage (Keypad),                         */
 	0xA1, 0x01,             /*  Collection (Application),               */
@@ -735,8 +735,8 @@ const __u8 uclogic_rdesc_ugee_ex07_buttonpad_arr[] = {
 	0xC0,                   /*      End Collection,                     */
 	0xC0                    /*  End Collection                          */
 };
-const size_t uclogic_rdesc_ugee_ex07_buttonpad_size =
-			sizeof(uclogic_rdesc_ugee_ex07_buttonpad_arr);
+const size_t uclogic_rdesc_ugee_ex07_frame_size =
+			sizeof(uclogic_rdesc_ugee_ex07_frame_arr);
 
 /* Fixed report descriptor for Ugee G5 frame controls */
 const __u8 uclogic_rdesc_ugee_g5_frame_arr[] = {

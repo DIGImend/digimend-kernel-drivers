@@ -430,8 +430,8 @@ static int uclogic_params_frame_init_with_desc(
 }
 
 /**
- * uclogic_params_frame_init_v1_buttonpad() - initialize abstract buttonpad
- * on a v1 tablet interface.
+ * uclogic_params_frame_init_v1() - initialize v1 tablet interface frame
+ * controls.
  *
  * @frame:	Pointer to the frame parameters to initialize (to be cleaned
  *		up with uclogic_params_frame_cleanup()). Not modified in case
@@ -445,8 +445,7 @@ static int uclogic_params_frame_init_with_desc(
  * Returns:
  *	Zero, if successful. A negative errno code on error.
  */
-static int uclogic_params_frame_init_v1_buttonpad(
-					struct uclogic_params_frame *frame,
+static int uclogic_params_frame_init_v1(struct uclogic_params_frame *frame,
 					bool *pfound,
 					struct hid_device *hdev)
 {
@@ -485,9 +484,9 @@ static int uclogic_params_frame_init_v1_buttonpad(
 		hid_dbg(hdev, "generic buttons enabled\n");
 		rc = uclogic_params_frame_init_with_desc(
 				frame,
-				uclogic_rdesc_buttonpad_v1_arr,
-				uclogic_rdesc_buttonpad_v1_size,
-				UCLOGIC_RDESC_BUTTONPAD_V1_ID);
+				uclogic_rdesc_frame_v1_arr,
+				uclogic_rdesc_frame_v1_size,
+				UCLOGIC_RDESC_FRAME_V1_ID);
 		if (rc != 0)
 			goto cleanup;
 		found = true;
@@ -742,22 +741,22 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 			goto cleanup;
 		} else if (found) {
 			hid_dbg(hdev, "pen v2 parameters found\n");
-			/* Create v2 buttonpad parameters */
+			/* Create v2 frame parameters */
 			rc = uclogic_params_frame_init_with_desc(
 					&p.frame,
-					uclogic_rdesc_buttonpad_v2_arr,
-					uclogic_rdesc_buttonpad_v2_size,
-					UCLOGIC_RDESC_BUTTONPAD_V2_ID);
+					uclogic_rdesc_frame_v2_arr,
+					uclogic_rdesc_frame_v2_size,
+					UCLOGIC_RDESC_FRAME_V2_ID);
 			if (rc != 0) {
 				hid_err(hdev,
-					"failed creating v2 buttonpad parameters: %d\n",
+					"failed creating v2 frame parameters: %d\n",
 					rc);
 				goto cleanup;
 			}
 			/* Link frame button subreports from pen reports */
 			p.pen.subreport_list[0].value = 0xe0;
 			p.pen.subreport_list[0].id =
-				UCLOGIC_RDESC_BUTTONPAD_V2_ID;
+				UCLOGIC_RDESC_FRAME_V2_ID;
 			goto output;
 		}
 		hid_dbg(hdev, "pen v2 parameters not found\n");
@@ -771,21 +770,20 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 		goto cleanup;
 	} else if (found) {
 		hid_dbg(hdev, "pen v1 parameters found\n");
-		/* Try to probe v1 buttonpad */
-		rc = uclogic_params_frame_init_v1_buttonpad(
-						&p.frame,
-						&found, hdev);
+		/* Try to probe v1 frame */
+		rc = uclogic_params_frame_init_v1(&p.frame,
+						  &found, hdev);
 		if (rc != 0) {
-			hid_err(hdev, "v1 buttonpad probing failed: %d\n", rc);
+			hid_err(hdev, "v1 frame probing failed: %d\n", rc);
 			goto cleanup;
 		}
-		hid_dbg(hdev, "buttonpad v1 parameters%s found\n",
+		hid_dbg(hdev, "frame v1 parameters%s found\n",
 			(found ? "" : " not"));
 		if (found) {
 			/* Link frame button subreports from pen reports */
 			p.pen.subreport_list[0].value = 0xe0;
 			p.pen.subreport_list[0].id =
-				UCLOGIC_RDESC_BUTTONPAD_V1_ID;
+				UCLOGIC_RDESC_FRAME_V1_ID;
 		}
 		goto output;
 	}
@@ -1054,7 +1052,7 @@ int uclogic_params_init(struct uclogic_params *params,
 				UCLOGIC_RDESC_UGEE_G5_FRAME_ID);
 			if (rc != 0) {
 				hid_err(hdev,
-					"failed creating buttonpad parameters: %d\n",
+					"failed creating frame parameters: %d\n",
 					rc);
 				goto cleanup;
 			}
@@ -1083,12 +1081,12 @@ int uclogic_params_init(struct uclogic_params *params,
 		} else if (found) {
 			rc = uclogic_params_frame_init_with_desc(
 				&p.frame,
-				uclogic_rdesc_ugee_ex07_buttonpad_arr,
-				uclogic_rdesc_ugee_ex07_buttonpad_size,
+				uclogic_rdesc_ugee_ex07_frame_arr,
+				uclogic_rdesc_ugee_ex07_frame_size,
 				0);
 			if (rc != 0) {
 				hid_err(hdev,
-					"failed creating buttonpad parameters: %d\n",
+					"failed creating frame parameters: %d\n",
 					rc);
 				goto cleanup;
 			}
