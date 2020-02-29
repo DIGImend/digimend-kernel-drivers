@@ -194,7 +194,7 @@ struct uclogic_params {
 	 * The list of frame control parameters and optional report descriptor
 	 * parts. Only valid, if "invalid" is false.
 	 */
-	struct uclogic_params_frame frame_list[1];
+	struct uclogic_params_frame frame_list[2];
 };
 
 /* Initialize a tablet interface and discover its parameters */
@@ -222,7 +222,16 @@ extern int uclogic_params_init(struct uclogic_params *params,
 		".frame_list[0].dev_id_byte = %u\n"             \
 		".frame_list[0].touch_ring_byte = %u\n"         \
 		".frame_list[0].touch_ring_max = %hhd\n"        \
-		".frame_list[0].touch_ring_flip_at = %hhd\n"
+		".frame_list[0].touch_ring_flip_at = %hhd\n"    \
+		".frame_list[1].desc_ptr = %p\n"                \
+		".frame_list[1].desc_size = %u\n"               \
+		".frame_list[1].id = %u\n"                      \
+		".frame_list[1].suffix = %s\n"                  \
+		".frame_list[1].re_lsb = %u\n"                  \
+		".frame_list[1].dev_id_byte = %u\n"             \
+		".frame_list[1].touch_ring_byte = %u\n"         \
+		".frame_list[1].touch_ring_max = %hhd\n"        \
+		".frame_list[1].touch_ring_flip_at = %hhd\n"
 
 /* Tablet interface parameters *printf format arguments */
 #define UCLOGIC_PARAMS_FMT_ARGS(_params) \
@@ -247,7 +256,16 @@ extern int uclogic_params_init(struct uclogic_params *params,
 		(_params)->frame_list[0].dev_id_byte,                       \
 		(_params)->frame_list[0].touch_ring_byte,                   \
 		(_params)->frame_list[0].touch_ring_max,                    \
-		(_params)->frame_list[0].touch_ring_flip_at
+		(_params)->frame_list[0].touch_ring_flip_at,                \
+		(_params)->frame_list[1].desc_ptr,                          \
+		(_params)->frame_list[1].desc_size,                         \
+		(_params)->frame_list[1].id,                                \
+		(_params)->frame_list[1].suffix,                            \
+		(_params)->frame_list[1].re_lsb,                            \
+		(_params)->frame_list[1].dev_id_byte,                       \
+		(_params)->frame_list[1].touch_ring_byte,                   \
+		(_params)->frame_list[1].touch_ring_max,                    \
+		(_params)->frame_list[1].touch_ring_flip_at
 
 /* Get a replacement report descriptor for a tablet's interface. */
 extern int uclogic_params_get_desc(const struct uclogic_params *params,
