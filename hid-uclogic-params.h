@@ -74,7 +74,7 @@ struct uclogic_params_pen {
 	/* Report ID, if reports should be tweaked, zero if not */
 	unsigned int id;
 	/* The list of subreports */
-	struct uclogic_params_pen_subreport subreport_list[1];
+	struct uclogic_params_pen_subreport subreport_list[2];
 	/* Type of in-range reporting, only valid if "id" is not zero */
 	enum uclogic_params_pen_inrange inrange;
 	/*
@@ -210,6 +210,7 @@ extern int uclogic_params_init(struct uclogic_params *params,
 		".pen.desc_size = %u\n"                         \
 		".pen.id = %u\n"                                \
 		".pen.subreport_list[0] = {0x%02hhx, %hhu}\n"   \
+		".pen.subreport_list[1] = {0x%02hhx, %hhu}\n"   \
 		".pen.inrange = %s\n"                           \
 		".pen.fragmented_hires = %s\n"                  \
 		".pen.tilt_y_flipped = %s\n"                    \
@@ -233,6 +234,8 @@ extern int uclogic_params_init(struct uclogic_params *params,
 		(_params)->pen.id,                                          \
 		(_params)->pen.subreport_list[0].value,                     \
 		(_params)->pen.subreport_list[0].id,                        \
+		(_params)->pen.subreport_list[1].value,                     \
+		(_params)->pen.subreport_list[1].id,                        \
 		uclogic_params_pen_inrange_to_str((_params)->pen.inrange),  \
 		((_params)->pen.fragmented_hires ? "true" : "false"),       \
 		((_params)->pen.tilt_y_flipped ? "true" : "false"),         \
