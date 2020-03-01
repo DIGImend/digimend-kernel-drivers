@@ -668,7 +668,15 @@ const size_t uclogic_rdesc_pen_v2_template_size =
 	0x05, 0x0D,     /*      Usage Page (Digitizer),         */ \
 	0x09, 0x39,     /*      Usage (Tablet Function Keys),   */ \
 	0xA0,           /*      Collection (Physical),          */ \
-	0x95, 0x18,     /*          Report Count (24),          */ \
+	0x09, 0x44,     /*          Usage (Barrel Switch),      */ \
+	0x95, 0x01,     /*          Report Count (1),           */ \
+	0x81, 0x02,     /*          Input (Variable),           */ \
+	0x05, 0x01,     /*          Usage Page (Desktop),       */ \
+	0x09, 0x30,     /*          Usage (X),                  */ \
+	0x09, 0x31,     /*          Usage (Y),                  */ \
+	0x95, 0x02,     /*          Report Count (2),           */ \
+	0x81, 0x02,     /*          Input (Variable),           */ \
+	0x95, 0x15,     /*          Report Count (21),          */ \
 	0x81, 0x01,     /*          Input (Constant),           */ \
 	0x05, 0x09,     /*          Usage Page (Button),        */ \
 	0x19, 0x01,     /*          Usage Minimum (01h),        */ \
@@ -757,8 +765,19 @@ const __u8 uclogic_rdesc_ugee_g5_frame_arr[] = {
 	0x75, 0x08,         /*          Report Size (8),            */
 	0x95, 0x01,         /*          Report Count (1),           */
 	0x81, 0x02,         /*          Input (Variable),           */
+	0x25, 0x01,         /*          Logical Maximum (1),        */
+	0x09, 0x44,         /*          Usage (Barrel Switch),      */
 	0x75, 0x01,         /*          Report Size (1),            */
-	0x95, 0x0E,         /*          Report Count (14),          */
+	0x95, 0x01,         /*          Report Count (1),           */
+	0x81, 0x02,         /*          Input (Variable),           */
+	0x05, 0x01,         /*          Usage Page (Desktop),       */
+	0x09, 0x30,         /*          Usage (X),                  */
+	0x09, 0x31,         /*          Usage (Y),                  */
+	0x75, 0x01,         /*          Report Size (1),            */
+	0x95, 0x02,         /*          Report Count (2),           */
+	0x81, 0x02,         /*          Input (Variable),           */
+	0x75, 0x01,         /*          Report Size (1),            */
+	0x95, 0x0B,         /*          Report Count (11),          */
 	0x81, 0x01,         /*          Input (Constant),           */
 	0x05, 0x01,         /*          Usage Page (Desktop),       */
 	0x09, 0x38,         /*          Usage (Wheel),              */
@@ -790,7 +809,16 @@ const __u8 uclogic_rdesc_xppen_deco01_frame_arr[] = {
 	0x29, 0x08, /*          Usage Maximum (08h),        */
 	0x95, 0x08, /*          Report Count (8),           */
 	0x81, 0x02, /*          Input (Variable),           */
-	0x95, 0x18, /*          Report Count (24),          */
+	0x05, 0x0D, /*          Usage Page (Digitizer),     */
+	0x09, 0x44, /*          Usage (Barrel Switch),      */
+	0x95, 0x01, /*          Report Count (1),           */
+	0x81, 0x02, /*          Input (Variable),           */
+	0x05, 0x01, /*          Usage Page (Desktop),       */
+	0x09, 0x30, /*          Usage (X),                  */
+	0x09, 0x31, /*          Usage (Y),                  */
+	0x95, 0x02, /*          Report Count (2),           */
+	0x81, 0x02, /*          Input (Variable),           */
+	0x95, 0x15, /*          Report Count (21),          */
 	0x81, 0x01, /*          Input (Constant),           */
 	0xC0,       /*      End Collection,                 */
 	0xC0        /*  End Collection                      */
