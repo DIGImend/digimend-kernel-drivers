@@ -713,12 +713,12 @@ const __u8 uclogic_rdesc_v2_frame_buttons_arr[] = {
 const size_t uclogic_rdesc_v2_frame_buttons_size =
 			sizeof(uclogic_rdesc_v2_frame_buttons_arr);
 
-/* Fixed report descriptor for (tweaked) v2 frame dial reports */
-const __u8 uclogic_rdesc_v2_frame_dial_arr[] = {
+/* Fixed report descriptor for (tweaked) v2 frame touch ring reports */
+const __u8 uclogic_rdesc_v2_frame_touch_ring_arr[] = {
 	0x05, 0x01,         /*  Usage Page (Desktop),               */
 	0x09, 0x07,         /*  Usage (Keypad),                     */
 	0xA1, 0x01,         /*  Collection (Application),           */
-	0x85, UCLOGIC_RDESC_V2_FRAME_DIAL_ID,
+	0x85, UCLOGIC_RDESC_V2_FRAME_TOUCH_RING_ID,
 			    /*      Report ID (DIAL_ID),            */
 	0x14,               /*      Logical Minimum (0),            */
 	0x05, 0x0D,         /*      Usage Page (Digitizer),         */
@@ -758,8 +758,8 @@ const __u8 uclogic_rdesc_v2_frame_dial_arr[] = {
 	0xC0,               /*      End Collection,                 */
 	0xC0                /*  End Collection                      */
 };
-const size_t uclogic_rdesc_v2_frame_dial_size =
-			sizeof(uclogic_rdesc_v2_frame_dial_arr);
+const size_t uclogic_rdesc_v2_frame_touch_ring_size =
+			sizeof(uclogic_rdesc_v2_frame_touch_ring_arr);
 
 /* Fixed report descriptor for Ugee EX07 frame */
 const __u8 uclogic_rdesc_ugee_ex07_frame_arr[] = {
