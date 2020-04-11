@@ -704,8 +704,12 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 		goto cleanup;
 	}
 
-	/* If it's not a pen interface */
-	if (bInterfaceNumber != 0) {
+	/* If it's a custom keyboard interface */
+	if (bInterfaceNumber == 1) {
+		/* Keep everything intact */
+		goto output;
+	/* Else, if it's not a pen interface */
+	} else if (bInterfaceNumber != 0) {
 		uclogic_params_init_invalid(&p);
 		goto output;
 	}
