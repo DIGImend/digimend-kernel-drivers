@@ -928,93 +928,94 @@ const size_t uclogic_rdesc_xppen_deco01_frame_size =
 
 /* Ignore everything but keyboard */
 
+
 __u8 uclogic_rdesc_xppen_deco01v2_fixed0_arr[] = {
-    0x05, 0x01,         /*  Usage Page (Desktop),               */
-    0x09, 0x06,         /*  Usage (Keyboard),                   */
-    0xA1, 0x01,         /*  Collection (Application),           */
-    0x85, 0x06,         /*      Report ID (6),                  */
-    0x05, 0x07,         /*      Usage Page (Keyboard),          */
-    0x19, 0xE0,         /*      Usage Minimum (KB Leftcontrol), */
-    0x29, 0xE7,         /*      Usage Maximum (KB Right GUI),   */
-    0x15, 0x00,         /*      Logical Minimum (0),            */
-    0x25, 0x01,         /*      Logical Maximum (1),            */
-    0x75, 0x01,         /*      Report Size (1),                */
-    0x95, 0x08,         /*      Report Count (8),               */
-    0x81, 0x02,         /*      Input (Variable),               */
+	0x05, 0x01,         /*  Usage Page (Desktop),               */
+	0x09, 0x06,         /*  Usage (Keyboard),                   */
+	0xA1, 0x01,         /*  Collection (Application),           */
+	0x85, 0x06,         /*      Report ID (6),                  */
+	0x05, 0x07,         /*      Usage Page (Keyboard),          */
+	0x19, 0xE0,         /*      Usage Minimum (KB Leftcontrol), */
+	0x29, 0xE7,         /*      Usage Maximum (KB Right GUI),   */
+	0x15, 0x00,         /*      Logical Minimum (0),            */
+	0x25, 0x01,         /*      Logical Maximum (1),            */
+	0x75, 0x01,         /*      Report Size (1),                */
+	0x95, 0x08,         /*      Report Count (8),               */
+	0x81, 0x02,         /*      Input (Variable),               */
 
-/* Changed from 0-255 to 16-127, otherwise seems to break dimensions??? */    
-    0x05, 0x07,         /*      Usage Page (Keyboard),          */
-    0x19, 0x10,         /*      Usage Minimum (None),           */
-    0x29, 0x7F,         /*      Usage Maximum (FFh),            */
-    
-    0x26, 0xFF, 0x00,   /*      Logical Maximum (255),          */   
-    0x75, 0x08,         /*      Report Size (8),                */
-    0x95, 0x06,         /*      Report Count (6),               */
-    0x81, 0x00,         /*      Input,                          */
+/* Changed from 0-255 to 16-127, otherwise seems to break dimensions??? */
+	0x05, 0x07,         /*      Usage Page (Keyboard),          */
+	0x19, 0x10,         /*      Usage Minimum (None),           */
+	0x29, 0x7F,         /*      Usage Maximum (FFh),            */
 
-    0xC0                /*  End Collection                      */
+	0x26, 0xFF, 0x00,   /*      Logical Maximum (255),          */
+	0x75, 0x08,         /*      Report Size (8),                */
+	0x95, 0x06,         /*      Report Count (6),               */
+	0x81, 0x00,         /*      Input,                          */
+
+	0xC0                /*  End Collection                      */
 };
 const size_t uclogic_rdesc_xppen_deco01v2_fixed0_size =
-    sizeof(uclogic_rdesc_xppen_deco01v2_fixed0_arr);
+	sizeof(uclogic_rdesc_xppen_deco01v2_fixed0_arr);
 
-__u8 uclogic_rdesc_xppen_deco01v2_fixed1_arr[] = {   
-    0x05, 0x0D,         /*  Usage Page (Digitizer),                 */
-    0x09, 0x02,         /*  Usage (Pen),                            */
-    0xA1, 0x01,         /*  Collection (Application),               */
-    0x85, 0x07,         /*      Report ID (7),                      */
-    0x09, 0x20,         /*      Usage (Stylus),                     */
-    0xA1, 0x00,         /*      Collection (Physical),              */
-    0x09, 0x42,         /*          Usage (Tip Switch),             */
-    0x09, 0x44,         /*          Usage (Barrel Switch),          */
-    0x09, 0x45,         /*          Usage (Eraser),                 */
-    0x15, 0x00,         /*          Logical Minimum (0),            */
-    0x25, 0x01,         /*          Logical Maximum (1),            */
-    0x75, 0x01,         /*          Report Size (1),                */
-    0x95, 0x03,         /*          Report Count (3),               */
-    0x81, 0x02,         /*          Input (Variable),               */
-    0x95, 0x02,         /*          Report Count (2),               */
-    0x81, 0x03,         /*          Input (Constant, Variable),     */
-    0x09, 0x32,         /*          Usage (In Range),               */
-    0x95, 0x01,         /*          Report Count (1),               */
-    0x81, 0x02,         /*          Input (Variable),               */
-    0x95, 0x02,         /*          Report Count (2),               */
-    0x81, 0x03,         /*          Input (Constant, Variable),     */
-    0x75, 0x10,         /*          Report Size (16),               */
-    0x95, 0x01,         /*          Report Count (1),               */
-    0x35, 0x00,         /*          Physical Minimum (0),           */
-    0xA4,               /*          Push,                           */
-    0x05, 0x01,         /*          Usage Page (Desktop),           */
-    0x09, 0x30,         /*          Usage (X),                      */
-    0x65, 0x13,         /*          Unit (Inch),                    */
+__u8 uclogic_rdesc_xppen_deco01v2_fixed1_arr[] = {
+	0x05, 0x0D,         /*  Usage Page (Digitizer),                 */
+	0x09, 0x02,         /*  Usage (Pen),                            */
+	0xA1, 0x01,         /*  Collection (Application),               */
+	0x85, 0x07,         /*      Report ID (7),                      */
+	0x09, 0x20,         /*      Usage (Stylus),                     */
+	0xA1, 0x00,         /*      Collection (Physical),              */
+	0x09, 0x42,         /*          Usage (Tip Switch),             */
+	0x09, 0x44,         /*          Usage (Barrel Switch),          */
+	0x09, 0x45,         /*          Usage (Eraser),                 */
+	0x15, 0x00,         /*          Logical Minimum (0),            */
+	0x25, 0x01,         /*          Logical Maximum (1),            */
+	0x75, 0x01,         /*          Report Size (1),                */
+	0x95, 0x03,         /*          Report Count (3),               */
+	0x81, 0x02,         /*          Input (Variable),               */
+	0x95, 0x02,         /*          Report Count (2),               */
+	0x81, 0x03,         /*          Input (Constant, Variable),     */
+	0x09, 0x32,         /*          Usage (In Range),               */
+	0x95, 0x01,         /*          Report Count (1),               */
+	0x81, 0x02,         /*          Input (Variable),               */
+	0x95, 0x02,         /*          Report Count (2),               */
+	0x81, 0x03,         /*          Input (Constant, Variable),     */
+	0x75, 0x10,         /*          Report Size (16),               */
+	0x95, 0x01,         /*          Report Count (1),               */
+	0x35, 0x00,         /*          Physical Minimum (0),           */
+	0xA4,               /*          Push,                           */
+	0x05, 0x01,         /*          Usage Page (Desktop),           */
+	0x09, 0x30,         /*          Usage (X),                      */
+	0x65, 0x13,         /*          Unit (Inch),                    */
 //Changed to -3
-    0x55, 0xFD,         /*          Unit Exponent (-3),             */
-    0x46, 0x10, 0x27,   /*          Physical Maximum (10000),       */
-    0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),        */
-    0x81, 0x02,         /*          Input (Variable),               */
-    0x09, 0x31,         /*          Usage (Y),                      */
-    0x46, 0x6A, 0x18,   /*          Physical Maximum (6250),        */
-    0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),        */
-    0x81, 0x02,         /*          Input (Variable),               */
-    0xB4,               /*          Pop,                            */
-    0x09, 0x30,         /*          Usage (Tip Pressure),           */
-    0x45, 0x00,         /*          Physical Maximum (0),           */
-    0x26, 0xFF, 0x1F,   /*          Logical Maximum (8191),         */
-    0x81, 0x42,         /*          Input (Variable, Null State),   */
-    0x09, 0x3D,         /*          Usage (X Tilt),                 */
-    0x15, 0x81,         /*          Logical Minimum (-127),         */
-    0x25, 0x7F,         /*          Logical Maximum (127),          */
-    0x75, 0x08,         /*          Report Size (8),                */
-    0x95, 0x01,         /*          Report Count (1),               */
-    0x81, 0x02,         /*          Input (Variable),               */
-    0x09, 0x3E,         /*          Usage (Y Tilt),                 */
-    0x15, 0x81,         /*          Logical Minimum (-127),         */
-    0x25, 0x7F,         /*          Logical Maximum (127),          */
-    0x81, 0x02,         /*          Input (Variable),               */
-    0xC0,               /*      End Collection,                     */
-    0xC0                /*  End Collection                          */
+	0x55, 0xFD,         /*          Unit Exponent (-3),             */
+	0x46, 0x10, 0x27,   /*          Physical Maximum (10000),       */
+	0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),        */
+	0x81, 0x02,         /*          Input (Variable),               */
+	0x09, 0x31,         /*          Usage (Y),                      */
+	0x46, 0x6A, 0x18,   /*          Physical Maximum (6250),        */
+	0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),        */
+	0x81, 0x02,         /*          Input (Variable),               */
+	0xB4,               /*          Pop,                            */
+	0x09, 0x30,         /*          Usage (Tip Pressure),           */
+	0x45, 0x00,         /*          Physical Maximum (0),           */
+	0x26, 0xFF, 0x1F,   /*          Logical Maximum (8191),         */
+	0x81, 0x42,         /*          Input (Variable, Null State),   */
+	0x09, 0x3D,         /*          Usage (X Tilt),                 */
+	0x15, 0x81,         /*          Logical Minimum (-127),         */
+	0x25, 0x7F,         /*          Logical Maximum (127),          */
+	0x75, 0x08,         /*          Report Size (8),                */
+	0x95, 0x01,         /*          Report Count (1),               */
+	0x81, 0x02,         /*          Input (Variable),               */
+	0x09, 0x3E,         /*          Usage (Y Tilt),                 */
+	0x15, 0x81,         /*          Logical Minimum (-127),         */
+	0x25, 0x7F,         /*          Logical Maximum (127),          */
+	0x81, 0x02,         /*          Input (Variable),               */
+	0xC0,               /*      End Collection,                     */
+	0xC0                /*  End Collection                          */
 };
 const size_t uclogic_rdesc_xppen_deco01v2_fixed1_size =
-    sizeof(uclogic_rdesc_xppen_deco01v2_fixed1_arr);
+	sizeof(uclogic_rdesc_xppen_deco01v2_fixed1_arr);
 
 /**
  * uclogic_rdesc_template_apply() - apply report descriptor parameters to a
