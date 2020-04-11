@@ -159,6 +159,13 @@ extern const size_t uclogic_rdesc_ugee_ex07_frame_size;
 extern const __u8 uclogic_rdesc_xppen_deco01_frame_arr[];
 extern const size_t uclogic_rdesc_xppen_deco01_frame_size;
 
+/* XP-Pen Deco 01 v2 frame controls */
+extern __u8 uclogic_rdesc_xppen_deco01v2_fixed0_arr[];
+extern const size_t uclogic_rdesc_xppen_deco01v2_fixed0_size;
+
+extern __u8 uclogic_rdesc_xppen_deco01v2_fixed1_arr[];
+extern const size_t uclogic_rdesc_xppen_deco01v2_fixed1_size;
+
 /* Fixed report descriptor for Ugee G5 frame controls */
 extern const __u8 uclogic_rdesc_ugee_g5_frame_arr[];
 extern const size_t uclogic_rdesc_ugee_g5_frame_size;
