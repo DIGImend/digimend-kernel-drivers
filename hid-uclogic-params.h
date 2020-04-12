@@ -73,7 +73,7 @@ struct uclogic_params_pen {
 	unsigned int desc_size;
 	/* Report ID, if reports should be tweaked, zero if not */
 	unsigned int id;
-	/* The list of subreports */
+	/* The list of subreports, only valid if "id" is not zero */
 	struct uclogic_params_pen_subreport subreport_list[3];
 	/* Type of in-range reporting, only valid if "id" is not zero */
 	enum uclogic_params_pen_inrange inrange;
