@@ -139,20 +139,21 @@ struct uclogic_params_frame {
 	 * this offset is zero. Only valid if "id" is not zero.
 	 */
 	unsigned int touch_byte;
-
-	/*
-	 * Maximum value of the touch ring/strip report.
-	 * The minimum valid value is considered to be one,
-	 * with zero being out-of-proximity (finger lift) value.
-	 */
-	__s8 touch_max;
-
 	/*
 	 * The value to anchor the reversed touch ring/strip reports at.
 	 * I.e. one, if the reports should be flipped without offset.
 	 * Zero if no reversal should be done.
+	 * Only valid if "touch_byte" is valid and not zero.
 	 */
 	__s8 touch_flip_at;
+	/*
+	 * Maximum value of the touch ring/strip report around which the value
+	 * should be wrapped when flipping according to "touch_flip_at".
+	 * The minimum valid value is considered to be one, with zero being
+	 * out-of-proximity (finger lift) value.
+	 * Only valid if "touch_flip_at" is valid and not zero.
+	 */
+	__s8 touch_max;
 	/*
 	 * Offset of the bitmap dial byte, in the report. Zero if not present.
 	 * Only valid if "id" is not zero. A bitmap dial sends reports with a
