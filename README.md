@@ -142,7 +142,7 @@ following command:
 
     sudo sed -i \
              -e '/^get_module_verinfo()/,+3 s/\<unset res$\|\<res=()$/res=("" "" "")/' \
-	     /usr/sbin/dkms
+             /usr/sbin/dkms
 
 Be aware that the operation of the above command is inexact, and might not
 work, or might break DKMS. You've been warned. In any case, simply reinstall
