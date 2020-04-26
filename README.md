@@ -302,6 +302,12 @@ or disable Secure Boot entirely. See documentation for your Linux distribution
 on how to sign kernel modules, or documentation for your computer's UEFI
 firmware on how to disable Secure Boot.
 
+### Touch ring/strip scrolling doesn't work in Gnome ###
+
+Scrolling with a touch ring or a touch strip [doesn't
+work](gnome_touch_scroll_issue) in Gnome version 3.24 and later. At the moment
+there doesn't seem to be a workaround beside not using Gnome.
+
 Support
 -------
 
