@@ -2,6 +2,8 @@ SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:0000099A:00002620", \
 	RUN+="hid-rebind"
 SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:0000256C:*", \
 	RUN+="hid-rebind"
+SUBSYSTEM=="input", ENV{ID_BUS}=="usb" ENV{ID_VENDOR_ID}=="256c", \
+	ATTRS{name}=="* Touch *", ENV{ID_INPUT.tags}="low_res_touch"
 SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:00005543:*", \
 	RUN+="hid-rebind"
 SUBSYSTEM=="hid", ACTION=="add", ENV{HID_ID}=="0003:00000458:*", \
