@@ -284,7 +284,7 @@ static int uclogic_params_pen_init_v1(struct uclogic_params_pen *pen,
 			desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] * 1000 /
 			resolution;
 	}
-        
+
 	kfree(buf);
 	buf = NULL;
 
