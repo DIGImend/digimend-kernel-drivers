@@ -1,14 +1,14 @@
-Source: digimend-dkms
+Source: digimend-kernel
 Section: kernel
 Priority: optional
-Maintainer: Nikolai Kondrashov <spbnick@gmail.com>
-Build-Depends: debhelper (>= 9), dkms
-Standards-Version: 3.9.8
+Maintainer: Georges Khaznadar <georgesk@debian.org>
+Build-Depends: debhelper (>= 11), dkms
+Standards-Version: 4.4.0
 Homepage: https://github.com/DIGImend/digimend-kernel-drivers
-Vcs-Git: https://github.com/DIGImend/digimend-kernel-drivers.git
-Vcs-Browser: https://github.com/DIGImend/digimend-kernel-drivers
+Vcs-Git: https://github.com/georgesk/digimend-kernel-drivers.git
+Vcs-Browser: https://github.com/georgesk/digimend-kernel-drivers
 
-Package: digimend-dkms
+Package: digimend-kernel
 Architecture: all
 Depends: ${misc:Depends}, xserver-xorg-input-wacom
 Description: Collection of graphics tablet drivers by DIGImend project
