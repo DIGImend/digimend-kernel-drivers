@@ -25,9 +25,11 @@ modules modules_install clean:
 
 depmod_conf_install:
 	install -D -m 0644 depmod.conf $(DEPMOD_CONF)
+	depmod -a
 
 depmod_conf_uninstall:
 	rm -vf $(DEPMOD_CONF)
+	depmod -a
 
 dracut_conf_install:
 	set -e -x; \
@@ -49,12 +51,18 @@ xorg_conf_install:
 xorg_conf_uninstall:
 	rm -vf $(XORG_CONF)
 
-udev_rules_install:
+udev_rules_install_files:
 	install -D -m 0755 hid-rebind $(HID_REBIND)
 	install -D -m 0644 udev.rules $(UDEV_RULES)
 
-udev_rules_uninstall:
+udev_rules_install: udev_rules_install_files
+	udevadm control --reload
+
+udev_rules_uninstall_files:
 	rm -vf $(UDEV_RULES) $(HID_REBIND)
+
+udev_rules_uninstall: udev_rules_uninstall_files
+	udevadm control --reload
 
 modules_uninstall:
 	rm -vf /lib/modules/*/extra/hid-kye.ko \
@@ -63,12 +71,8 @@ modules_uninstall:
 	       /lib/modules/*/extra/hid-viewsonic.ko
 
 install: modules modules_install depmod_conf_install dracut_conf_install udev_rules_install xorg_conf_install
-	udevadm control --reload
-	depmod -a
 
 uninstall: xorg_conf_uninstall udev_rules_uninstall dracut_conf_uninstall depmod_conf_uninstall modules_uninstall
-	udevadm control --reload
-	depmod -a
 
 dkms_check:
 	@if ! which dkms >/dev/null; then \
@@ -114,10 +118,8 @@ dkms_modules_uninstall: dkms_check
 	    done
 
 dkms_install: dkms_modules_install dracut_conf_install udev_rules_install xorg_conf_install
-	udevadm control --reload
 
 dkms_uninstall: xorg_conf_uninstall udev_rules_uninstall dracut_conf_uninstall dkms_modules_uninstall
-	udevadm control --reload
 
 dist:
 	git archive --format=tar.gz --prefix=$(PACKAGE)/ HEAD > $(PACKAGE).tar.gz
