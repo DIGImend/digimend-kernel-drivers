@@ -46,7 +46,7 @@ modules_uninstall:
 	       /lib/modules/*/extra/hid-uclogic.ko \
 	       /lib/modules/*/extra/hid-viewsonic.ko
 
-install: modules_install udev_rules_install depmod_conf_install xorg_conf_install
+install: modules modules_install udev_rules_install depmod_conf_install xorg_conf_install
 	udevadm control --reload
 	depmod -a
 
