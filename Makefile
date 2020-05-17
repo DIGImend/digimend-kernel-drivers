@@ -62,11 +62,11 @@ modules_uninstall:
 	       /lib/modules/*/extra/hid-uclogic.ko \
 	       /lib/modules/*/extra/hid-viewsonic.ko
 
-install: modules modules_install udev_rules_install depmod_conf_install dracut_conf_install xorg_conf_install
+install: modules modules_install depmod_conf_install dracut_conf_install udev_rules_install xorg_conf_install
 	udevadm control --reload
 	depmod -a
 
-uninstall: dracut_conf_uninstall modules_uninstall udev_rules_uninstall depmod_conf_uninstall xorg_conf_uninstall
+uninstall: xorg_conf_uninstall udev_rules_uninstall dracut_conf_uninstall depmod_conf_uninstall modules_uninstall
 	udevadm control --reload
 	depmod -a
 
@@ -116,7 +116,7 @@ dkms_modules_uninstall: dkms_check
 dkms_install: dkms_modules_install dracut_conf_install udev_rules_install xorg_conf_install
 	udevadm control --reload
 
-dkms_uninstall: dracut_conf_uninstall dkms_modules_uninstall udev_rules_uninstall xorg_conf_uninstall
+dkms_uninstall: xorg_conf_uninstall udev_rules_uninstall dracut_conf_uninstall dkms_modules_uninstall
 	udevadm control --reload
 
 dist:
