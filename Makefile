@@ -9,6 +9,8 @@ PWD := $(shell pwd)
 DESTDIR =
 UDEV_RULES = $(DESTDIR)/lib/udev/rules.d/90-digimend.rules
 DEPMOD_CONF = $(DESTDIR)/etc/depmod.d/digimend.conf
+DRACUT_CONF_DIR = $(DESTDIR)/usr/lib/dracut/dracut.conf.d
+DRACUT_CONF = $(DRACUT_CONF_DIR)/90-digimend.conf
 HID_REBIND = $(DESTDIR)/lib/udev/hid-rebind
 XORG_CONF := $(DESTDIR)/usr/share/X11/xorg.conf.d/50-digimend.conf
 PACKAGE_NAME = digimend-kernel-drivers
@@ -26,6 +28,20 @@ depmod_conf_install:
 
 depmod_conf_uninstall:
 	rm -vf $(DEPMOD_CONF)
+
+dracut_conf_install:
+	set -e -x; \
+	if test -e $(DRACUT_CONF_DIR); then \
+	    install -m 0644 dracut.conf $(DRACUT_CONF); \
+	    dracut --force; \
+	fi
+
+dracut_conf_uninstall:
+	set -e -x; \
+	if test -e $(DRACUT_CONF); then \
+	    rm -v $(DRACUT_CONF); \
+	    dracut --force; \
+	fi
 
 xorg_conf_install:
 	install -D -m 0644 xorg.conf $(XORG_CONF)
@@ -46,11 +62,11 @@ modules_uninstall:
 	       /lib/modules/*/extra/hid-uclogic.ko \
 	       /lib/modules/*/extra/hid-viewsonic.ko
 
-install: modules modules_install udev_rules_install depmod_conf_install xorg_conf_install
+install: modules modules_install udev_rules_install depmod_conf_install dracut_conf_install xorg_conf_install
 	udevadm control --reload
 	depmod -a
 
-uninstall: modules_uninstall udev_rules_uninstall depmod_conf_uninstall xorg_conf_uninstall
+uninstall: dracut_conf_uninstall modules_uninstall udev_rules_uninstall depmod_conf_uninstall xorg_conf_uninstall
 	udevadm control --reload
 	depmod -a
 
@@ -97,10 +113,10 @@ dkms_modules_uninstall: dkms_check
 	        } \
 	    done
 
-dkms_install: dkms_modules_install udev_rules_install xorg_conf_install
+dkms_install: dkms_modules_install dracut_conf_install udev_rules_install xorg_conf_install
 	udevadm control --reload
 
-dkms_uninstall: dkms_modules_uninstall udev_rules_uninstall xorg_conf_uninstall
+dkms_uninstall: dracut_conf_uninstall dkms_modules_uninstall udev_rules_uninstall xorg_conf_uninstall
 	udevadm control --reload
 
 dist:
