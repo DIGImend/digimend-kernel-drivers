@@ -117,9 +117,9 @@ dkms_modules_uninstall: dkms_check
 	        } \
 	    done
 
-dkms_install: dkms_modules_install dracut_conf_install udev_rules_install xorg_conf_install
+dkms_install: dkms_modules_install depmod_conf_install dracut_conf_install udev_rules_install xorg_conf_install
 
-dkms_uninstall: xorg_conf_uninstall udev_rules_uninstall dracut_conf_uninstall dkms_modules_uninstall
+dkms_uninstall: xorg_conf_uninstall udev_rules_uninstall dracut_conf_uninstall depmod_conf_uninstall dkms_modules_uninstall
 
 dist:
 	git archive --format=tar.gz --prefix=$(PACKAGE)/ HEAD > $(PACKAGE).tar.gz
