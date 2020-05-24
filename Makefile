@@ -12,6 +12,7 @@ DEPMOD_CONF = $(DESTDIR)/etc/depmod.d/digimend.conf
 DRACUT_CONF_DIR = $(DESTDIR)/usr/lib/dracut/dracut.conf.d
 DRACUT_CONF = $(DRACUT_CONF_DIR)/90-digimend.conf
 HID_REBIND = $(DESTDIR)/lib/udev/hid-rebind
+DIGIMEND_DEBUG = $(DESTDIR)/usr/sbin/digimend-debug
 XORG_CONF := $(DESTDIR)/usr/share/X11/xorg.conf.d/50-digimend.conf
 PACKAGE_NAME = digimend-kernel-drivers
 PACKAGE_VERSION = 10
@@ -51,6 +52,12 @@ xorg_conf_install:
 xorg_conf_uninstall:
 	rm -vf $(XORG_CONF)
 
+tools_install:
+	install -D -m 0755 digimend-debug $(DIGIMEND_DEBUG)
+
+tools_uninstall:
+	rm -vf $(DIGIMEND_DEBUG)
+
 udev_rules_install_files:
 	install -D -m 0755 hid-rebind $(HID_REBIND)
 	install -D -m 0644 udev.rules $(UDEV_RULES)
@@ -70,9 +77,9 @@ modules_uninstall:
 	       /lib/modules/*/extra/hid-uclogic.ko \
 	       /lib/modules/*/extra/hid-viewsonic.ko
 
-install: modules modules_install depmod_conf_install dracut_conf_install udev_rules_install xorg_conf_install
+install: modules modules_install depmod_conf_install dracut_conf_install udev_rules_install xorg_conf_install tools_install
 
-uninstall: xorg_conf_uninstall udev_rules_uninstall dracut_conf_uninstall depmod_conf_uninstall modules_uninstall
+uninstall: tools_uninstall xorg_conf_uninstall udev_rules_uninstall dracut_conf_uninstall depmod_conf_uninstall modules_uninstall
 
 dkms_check:
 	@if ! which dkms >/dev/null; then \
@@ -117,9 +124,9 @@ dkms_modules_uninstall: dkms_check
 	        } \
 	    done
 
-dkms_install: dkms_modules_install depmod_conf_install dracut_conf_install udev_rules_install xorg_conf_install
+dkms_install: dkms_modules_install depmod_conf_install dracut_conf_install udev_rules_install xorg_conf_install tools_install
 
-dkms_uninstall: xorg_conf_uninstall udev_rules_uninstall dracut_conf_uninstall depmod_conf_uninstall dkms_modules_uninstall
+dkms_uninstall: tools_uninstall xorg_conf_uninstall udev_rules_uninstall dracut_conf_uninstall depmod_conf_uninstall dkms_modules_uninstall
 
 dist:
 	git archive --format=tar.gz --prefix=$(PACKAGE)/ HEAD > $(PACKAGE).tar.gz
