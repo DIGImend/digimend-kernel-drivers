@@ -1,4 +1,4 @@
-obj-m := hid-kye.o hid-uclogic.o hid-polostar.o hid-viewsonic.o
+obj-m := hid-kye.o hid-uclogic.o hid-polostar.o hid-viewsonic.o hid-xppen.o
 hid-uclogic-objs := \
 	hid-uclogic-core.o \
 	hid-uclogic-rdesc.o \
@@ -74,6 +74,7 @@ udev_rules_uninstall: udev_rules_uninstall_files
 modules_uninstall:
 	rm -vf /lib/modules/*/extra/hid-kye.ko \
 	       /lib/modules/*/extra/hid-polostar.ko \
+	       /lib/modules/*/extra/hid-xppen.ko \
 	       /lib/modules/*/extra/hid-uclogic.ko \
 	       /lib/modules/*/extra/hid-viewsonic.ko
 
