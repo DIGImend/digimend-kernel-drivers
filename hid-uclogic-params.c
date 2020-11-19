@@ -295,7 +295,7 @@ static int uclogic_params_pen_init_v1(struct uclogic_params_pen *pen,
 				uclogic_rdesc_v1_pen_template_size,
 				desc_params, ARRAY_SIZE(desc_params));
 
-	if(strcmp(hdev->name,"UC-Logic ARTISUL D16") == 0){
+	if (strcmp(hdev->name, "UC-Logic ARTISUL D16") == 0) {
 		//it's the D16, so patch the
 		//descriptor to ignore the tilt bytes
 		const int template_size = uclogic_rdesc_v1_pen_template_size;
