@@ -1,0 +1,73 @@
+#!/bin/bash
+#
+# Enable/disable debug code in DIGImend kernel drivers.
+# Author: Nikolai Kondrashov <spbnick@gmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -e -u -o pipefail
+
+function usage() {
+	local progname=`basename "$0"`
+	echo "Usage: $progname STATUS"
+	echo "Enable/disable debug code in DIGImend kernel drivers,"
+	echo "making sure affected modules are loaded."
+	echo ""
+	echo "Arguments:"
+	echo "	STATUS	1/on/enable to enable, 0/off/disable to disable"
+	echo ""
+}
+
+declare -r CONTROL_FILE="/sys/kernel/debug/dynamic_debug/control"
+declare -r -a MODULE_LIST=("hid_uclogic")
+
+if [ "$#" != 1 ]; then
+	echo "Invalid number of arguments" >&2
+	echo "" >&2
+	usage >&2
+	exit 1
+fi
+
+case "${1,,}" in
+	0|off|disable)
+		op="-"
+		;;
+	1|on|enable)
+		op="+"
+		;;
+	*)
+		echo "Unknown status: $1" >&2
+		echo "" >&2
+		usage >&2
+		exit 1
+		;;
+esac
+
+# Make sure modules are loaded, otherwise enabling will have no effect
+if ! modprobe -a "${MODULE_LIST[@]}"; then
+	echo "Failed loading DIGImend modules." >&2
+	echo "Make sure they're installed, and you're root or using sudo." >&2
+	exit 1
+fi
+
+if ! [ -r "$CONTROL_FILE" -a -w "$CONTROL_FILE" ]; then
+	echo "Cannot access control file." >&2
+	echo "Make sure you're root or using sudo." >&2
+	exit 1
+fi
+
+for MODULE in "${MODULE_LIST[@]}"; do
+	echo "module ${MODULE} ${op}pmfl" > "$CONTROL_FILE"
+done

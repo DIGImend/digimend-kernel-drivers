@@ -995,6 +995,8 @@ __u8 uclogic_rdesc_xppen_deco01v2_fixed0_arr[] = {
 	0x05, 0x07,         /*      Usage Page (Keyboard),          */
 	0x19, 0x10,         /*      Usage Minimum (None),           */
 	0x29, 0x7F,         /*      Usage Maximum (FFh),            */
+//	0x19, 0x0,         /*      Usage Minimum (None),           */
+//	0x29, 0xFF,         /*      Usage Maximum (FFh),            */
 
 	0x26, 0xFF, 0x00,   /*      Logical Maximum (255),          */
 	0x75, 0x08,         /*      Report Size (8),                */
