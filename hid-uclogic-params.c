@@ -23,7 +23,8 @@
 #include <linux/version.h>
 
 /**
- * Convert a pen in-range reporting type to a string.
+ * uclogic_params_pen_inrange_to_str() - Convert a pen in-range reporting type
+ *                                       to a string.
  *
  * @inrange:	The in-range reporting type to convert.
  *
@@ -628,7 +629,8 @@ void uclogic_params_cleanup(struct uclogic_params *params)
 }
 
 /**
- * Get a replacement report descriptor for a tablet's interface.
+ * uclogic_params_get_desc() - Get a replacement report descriptor for a
+ *                             tablet's interface.
  *
  * @params:	The parameters of a tablet interface to get report
  *		descriptor for. Cannot be NULL.
