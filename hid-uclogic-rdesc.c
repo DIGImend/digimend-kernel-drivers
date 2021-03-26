@@ -651,7 +651,7 @@ const __u8 uclogic_rdesc_v2_pen_template_arr[] = {
 const size_t uclogic_rdesc_v2_pen_template_size =
 			sizeof(uclogic_rdesc_v2_pen_template_arr);
 
-/**
+/*
  * Expand to the contents of a generic frame buttons report descriptor.
  *
  * @_id:	The report ID to use.
