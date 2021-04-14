@@ -1010,7 +1010,7 @@ const size_t uclogic_rdesc_xppen_deco01v2_fixed0_size =
 
 __u8 uclogic_rdesc_xppen_deco01v2_fixed1_arr[] = {
 	0x05, 0x0D,         /*  Usage Page (Digitizer),                 */
-	0x09, 0x01,         /*  Usage (Digitizer),                      */
+	0x09, 0x02,         /*  Usage (Digitizer),                      */
 	0xA1, 0x01,         /*  Collection (Application),               */
 	0x85, 0x07,         /*      Report ID (7),                      */
 	0x09, 0x20,         /*      Usage (Stylus),                     */
