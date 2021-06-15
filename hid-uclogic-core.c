@@ -557,4 +557,4 @@ module_hid_driver(uclogic_driver);
 MODULE_AUTHOR("Martin Rusko");
 MODULE_AUTHOR("Nikolai Kondrashov");
 MODULE_LICENSE("GPL");
-MODULE_VERSION("10");
+MODULE_VERSION("11");
