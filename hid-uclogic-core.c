@@ -163,6 +163,9 @@ static int uclogic_input_configured(struct hid_device *hdev,
 		case HID_GD_KEYPAD:
 			suffix = "Pad";
 			break;
+		case HID_DG_DIGITIZER:
+			suffix = "Digitizer";
+			break;
 		case HID_DG_PEN:
 			suffix = "Pen";
 			break;
