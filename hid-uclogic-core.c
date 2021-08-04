@@ -203,6 +203,14 @@ static int uclogic_probe(struct hid_device *hdev,
 #ifdef HID_QUIRK_NO_EMPTY_INPUT
 	hdev->quirks |= HID_QUIRK_NO_EMPTY_INPUT;
 #endif
+	/*
+	 * We must force HIDINPUT, since some devices are of class
+	 * HID_DG_DIGITIZER, which is (incorrectly?) not considered as
+	 * input by macro IS_INPUT_APPLICATION().
+	 * With this quirk all devices are forced to go through
+	 * hidinput_connect() to be configured as input devices.
+	 */
+	hdev->quirks |= HID_QUIRK_HIDINPUT_FORCE;
 
 	/* Allocate and assign driver data */
 	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
