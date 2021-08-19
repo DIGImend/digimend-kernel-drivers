@@ -1007,26 +1007,19 @@ cleanup:
  * @params:	Parameters to fill in (to be cleaned with
  *		uclogic_params_cleanup()). Not modified in case of error.
  *		Cannot be NULL.
- * @interface: The device interface the control packet is sent to.
- * @init_packet: Magic packet to send on usb to activate device.
- * @packet_size: Size of the init packet.
- * @rdesc_pen_arr: Pen report descriptor array.
- * @rdesc_pen_size: Size of the pen array.
- * @rdesc_frame_arr: Frame report descriptor array.
- * @rdesc_frame_size: Size of the frame array.
  *
  * Returns:
  *	Zero, if successful. A negative errno code on error.
  */
 static int uclogic_params_init_ugee_xppen_pro(struct hid_device *hdev,
-	struct uclogic_params *p, const uint8_t interface,
-	const u8 init_packet[], const size_t packet_size,
-	const u8 rdesc_pen_arr[], const size_t rdesc_pen_size,
+	struct uclogic_params *p, const u8 probe_endpoint,
+	const u8 rdesc_init_packet[], const size_t rdesc_init_size,
+	const u8 rdesc_tablet_arr[], const size_t rdesc_tablet_size,
 	const u8 rdesc_frame_arr[], const size_t rdesc_frame_size)
 {
 	const size_t str_desc_len = 12;
 	struct usb_device *udev = hid_to_usb_dev(hdev);
-	u8 *buf = kmemdup(init_packet, packet_size, GFP_KERNEL);
+	u8 *buf = kmemdup(rdesc_init_packet, rdesc_init_size, GFP_KERNEL);
 	s32 desc_params[UCLOGIC_RDESC_PEN_PH_ID_NUM];
 	int actual_len, rc;
 	u16 resolution;
@@ -1036,9 +1029,9 @@ static int uclogic_params_init_ugee_xppen_pro(struct hid_device *hdev,
 
 	rc = usb_interrupt_msg(
 				udev,
-				usb_sndintpipe(udev, interface),
+				usb_sndintpipe(udev, probe_endpoint),
 				buf,
-				packet_size,
+				rdesc_init_size,
 				&actual_len,
 				USB_CTRL_SET_TIMEOUT);
 	kfree(buf);
@@ -1049,7 +1042,7 @@ static int uclogic_params_init_ugee_xppen_pro(struct hid_device *hdev,
 	} else if (rc < 0) {
 		hid_err(hdev, "failed sending init packet: %d\n", rc);
 		return rc;
-	} else if (actual_len != packet_size) {
+	} else if (actual_len != rdesc_init_size) {
 		hid_err(hdev,
 			"failed to transfer complete init packet, only %d bytes sent\n",
 			actual_len);
@@ -1102,12 +1095,12 @@ static int uclogic_params_init_ugee_xppen_pro(struct hid_device *hdev,
 	);
 
 	p->pen.desc_ptr = uclogic_rdesc_template_apply(
-		rdesc_pen_arr,
-		rdesc_pen_size,
+		rdesc_tablet_arr,
+		rdesc_tablet_size,
 		desc_params,
 		ARRAY_SIZE(desc_params)
 	);
-	p->pen.desc_size = rdesc_pen_size;
+	p->pen.desc_size = rdesc_tablet_size;
 	p->pen.id = 0x02;
 
 	rc = uclogic_params_frame_init_with_desc(
@@ -1423,28 +1416,148 @@ int uclogic_params_init(struct uclogic_params *params,
 		}
 
 		break;
-	case VID_PID(USB_VENDOR_ID_UGEE,
-			USB_DEVICE_ID_UGEE_XPPEN_TABLET_A156P):
-        static const u8 init_packet[] = {
-            0x02, 0xb0, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-        };
-		const size_t packet_size = sizeof(init_packet);
 
-		/* Only use the uniform interface */
+	case VID_PID(USB_VENDOR_ID_UGEE,
+			USB_DEVICE_ID_UGEE_XPPEN_PENDISPLAY_ARTIST_24_PRO):
 		if (bInterfaceNumber != 2) {
 			uclogic_params_init_invalid(&p);
 			break;
 		}
 
-		rc = uclogic_params_init_ugee_xppen_pro(hdev, &p, 0x03, init_packet, packet_size,
-												uclogic_rdesc_xppen_a156p_pen_arr,
-												uclogic_rdesc_xppen_a156p_pen_size,
-												uclogic_rdesc_xppen_a156p_frame_arr,
-												uclogic_rdesc_xppen_a156p_frame_size);
+		// This is a stub for now
+		uclogic_params_init_invalid(&p);
+
+		break;
+
+	case VID_PID(USB_VENDOR_ID_UGEE,
+			USB_DEVICE_ID_UGEE_XPPEN_PENDISPLAY_ARTIST_22R_PRO):
+		/* Only use that weird interface that needs a key */
+		if (bInterfaceNumber != 2) {
+			uclogic_params_init_invalid(&p);
+			break;
+		}
+				
+		rc = uclogic_params_init_ugee_xppen_pro(
+			hdev, &p, uclogic_xppen_probe_endpoint_type1,
+			uclogic_rdesc_xppen_init_packet_type1_arr,
+			uclogic_rdesc_xppen_init_packet_type1_size,
+			uclogic_rdesc_xppen_pro_stylus_type1_arr,
+			uclogic_rdesc_xppen_pro_stylus_type1_size,
+			uclogic_rdesc_xppen_artist_22r_pro_frame_arr,
+			uclogic_rdesc_xppen_artist_22r_pro_frame_size
+		);
+		if (rc != 0) {
+			hid_err(hdev, "a22rp init failed: %d\n", rc);
+			goto cleanup;
+		}
+
+		// Set the bitmap dial byte
+		p.frame_list[0].bitmap_dial_byte = 7;
+		p.frame_list[0].bitmap_second_dial_destination_byte = 8;
+
+		break;
+
+	case VID_PID(USB_VENDOR_ID_UGEE,
+			USB_DEVICE_ID_UGEE_XPPEN_PENDISPLAY_ARTIST_156_PRO):
+		/* Only use that weird interface that needs a key */
+		if (bInterfaceNumber != 2) {
+			uclogic_params_init_invalid(&p);
+			break;
+		}
+				
+		rc = uclogic_params_init_ugee_xppen_pro(
+			hdev, &p, uclogic_xppen_probe_endpoint_type1,
+			uclogic_rdesc_xppen_init_packet_type1_arr,
+			uclogic_rdesc_xppen_init_packet_type1_size,
+			uclogic_rdesc_xppen_pro_stylus_type1_arr,
+			uclogic_rdesc_xppen_pro_stylus_type1_size,
+			uclogic_rdesc_xppen_artist_156_pro_frame_arr,
+			uclogic_rdesc_xppen_artist_156_pro_frame_size
+		);
 		if (rc != 0) {
 			hid_err(hdev, "a156p init failed: %d\n", rc);
 			goto cleanup;
 		}
+
+		break;
+
+	case VID_PID(USB_VENDOR_ID_UGEE,
+			USB_DEVICE_ID_UGEE_XPPEN_PENDISPLAY_ARTIST_12_PRO):
+	case VID_PID(USB_VENDOR_ID_UGEE,
+			USB_DEVICE_ID_UGEE_XPPEN_PENDISPLAY_ARTIST_133_PRO):
+		/* Only use that weird interface that needs a key */
+		if (bInterfaceNumber != 2) {
+			uclogic_params_init_invalid(&p);
+			break;
+		}
+
+		rc = uclogic_params_init_ugee_xppen_pro(
+			hdev, &p, uclogic_xppen_probe_endpoint_type1,
+			uclogic_rdesc_xppen_init_packet_type1_arr,
+			uclogic_rdesc_xppen_init_packet_type1_size,
+			uclogic_rdesc_xppen_pro_stylus_type2_arr,
+			uclogic_rdesc_xppen_pro_stylus_type2_size,
+			uclogic_rdesc_xppen_artist_133_pro_frame_arr,
+			uclogic_rdesc_xppen_artist_133_pro_frame_size
+		);
+		if (rc != 0) {
+			hid_err(hdev, "a12p / a133p init failed: %d\n", rc);
+			goto cleanup;
+		}
+
+		break;
+
+	case VID_PID(USB_VENDOR_ID_UGEE,
+			USB_DEVICE_ID_UGEE_XPPEN_PENDISPLAY_ARTIST_12):
+		/* Only use that weird interface that needs a key */
+		if (bInterfaceNumber != 2) {
+			uclogic_params_init_invalid(&p);
+			break;
+		}
+
+		rc = uclogic_params_init_ugee_xppen_pro(
+			hdev, &p, uclogic_xppen_probe_endpoint_type1,
+			uclogic_rdesc_xppen_init_packet_type1_arr,
+			uclogic_rdesc_xppen_init_packet_type1_size,
+			uclogic_rdesc_xppen_pro_stylus_type1_arr,
+			uclogic_rdesc_xppen_pro_stylus_type1_size,
+			uclogic_rdesc_xppen_artist_12_frame_arr,
+			uclogic_rdesc_xppen_artist_12_frame_size
+		);
+		if (rc != 0) {
+			hid_err(hdev, "a12 init failed: %d\n", rc);
+			goto cleanup;
+		}
+
+		break;
+
+	case VID_PID(USB_VENDOR_ID_UGEE,
+			USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_SM):
+	case VID_PID(USB_VENDOR_ID_UGEE,
+			USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_MD):
+		/* Only use that weird interface that needs a key */
+		if (bInterfaceNumber != 2) {
+			uclogic_params_init_invalid(&p);
+			break;
+		}
+
+		rc = uclogic_params_init_ugee_xppen_pro(
+			hdev, &p, uclogic_xppen_probe_endpoint_type1,
+			uclogic_rdesc_xppen_init_packet_type1_arr,
+			uclogic_rdesc_xppen_init_packet_type1_size,
+			uclogic_rdesc_xppen_pro_stylus_type1_arr,
+			uclogic_rdesc_xppen_pro_stylus_type1_size,
+			uclogic_rdesc_xppen_deco_pro_frame_arr,
+			uclogic_rdesc_xppen_deco_pro_frame_size
+		);
+		if (rc != 0) {
+			hid_err(hdev, "deco-pro-sm init failed: %d\n", rc);
+			goto cleanup;
+		}
+
+		// Set the bitmap dial byte
+		p.frame_list[0].bitmap_dial_byte = 7;
+		p.frame_list[0].bitmap_second_dial_destination_byte = 8;
 
 		break;
 	}

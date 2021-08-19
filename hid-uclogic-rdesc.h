@@ -184,4 +184,39 @@ extern const size_t uclogic_rdesc_xppen_a156p_frame_size;
 /* Least-significant bit of Ugee G5 frame rotary encoder state */
 #define UCLOGIC_RDESC_UGEE_G5_FRAME_RE_LSB 38
 
+/* Probe endpoints for XP-Pen key activators */
+extern const __u8 uclogic_xppen_probe_endpoint_type1;
+
+/* Fix report descriptor for XP-Pen init packet type 1 */
+extern const __u8 uclogic_rdesc_xppen_init_packet_type1_arr[];
+extern const size_t uclogic_rdesc_xppen_init_packet_type1_size;
+
+/* Fix report descriptor for XP-Pen Pro Stylus type 1 (10 bytes) */
+extern const __u8 uclogic_rdesc_xppen_pro_stylus_type1_arr[];
+extern const size_t uclogic_rdesc_xppen_pro_stylus_type1_size;
+
+/* Fix report descriptor for XP-Pen Pro Stylus type 2 (12 bytes) */
+extern const __u8 uclogic_rdesc_xppen_pro_stylus_type2_arr[];
+extern const size_t uclogic_rdesc_xppen_pro_stylus_type2_size;
+
+/* Fix report descriptor for XP-Pen Artist 22R Pro */
+extern const __u8 uclogic_rdesc_xppen_artist_22r_pro_frame_arr[];
+extern const size_t uclogic_rdesc_xppen_artist_22r_pro_frame_size;
+
+/* Fix report descriptor for XP-Pen Artist 15.6 Pro */
+extern const __u8 uclogic_rdesc_xppen_artist_156_pro_frame_arr[];
+extern const size_t uclogic_rdesc_xppen_artist_156_pro_frame_size;
+
+/* Fixed report descriptor for XP-Pen Arist 13.3 and 12 Pro frame */
+extern const __u8 uclogic_rdesc_xppen_artist_133_pro_frame_arr[];
+extern const size_t uclogic_rdesc_xppen_artist_133_pro_frame_size;
+
+/* Fixed report descriptor for XP-Pen Arist 12 frame */
+extern const __u8 uclogic_rdesc_xppen_artist_12_frame_arr[];
+extern const size_t uclogic_rdesc_xppen_artist_12_frame_size;
+
+/* Fix report descriptor for XP-Pen Deco Pro */
+extern const __u8 uclogic_rdesc_xppen_deco_pro_frame_arr[];
+extern const size_t uclogic_rdesc_xppen_deco_pro_frame_size;
+
 #endif /* _HID_UCLOGIC_RDESC_H */

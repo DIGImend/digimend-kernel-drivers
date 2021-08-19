@@ -21,10 +21,10 @@
 #include "hid-uclogic-params.h"
 
 #include "hid-ids.h"
+#include "hid-uclogic-xppen.h"
 
 #include "compat.h"
 #include <linux/version.h>
-#include <asm/unaligned.h>
 
 /* Driver data */
 struct uclogic_drvdata {
@@ -415,8 +415,23 @@ static int uclogic_raw_event_frame(
 
 	/* If need to, and can, transform the bitmap dial reports */
 	if (frame->bitmap_dial_byte > 0 && frame->bitmap_dial_byte < size) {
-		if (data[frame->bitmap_dial_byte] == 2) {
+		switch (data[frame->bitmap_dial_byte]) {
+		case 2:
 			data[frame->bitmap_dial_byte] = -1;
+			break;
+
+		/* Everything below here is for tablets that shove multiple dials into 1 byte */
+		case 4:
+		case 0x10:
+			data[frame->bitmap_dial_byte] = 0;
+			data[frame->bitmap_second_dial_destination_byte] = 1;
+			break;
+
+		case 8:
+		case 0x20:
+			data[frame->bitmap_dial_byte] = 0;
+			data[frame->bitmap_second_dial_destination_byte] = -1;
+			break;
 		}
 	}
 
@@ -459,57 +474,7 @@ static int uclogic_raw_event(struct hid_device *hdev,
 				report_id = data[0] = subreport->id;
 				continue;
 			} else {
-				/* A156P tilt compensation */
-				if (hdev->product == USB_DEVICE_ID_UGEE_XPPEN_TABLET_A156P &&
-					hdev->vendor == USB_VENDOR_ID_UGEE) {
-					/* All tangent lengths for pen angles 1-64
-					* degrees with a sensor height of 1.8mm
-					*/
-					const u16 tangents[] = {
-						3, 6, 9, 12, 15, 18, 21, 25, 28, 30, 33, 36,
-						39, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70,
-						73, 76, 79, 82, 85, 88, 92, 95, 98, 102,
-						105, 109, 112, 116, 120, 124, 127, 131,
-						135, 140, 144, 148, 153, 158, 162, 167,
-						173, 178, 184, 189, 195, 202, 208, 215,
-						223, 231, 239, 247, 257, 266, 277
-					};
-					// sqrt(8) / 4 = 0.7071067811865476
-					const s32 discriminant = 707106781;
-					s8 tx = data[8];
-					s8 ty = data[9];
-					s8 abs_tilt;
-					s32 skew;
-
-					if (tx != 0 && ty != 0) {
-						abs_tilt = abs(tx);
-						skew = get_unaligned_le16(&data[2]) -
-							(tx / abs_tilt) * tangents[abs_tilt] *
-								discriminant / 10000000;
-						skew = clamp(skew, 0, 34419);
-						put_unaligned_le16(skew, &data[2]);
-
-						abs_tilt = abs(ty);
-						skew = get_unaligned_le16(&data[4]) -
-							(ty / abs_tilt) * tangents[abs_tilt] *
-								discriminant / 10000000;
-						skew = clamp(skew, 0, 19461);
-						put_unaligned_le16(skew, &data[4]);
-					} else if (tx != 0) {
-						abs_tilt = abs(tx);
-						skew = get_unaligned_le16(&data[2]) -
-							(tx / abs_tilt) * tangents[abs_tilt];
-						skew = clamp(skew, 0, 34419);
-						put_unaligned_le16(skew, &data[2]);
-					} else if (ty != 0) {
-						abs_tilt = abs(ty);
-						skew = get_unaligned_le16(&data[4]) -
-							(ty / abs_tilt) * tangents[abs_tilt];
-						skew = clamp(skew, 0, 19461);
-						put_unaligned_le16(skew, &data[4]);
-					}
-				}
-
+				uclogic_xppen_apply_tilt_compensation(hdev, data);
 				return uclogic_raw_event_pen(drvdata, data, size);
 			}
 		}
@@ -586,8 +551,22 @@ static const struct hid_device_id uclogic_devices[] = {
 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06) },
+	// { HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+	// 			USB_DEVICE_ID_UGEE_XPPEN_PENDISPLAY_ARTIST_24_PRO) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
-				USB_DEVICE_ID_UGEE_XPPEN_TABLET_A156P) },
+				USB_DEVICE_ID_UGEE_XPPEN_PENDISPLAY_ARTIST_22R_PRO) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+				USB_DEVICE_ID_UGEE_XPPEN_PENDISPLAY_ARTIST_156_PRO) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+				USB_DEVICE_ID_UGEE_XPPEN_PENDISPLAY_ARTIST_133_PRO) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+				USB_DEVICE_ID_UGEE_XPPEN_PENDISPLAY_ARTIST_12_PRO) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+				USB_DEVICE_ID_UGEE_XPPEN_PENDISPLAY_ARTIST_12) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_SM) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_MD) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, uclogic_devices);

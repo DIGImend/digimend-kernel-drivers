@@ -161,6 +161,11 @@ struct uclogic_params_frame {
 	 * counterclockwise, as opposed to the normal 1 and -1.
 	 */
 	unsigned int bitmap_dial_byte;
+	/*
+	 * Where we will move the second dial bytes to if we need to.
+	 * This should be set to the same as above if we don't want to move it.
+	 */
+	unsigned int bitmap_second_dial_destination_byte;
 };
 
 /*
