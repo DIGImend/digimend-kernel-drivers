@@ -1,8 +1,31 @@
-digimend-dkms (10) unstable; urgency=low
+digimend-dkms (11) unstable; urgency=low
 
   * Bump version number.
 
- -- Nikolai Kondrashov <spbnick@gmail.com>  Sat, 15 Dec 2018 18:17:23 +0200
+ -- Nikolai Kondrashov <spbnick@gmail.com>  Tue, 15 Jun 2021 14:08:41 +0300
+
+digimend-dkms (10) unstable; urgency=low
+
+  * Add support for Huion tilt reporting protocol.
+  * Add support for Ugee Rainbow CV720. Thank you, Wang Xuerui!
+  * Handle the new Huion product ID (006d), unlocking support for many new
+    models.
+  * Add support for 13th button on Huion tablet frames.
+  * Do not expose unused input interfaces, to simplify code and reduce user
+    confusion.
+  * Support touch rings and strips on Huion devices. However, this requires
+    the user-space Wacom drivers v0.34.99.1 or older for now. See way too many
+    details about this in issue #275. Also note that Gnome has support for
+    this broken.
+  * Support dials on Huion devices.
+  * Add support for Huion Q620M.
+  * Add support for Huion HS611.
+  * Add pen support for XP-Pen Star 06. Thank you, romanenkor!
+  * Add digimend-debug tool. Now you can make debug messages to appear in your
+    dmesg upon tablet connection, if you run sudo digimend-debug on first.
+  * Fix multiple issues with compatibility with newer kernels and distros.
+
+ -- Nikolai Kondrashov <spbnick@gmail.com>  Sun, 4 Oct 2020 15:23:30 +0300
 
 digimend-dkms (9) unstable; urgency=low
 

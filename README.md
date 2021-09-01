@@ -320,7 +320,7 @@ yet, leave a thumbs-up :thumbsup: reaction on the first post in the issue.
 This will let developers identify popular issues and pick them first for
 solving!
 
-Join the [#DIGImend channel on irc.freenode.net][irc_channel] to discuss the
+Join the [#DIGImend channel on irc.libera.chat][irc_channel] to discuss the
 drivers, tablets, development, to ask for help, and to help others!
 
 [travis_ci_badge]: https://travis-ci.org/DIGImend/digimend-kernel-drivers.svg?branch=master
@@ -338,5 +338,5 @@ drivers, tablets, development, to ask for help, and to help others!
 [xsetwacom_manpage]: https://www.mankier.com/1/xsetwacom
 [howtos]: http://digimend.github.io/support/
 [issues]: https://github.com/DIGImend/digimend-kernel-drivers/issues
-[irc_channel]: https://webchat.freenode.net/?channels=DIGImend
+[irc_channel]: https://web.libera.chat/#DIGImend
 [gnome_touch_scroll_issue]: https://gitlab.gnome.org/GNOME/gnome-control-center/issues/118
