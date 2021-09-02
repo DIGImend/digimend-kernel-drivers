@@ -1535,31 +1535,61 @@ int uclogic_params_init(struct uclogic_params *params,
 			USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_SM):
 	case VID_PID(USB_VENDOR_ID_UGEE,
 			USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_MD):
-		/* Only use that weird interface that needs a key */
-		if (bInterfaceNumber != 2) {
+		switch (bInterfaceNumber) {
+		case 0:
+			rc = uclogic_params_frame_init_with_desc(
+				&p.frame_list[1],
+				uclogic_rdesc_xppen_deco_pro_touchpad_arr,
+				uclogic_rdesc_xppen_deco_pro_touchpad_size,
+				0
+			);
+			if (rc != 0) {
+				hid_err(hdev, "deco-pro-sm touchpad init failed: %d\n", rc);
+				goto cleanup;
+			}
+			rc = uclogic_params_frame_init_with_desc(
+				&p.frame_list[2],
+				uclogic_rdesc_xppen_deco_pro_keypad_arr,
+				uclogic_rdesc_xppen_deco_pro_keypad_size,
+				0
+			);
+			if (rc != 0) {
+				hid_err(hdev, "deco-pro-sm keypad init failed: %d\n", rc);
+				goto cleanup;
+			}
+
+
+			break;
+
+		case 2:
+			rc = uclogic_params_init_ugee_xppen_pro(
+				hdev, &p, uclogic_xppen_probe_endpoint_type1,
+				uclogic_rdesc_xppen_init_packet_type1_arr,
+				uclogic_rdesc_xppen_init_packet_type1_size,
+				uclogic_rdesc_xppen_pro_stylus_type1_arr,
+				uclogic_rdesc_xppen_pro_stylus_type1_size,
+				uclogic_rdesc_xppen_deco_pro_frame_arr,
+				uclogic_rdesc_xppen_deco_pro_frame_size
+			);
+			if (rc != 0) {
+				hid_err(hdev, "deco-pro-sm init failed: %d\n", rc);
+				goto cleanup;
+			}
+
+			// Set the bitmap dial byte
+			p.frame_list[0].bitmap_dial_byte = 7;
+			p.frame_list[0].bitmap_second_dial_destination_byte = 8;
+
+			break;
+
+		default:
 			uclogic_params_init_invalid(&p);
 			break;
-		}
 
-		rc = uclogic_params_init_ugee_xppen_pro(
-			hdev, &p, uclogic_xppen_probe_endpoint_type1,
-			uclogic_rdesc_xppen_init_packet_type1_arr,
-			uclogic_rdesc_xppen_init_packet_type1_size,
-			uclogic_rdesc_xppen_pro_stylus_type1_arr,
-			uclogic_rdesc_xppen_pro_stylus_type1_size,
-			uclogic_rdesc_xppen_deco_pro_frame_arr,
-			uclogic_rdesc_xppen_deco_pro_frame_size
-		);
-		if (rc != 0) {
-			hid_err(hdev, "deco-pro-sm init failed: %d\n", rc);
-			goto cleanup;
 		}
-
-		// Set the bitmap dial byte
-		p.frame_list[0].bitmap_dial_byte = 7;
-		p.frame_list[0].bitmap_second_dial_destination_byte = 8;
 
 		break;
+
 	}
 
 #undef VID_PID

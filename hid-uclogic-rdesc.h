@@ -218,5 +218,9 @@ extern const size_t uclogic_rdesc_xppen_artist_12_frame_size;
 /* Fix report descriptor for XP-Pen Deco Pro */
 extern const __u8 uclogic_rdesc_xppen_deco_pro_frame_arr[];
 extern const size_t uclogic_rdesc_xppen_deco_pro_frame_size;
+extern const __u8 uclogic_rdesc_xppen_deco_pro_keypad_arr[];
+extern const size_t uclogic_rdesc_xppen_deco_pro_keypad_size;
+extern const __u8 uclogic_rdesc_xppen_deco_pro_touchpad_arr[];
+extern const size_t uclogic_rdesc_xppen_deco_pro_touchpad_size;
 
 #endif /* _HID_UCLOGIC_RDESC_H */
