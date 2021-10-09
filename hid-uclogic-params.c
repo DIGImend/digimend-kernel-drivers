@@ -1210,8 +1210,6 @@ int uclogic_params_init(struct uclogic_params *params,
 		break;
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01):
-	case VID_PID(USB_VENDOR_ID_UGEE,
-		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06C):
 		/* If this is the pen and frame interface */
 		if (bInterfaceNumber == 1) {
 			/* Probe v1 pen parameters */
@@ -1234,6 +1232,8 @@ int uclogic_params_init(struct uclogic_params *params,
 		break;
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_TABLET_G5):
+	case VID_PID(USB_VENDOR_ID_UGEE,
+		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06C):
 		/* Ignore non-pen interfaces */
 		if (bInterfaceNumber != 1) {
 			uclogic_params_init_invalid(&p);
