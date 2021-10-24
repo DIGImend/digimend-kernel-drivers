@@ -167,6 +167,14 @@ extern const size_t uclogic_rdesc_xppen_deco01_frame_size;
 extern const __u8 uclogic_rdesc_ugee_g5_frame_arr[];
 extern const size_t uclogic_rdesc_ugee_g5_frame_size;
 
+/* Report descriptor template for XP-Pen Artist 15.6 Pro pen */
+extern const __u8 uclogic_rdesc_xppen_a156p_pen_arr[];
+extern const size_t uclogic_rdesc_xppen_a156p_pen_size;
+
+/* Report descriptor template for XP-Pen Artist 15.6 Pro frame */
+extern const __u8 uclogic_rdesc_xppen_a156p_frame_arr[];
+extern const size_t uclogic_rdesc_xppen_a156p_frame_size;
+
 /* Report ID of Ugee G5 frame control reports */
 #define UCLOGIC_RDESC_UGEE_G5_FRAME_ID 0x06
 

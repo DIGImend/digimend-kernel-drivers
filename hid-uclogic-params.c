@@ -999,6 +999,135 @@ cleanup:
 }
 
 /**
+ * uclogic_params_init_ugee_xppen_pro() - initialization procedure
+ * common to XP-Pen Pro series devices
+ *
+ * @hdev:	The HID device of the tablet interface to initialize and get
+ *		parameters from. Cannot be NULL.
+ * @params:	Parameters to fill in (to be cleaned with
+ *		uclogic_params_cleanup()). Not modified in case of error.
+ *		Cannot be NULL.
+ * @interface: The device interface the control packet is sent to.
+ * @init_packet: Magic packet to send on usb to activate device.
+ * @packet_size: Size of the init packet.
+ * @rdesc_pen_arr: Pen report descriptor array.
+ * @rdesc_pen_size: Size of the pen array.
+ * @rdesc_frame_arr: Frame report descriptor array.
+ * @rdesc_frame_size: Size of the frame array.
+ *
+ * Returns:
+ *	Zero, if successful. A negative errno code on error.
+ */
+static int uclogic_params_init_ugee_xppen_pro(struct hid_device *hdev,
+	struct uclogic_params *p, const uint8_t interface,
+	const u8 init_packet[], const size_t packet_size,
+	const u8 rdesc_pen_arr[], const size_t rdesc_pen_size,
+	const u8 rdesc_frame_arr[], const size_t rdesc_frame_size)
+{
+	const size_t str_desc_len = 12;
+	struct usb_device *udev = hid_to_usb_dev(hdev);
+	u8 *buf = kmemdup(init_packet, packet_size, GFP_KERNEL);
+	s32 desc_params[UCLOGIC_RDESC_PEN_PH_ID_NUM];
+	int actual_len, rc;
+	u16 resolution;
+
+	if (hdev == NULL || p == NULL)
+		return -EINVAL;
+
+	rc = usb_interrupt_msg(
+				udev,
+				usb_sndintpipe(udev, interface),
+				buf,
+				packet_size,
+				&actual_len,
+				USB_CTRL_SET_TIMEOUT);
+	kfree(buf);
+	if (rc == -EPIPE) {
+		hid_err(hdev,
+			"broken pipe sending init packet\n");
+		return rc;
+	} else if (rc < 0) {
+		hid_err(hdev, "failed sending init packet: %d\n", rc);
+		return rc;
+	} else if (actual_len != packet_size) {
+		hid_err(hdev,
+			"failed to transfer complete init packet, only %d bytes sent\n",
+			actual_len);
+		return -1;
+	}
+
+	rc = uclogic_params_get_str_desc(&buf, hdev, 100, str_desc_len);
+	if (rc != str_desc_len) {
+		if (rc == -EPIPE) {
+			hid_err(hdev,
+				"string descriptor with pen parameters not found\n");
+		} else if (rc < 0) {
+			hid_err(hdev,
+				"failed retrieving pen parameters: %d\n", rc);
+		} else {
+			hid_err(hdev,
+				"string descriptor with pen parameters has invalid length (got %d, expected %lu)\n",
+				rc, str_desc_len);
+			rc = -1;
+		}
+		kfree(buf);
+		return rc;
+	}
+
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] =
+		get_unaligned_le16(buf + 2);
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] =
+		get_unaligned_le16(buf + 4);
+	/* buf + 6 is the number of pad buttons? Its 0x0008 */
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_PRESSURE_LM] =
+		get_unaligned_le16(buf + 8);
+	resolution = get_unaligned_le16(buf + 10);
+	kfree(buf);
+	if (resolution == 0) {
+		hid_err(hdev, "resolution of 0 in descriptor string\n");
+		return -1;
+	}
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] =
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] * 1000 / resolution;
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] =
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] * 1000 / resolution;
+
+	hid_dbg(
+		hdev,
+		"Received parameters: X: %d Y: %d Pressure: %d Resolution: %u\n",
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM],
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM],
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_PRESSURE_LM],
+		resolution
+	);
+
+	p->pen.desc_ptr = uclogic_rdesc_template_apply(
+		rdesc_pen_arr,
+		rdesc_pen_size,
+		desc_params,
+		ARRAY_SIZE(desc_params)
+	);
+	p->pen.desc_size = rdesc_pen_size;
+	p->pen.id = 0x02;
+
+	rc = uclogic_params_frame_init_with_desc(
+		&p->frame_list[0],
+		rdesc_frame_arr,
+		rdesc_frame_size,
+		UCLOGIC_RDESC_V1_FRAME_ID
+	);
+	if (rc < 0) {
+		hid_err(hdev, "initializing frame params failed: %d\n", rc);
+		return rc;
+	}
+
+	p->pen.subreport_list[0].value = 0xf0;
+	p->pen.subreport_list[0].id = p->frame_list[0].id;
+
+	return 0;
+}
+
+/**
  * uclogic_params_init() - initialize a tablet interface and discover its
  * parameters.
  *
@@ -1291,6 +1420,30 @@ int uclogic_params_init(struct uclogic_params *params,
 		} else {
 			hid_warn(hdev, "pen parameters not found");
 			uclogic_params_init_invalid(&p);
+		}
+
+		break;
+	case VID_PID(USB_VENDOR_ID_UGEE,
+			USB_DEVICE_ID_UGEE_XPPEN_TABLET_A156P):
+        static const u8 init_packet[] = {
+            0x02, 0xb0, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        };
+		const size_t packet_size = sizeof(init_packet);
+
+		/* Only use the uniform interface */
+		if (bInterfaceNumber != 2) {
+			uclogic_params_init_invalid(&p);
+			break;
+		}
+
+		rc = uclogic_params_init_ugee_xppen_pro(hdev, &p, 0x03, init_packet, packet_size,
+												uclogic_rdesc_xppen_a156p_pen_arr,
+												uclogic_rdesc_xppen_a156p_pen_size,
+												uclogic_rdesc_xppen_a156p_frame_arr,
+												uclogic_rdesc_xppen_a156p_frame_size);
+		if (rc != 0) {
+			hid_err(hdev, "a156p init failed: %d\n", rc);
+			goto cleanup;
 		}
 
 		break;
