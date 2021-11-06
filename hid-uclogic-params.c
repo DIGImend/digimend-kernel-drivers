@@ -1210,8 +1210,6 @@ int uclogic_params_init(struct uclogic_params *params,
 		break;
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01):
-	case VID_PID(USB_VENDOR_ID_UGEE,
-		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO03):
 		/* If this is the pen and frame interface */
 		if (bInterfaceNumber == 1) {
 			/* Probe v1 pen parameters */
@@ -1225,6 +1223,28 @@ int uclogic_params_init(struct uclogic_params *params,
 				&p.frame_list[0],
 				uclogic_rdesc_xppen_deco01_frame_arr,
 				uclogic_rdesc_xppen_deco01_frame_size,
+				0);
+			if (rc != 0)
+				goto cleanup;
+		} else {
+			uclogic_params_init_invalid(&p);
+		}
+		break;
+	case VID_PID(USB_VENDOR_ID_UGEE,
+		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO03):
+		/* If this is the pen and frame interface */
+		if (bInterfaceNumber == 1) {
+			/* Probe v1 pen parameters */
+			rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
+			if (rc != 0) {
+				hid_err(hdev, "pen probing failed: %d\n", rc);
+				goto cleanup;
+			}
+			/* Initialize frame parameters */
+			rc = uclogic_params_frame_init_with_desc(
+				&p.frame_list[0],
+				uclogic_rdesc_xppen_deco03_frame_arr,
+				uclogic_rdesc_xppen_deco03_frame_size,
 				0);
 			if (rc != 0)
 				goto cleanup;
