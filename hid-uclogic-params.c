@@ -562,7 +562,7 @@ static int uclogic_params_frame_init_v1(struct uclogic_params_frame *frame,
 {
 	int rc;
 	bool found = false;
-	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
+	struct usb_device *usb_dev;
 	char *str_buf = NULL;
 	const size_t str_len = 16;
 
@@ -571,6 +571,8 @@ static int uclogic_params_frame_init_v1(struct uclogic_params_frame *frame,
 		rc = -EINVAL;
 		goto cleanup;
 	}
+
+	usb_dev = hid_to_usb_dev(hdev);
 
 	/*
 	 * Enable generic button mode
