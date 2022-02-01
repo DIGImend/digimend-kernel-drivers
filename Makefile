@@ -102,6 +102,7 @@ dkms_modules_install: dkms_check
 	dkms add .
 	dkms build $(DKMS_MODULES)
 	dkms install $(DKMS_MODULES)
+	@! rmmod hid_uclogic
 
 dkms_modules_uninstall: dkms_check
 	dkms status $(DKMS_MODULES_NAME) | \
