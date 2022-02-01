@@ -33,14 +33,12 @@ depmod_conf_uninstall:
 	depmod -a
 
 dracut_conf_install:
-	set -e -x; \
 	if test -e $(DRACUT_CONF_DIR); then \
 	    install -m 0644 dracut.conf $(DRACUT_CONF); \
 	    dracut --force; \
 	fi
 
 dracut_conf_uninstall:
-	set -e -x; \
 	if test -e $(DRACUT_CONF); then \
 	    rm -v $(DRACUT_CONF); \
 	    dracut --force; \
@@ -106,7 +104,6 @@ dkms_modules_install: dkms_check
 	dkms install $(DKMS_MODULES)
 
 dkms_modules_uninstall: dkms_check
-	set -e -x; \
 	dkms status $(DKMS_MODULES_NAME) | \
 	    while IFS=':' read -r modules status; do \
 	        echo "$$modules" | { \
