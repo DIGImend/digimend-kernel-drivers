@@ -105,7 +105,7 @@ dkms_modules_install: dkms_check
 	@! rmmod hid_uclogic
 
 dkms_modules_uninstall: dkms_check
-	dkms status $(DKMS_MODULES_NAME) | \
+	@dkms status $(DKMS_MODULES_NAME) | \
 	    while IFS=':' read -r modules status; do \
 	        echo "$$modules" | { \
 	            IFS=',/ ' read -r modules_name modules_version \
