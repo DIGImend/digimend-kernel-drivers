@@ -126,5 +126,10 @@ dkms_install: dkms_modules_install depmod_conf_install dracut_conf_install udev_
 
 dkms_uninstall: tools_uninstall xorg_conf_uninstall udev_rules_uninstall dracut_conf_uninstall depmod_conf_uninstall dkms_modules_uninstall
 
+enable_debug:
+	./digimend-debug 1
+
+dkms_reinstall: dkms_uninstall dkms_install enable_debug
+
 dist:
 	git archive --format=tar.gz --prefix=$(PACKAGE)/ HEAD > $(PACKAGE).tar.gz
