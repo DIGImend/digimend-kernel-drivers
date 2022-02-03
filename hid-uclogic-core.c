@@ -422,6 +422,32 @@ static int uclogic_raw_event_frame(
 	return 0;
 }
 
+static void dbg_raw_input(struct hid_device *hdev, u8 *data, int size)
+{
+	int pos;
+	int posb;
+	char tmp[10];
+	char binary[255];
+	char hex[255];
+
+	hid_dbg(hdev, "report hex: ");
+	strcpy(hex, "");
+	for (pos=0 ; pos < size ; pos++) {
+		u8 a = data[pos];
+		strcpy(tmp, "");
+		snprintf(tmp, sizeof(tmp), "%.2d:%02x ", pos,  a);
+		strcat(hex, tmp);
+		strcpy(binary, "");
+		for (posb = 7; posb >= 0; posb--) {
+			strcpy(tmp, "");
+			snprintf(tmp, sizeof(tmp), "%d:%d ", 7-posb, !!((a << posb) & 0x80));
+			strcat(binary, tmp);
+		}
+		hid_dbg(hdev, "%.2d %s", pos, binary);
+	}
+	hid_dbg(hdev, "%s", hex);
+}
+
 static int uclogic_raw_event(struct hid_device *hdev,
 				struct hid_report *report,
 				u8 *data, int size)
@@ -437,6 +463,8 @@ static int uclogic_raw_event(struct hid_device *hdev,
 	if (report->type != HID_INPUT_REPORT) {
 		return 0;
 	}
+
+	dbg_raw_input(hdev, data, size);
 
 	while (true) {
 		/* Tweak pen reports, if necessary */
