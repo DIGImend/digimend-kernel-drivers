@@ -689,8 +689,8 @@ const size_t uclogic_rdesc_v2_pen_template_size =
 	0xA0,           /*      Collection (Physical),          */ \
 	0x05, 0x09,     /*          Usage Page (Button),        */ \
 	0x19, 0x01,     /*          Usage Minimum (01h),        */ \
-	0x29, 0x03,     /*          Usage Maximum (03h),        */ \
-	0x95, 0x03,     /*          Report Count (3),           */ \
+	0x29, 0x09,     /*          Usage Maximum (09h),        */ \
+	0x95, 0x09,     /*          Report Count (09,           */ \
 	0x81, 0x02,     /*          Input (Variable),           */ \
 	0x95, ((_size) * 8 - 45),                                  \
 			/*          Report Count (padding),     */ \
@@ -708,7 +708,7 @@ const size_t uclogic_rdesc_v1_frame_size =
 /* Fixed report descriptor for (tweaked) v2 frame button reports */
 const __u8 uclogic_rdesc_v2_frame_buttons_arr[] = {
 	UCLOGIC_RDESC_FRAME_BUTTONS_BYTES(UCLOGIC_RDESC_V2_FRAME_BUTTONS_ID,
-					  12)
+					  19)
 };
 const size_t uclogic_rdesc_v2_frame_buttons_size =
 			sizeof(uclogic_rdesc_v2_frame_buttons_arr);
