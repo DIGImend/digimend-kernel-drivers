@@ -73,6 +73,11 @@ struct uclogic_params_pen {
 	unsigned int desc_size;
 	/* Report ID, if reports should be tweaked, zero if not */
 	unsigned int id;
+	/*
+	 * if the main report is actually a vendor defined data structure
+	 * with no posibility of defining small report sizes for buttons and such,
+	 * as with the newer xppen tablets */
+	unsigned int late_id;
 	/* The list of subreports, only valid if "id" is not zero */
 	struct uclogic_params_pen_subreport subreport_list[3];
 	/* Type of in-range reporting, only valid if "id" is not zero */

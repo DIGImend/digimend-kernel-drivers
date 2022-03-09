@@ -205,6 +205,78 @@ static void uclogic_params_pen_cleanup(struct uclogic_params_pen *pen)
 	memset(pen, 0, sizeof(*pen));
 }
 
+static int uclogic_params_pen_v1_get_desc_params(struct uclogic_params_pen *pen,
+						 bool *pfound,
+						 s32 *desc_params,
+						 struct hid_device *hdev)
+{
+	int rc;
+	bool found = false;
+	/* Buffer for (part of) the string descriptor */
+	__u8 *buf = NULL;
+	/* Minimum descriptor length required, maximum seen so far is 18 */
+	const int len = 12;
+	s32 resolution;
+
+	/* Check arguments */
+	if (pen == NULL || pfound == NULL || hdev == NULL) {
+		rc = -EINVAL;
+		goto cleanup;
+	}
+
+	/*
+	 * Read string descriptor containing pen input parameters.
+	 * The specific string descriptor and data were discovered by sniffing
+	 * the Windows driver traffic.
+	 * NOTE: This enables fully-functional tablet mode.
+	 */
+	rc = uclogic_params_get_str_desc(&buf, hdev, 100, len);
+	if (rc == -EPIPE) {
+		hid_info(hdev,
+			"string descriptor with pen parameters not found, assuming not compatible\n");
+		goto finish;
+	} else if (rc < 0) {
+		hid_err(hdev, "failed retrieving pen parameters: %d\n", rc);
+		goto cleanup;
+	} else if (rc != len) {
+		hid_info(hdev,
+			"string descriptor with pen parameters has invalid length (got %d, expected %d), assuming not compatible\n",
+			rc, len);
+		goto finish;
+	}
+
+	/*
+	 * Fill report descriptor parameters from the string descriptor
+	 */
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] =
+		get_unaligned_le16(buf + 2);
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] =
+		get_unaligned_le16(buf + 4);
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_PRESSURE_LM] =
+		get_unaligned_le16(buf + 8);
+	resolution = get_unaligned_le16(buf + 10);
+	if (resolution == 0) {
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] = 0;
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] = 0;
+	} else {
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] =
+			desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] * 1000 /
+			resolution;
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] =
+			desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] * 1000 /
+			resolution;
+	}
+
+
+	found = true;
+finish:
+	*pfound = found;
+	rc = 0;
+cleanup:
+	kfree(buf);
+	return rc;
+}
+
 /**
  * uclogic_params_pen_init_v1() - initialize tablet interface pen
  * input and retrieve its parameters from the device, using v1 protocol.
@@ -779,6 +851,111 @@ cleanup:
 }
 
 /**
+ * uclogic_params_xppen_new_init() - initialize a newer xppen tablet interface
+ * and discover its parameters.
+ *
+ * @params:	Parameters to fill in (to be cleaned with
+ *		uclogic_params_cleanup()). Not modified in case of error.
+ *		Cannot be NULL.
+ * @hdev:	The HID device of the tablet interface to initialize and get
+ *		parameters from. Cannot be NULL.
+ *
+ * Returns:
+ *	Zero, if successful. A negative errno code on error.
+ */
+static int uclogic_params_xppen_new_init(struct uclogic_params *params,
+					 struct hid_device *hdev)
+{
+	s32 desc_params[UCLOGIC_RDESC_PEN_PH_ID_NUM];
+	struct uclogic_params p = {0, };
+	__u8 *desc_ptr;
+	bool found;
+	int rc;
+
+	desc_ptr = kmalloc(uclogic_rdesc_xppen_new_vendor_size, GFP_KERNEL);
+	if (desc_ptr) {
+		p.desc_ptr = desc_ptr;
+		p.desc_size = uclogic_rdesc_xppen_new_vendor_size;
+		memcpy(p.desc_ptr,
+		       uclogic_rdesc_xppen_new_vendor_arr,
+		       uclogic_rdesc_xppen_new_vendor_size);
+		desc_ptr = NULL;
+
+	}else{
+		rc = -ENOMEM;
+		goto cleanup;
+	}
+
+	rc = uclogic_params_pen_v1_get_desc_params(&p.pen, &found, desc_params, hdev);
+
+	if (rc != 0) {
+		hid_err(hdev, "pen probing failed: %d\n", rc);
+		goto cleanup;
+	}
+
+	/*
+	 * Generate pen report descriptor
+	 */
+	desc_ptr = uclogic_rdesc_template_apply(
+					uclogic_rdesc_xppen_new_pen_arr,
+					uclogic_rdesc_xppen_new_pen_size,
+					desc_params, ARRAY_SIZE(desc_params));
+
+	if (desc_ptr) {
+		p.pen.desc_ptr = desc_ptr;
+		desc_ptr = NULL;
+		p.pen.desc_size = uclogic_rdesc_xppen_new_pen_size;
+		p.pen.id = 0x02;
+		p.pen.late_id = 0x08;
+		p.pen.inrange = UCLOGIC_PARAMS_PEN_INRANGE_INVERTED;
+		p.pen.fragmented_hires = false;
+		p.pen.tilt_y_flipped = false;
+	}else{
+		rc = -ENOMEM;
+		goto cleanup;
+	}
+
+	rc = uclogic_params_frame_init_with_desc(
+		&p.frame_list[0],
+		uclogic_rdesc_xppen_new_buttons_arr,
+		uclogic_rdesc_xppen_new_buttons_size,
+		0x06);
+
+	if (rc != 0) {
+		hid_err(hdev, "failed setting frame parameters: %d\n", rc);
+		goto cleanup;
+	}
+
+	p.pen.subreport_list[0].value = 0xf0;
+	p.pen.subreport_list[0].id = 0x06;
+
+	if (!found) {
+		hid_warn(hdev, "pen parameters not found");
+		uclogic_params_init_invalid(&p);
+	}
+
+output:
+	/* Output parameters */
+	memcpy(params, &p, sizeof(*params));
+	memset(&p, 0, sizeof(p));
+	rc = 0;
+cleanup:
+	kfree(desc_ptr);
+	uclogic_params_cleanup(&p);
+	return rc;
+}
+
+/**
+ * xppen_new_urb_completion() - The urb completion function for newer
+ * xppen tablets, which doesn't do anything right now.
+ *
+ * @params:	The urb that has been completed.
+ */
+void xppen_new_urb_completion(struct urb * daUrb)
+{
+}
+
+/**
  * uclogic_params_huion_init() - initialize a Huion tablet interface and
  * discover its parameters.
  *
@@ -1230,6 +1407,55 @@ int uclogic_params_init(struct uclogic_params *params,
 			uclogic_params_init_invalid(&p);
 		}
 		break;
+	case VID_PID(USB_VENDOR_ID_UGEE,
+		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_MINI7):
+
+		/* If this is the vendor interface */
+		if(bInterfaceNumber == 2){
+			struct urb * daUrb;
+			u8 * buf;
+			u8 key[] = {
+				0x02, 0xB0, 0x04, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00
+			};
+
+			buf = devm_kzalloc(&hdev->dev, sizeof(key), GFP_KERNEL);
+			if (buf == NULL) {
+				rc = -ENOMEM;
+				goto cleanup;
+			}
+
+			daUrb = usb_alloc_urb(0, GFP_KERNEL);
+			if (daUrb == NULL) {
+				rc = -ENOMEM;
+				goto cleanup;
+			}
+
+			memcpy(buf, key, sizeof(key));
+			usb_fill_int_urb(daUrb,
+					 udev,
+					 usb_sndintpipe(udev, 3),
+					 buf, sizeof(key),
+					 xppen_new_urb_completion, NULL,
+					 0x10);
+			rc = usb_submit_urb(daUrb, GFP_KERNEL);
+			usb_free_urb(daUrb);
+
+			if (rc != 0) {
+				hid_err(hdev, "vendor init failed: %d\n", rc);
+				goto cleanup;
+			}
+
+			uclogic_params_xppen_new_init(&p, hdev);
+			if (rc != 0) {
+				goto cleanup;
+			}
+
+		} else {
+			uclogic_params_init_invalid(&p);
+		}
+		break;
+
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_TABLET_G5):
 		/* Ignore non-pen interfaces */
