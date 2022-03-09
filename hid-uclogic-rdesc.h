@@ -80,6 +80,19 @@ extern const size_t uclogic_rdesc_twha60_fixed0_size;
 extern __u8 uclogic_rdesc_twha60_fixed1_arr[];
 extern const size_t uclogic_rdesc_twha60_fixed1_size;
 
+/*
+ * These three are for newer xppen tablets, where everything is sent via
+ * a vendor defined usage in the range of FF00-FFFF
+ */
+extern __u8 uclogic_rdesc_xppen_new_vendor_arr[];
+extern const size_t uclogic_rdesc_xppen_new_vendor_size;
+
+extern __u8 uclogic_rdesc_xppen_new_pen_arr[];
+extern const size_t uclogic_rdesc_xppen_new_pen_size;
+
+extern __u8 uclogic_rdesc_xppen_new_buttons_arr[];
+extern const size_t uclogic_rdesc_xppen_new_buttons_size;
+
 /* Report descriptor template placeholder head */
 #define UCLOGIC_RDESC_PH_HEAD	0xFE, 0xED, 0x1D
 

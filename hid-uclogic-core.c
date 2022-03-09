@@ -173,6 +173,10 @@ static int uclogic_input_configured(struct hid_device *hdev,
 			suffix = "System Control";
 			break;
 		}
+
+		if(field->application >= 0xff000000){
+			suffix = "VendorDevice";
+		}
 	}
 
 	if (suffix) {
@@ -294,6 +298,14 @@ static int uclogic_raw_event_pen(struct uclogic_drvdata *drvdata,
 
 	WARN_ON(drvdata == NULL);
 	WARN_ON(data == NULL && size != 0);
+
+	/*
+	 * the main report is vendor defined and opaque, so we couldn't define
+	 * buttons for example.
+	 */
+	if (pen->late_id) {
+		data[0] = pen->late_id;
+	}
 
 	/* If in-range reports are inverted */
 	if (pen->inrange ==
@@ -534,6 +546,8 @@ static const struct hid_device_id uclogic_devices[] = {
 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+				USB_DEVICE_ID_UGEE_XPPEN_TABLET_MINI7) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, uclogic_devices);
