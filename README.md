@@ -89,7 +89,7 @@ Then, to install the drivers, run this command in the same directory:
 
     sudo make install
 
-Note that if you built and installed the drivers this way, you will need to
+Note that if you have built and installed the drivers this way, you will need to
 run `make clean` in the source directory, and then redo the above, after each
 kernel upgrade.
 
