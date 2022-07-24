@@ -345,19 +345,19 @@ static s32 uclogic_params_get_le24(const void *p)
  *			modified in case of error, or if parameters are not
  *			found. Cannot be NULL.
  * @pfound:		Location for a flag which is set to true if the
- * 			parameters were found, and to false if not (e.g.
- * 			device was incompatible). Not modified in case of
- * 			error. Cannot be NULL.
+ *			parameters were found, and to false if not (e.g.
+ *			device was incompatible). Not modified in case of
+ *			error. Cannot be NULL.
  * @pparams_ptr:	Location for a kmalloc'ed pointer to the retrieved raw
- * 			parameters, which could be used to identify the tablet
- * 			to some extent. Should be freed with kfree after use.
- * 			NULL, if not needed. Not modified in case of error.
- * 			Only set if *pfound is set to true.
+ *			parameters, which could be used to identify the tablet
+ *			to some extent. Should be freed with kfree after use.
+ *			NULL, if not needed. Not modified in case of error.
+ *			Only set if *pfound is set to true.
  * @pparams_len:	Location for the length of the retrieved raw
- * 			parameters. NULL, if not needed. Not modified in case
- * 			of error. Only set if *pfound is set to true.
+ *			parameters. NULL, if not needed. Not modified in case
+ *			of error. Only set if *pfound is set to true.
  * @hdev:		The HID device of the tablet interface to initialize
- * 			and get parameters from. Cannot be NULL.
+ *			and get parameters from. Cannot be NULL.
  *
  * Returns:
  *	Zero, if successful. A negative errno code on error.
@@ -478,9 +478,9 @@ static int uclogic_params_pen_init_v2(struct uclogic_params_pen *pen,
 		*pparams_ptr = buf;
 		buf = NULL;
 	}
-	if (pparams_len != NULL) {
+	if (pparams_len != NULL)
 		*pparams_len = params_len;
-	}
+
 finish:
 	*pfound = found;
 	rc = 0;
@@ -625,9 +625,9 @@ void uclogic_params_cleanup(struct uclogic_params *params)
 		size_t i;
 		kfree(params->desc_ptr);
 		uclogic_params_pen_cleanup(&params->pen);
-		for (i = 0; i < ARRAY_SIZE(params->frame_list); i++) {
+		for (i = 0; i < ARRAY_SIZE(params->frame_list); i++)
 			uclogic_params_frame_cleanup(&params->frame_list[i]);
-		}
+
 		memset(params, 0, sizeof(*params));
 	}
 }
@@ -785,8 +785,8 @@ cleanup:
 }
 
 /**
- * uclogic_params_huion_init() - initialize a Huion tablet interface and
- * discover its parameters.
+ * uclogic_params_huion_init() - initialize a Huion tablet interface and discover
+ * its parameters.
  *
  * @params:	Parameters to fill in (to be cleaned with
  *		uclogic_params_cleanup()). Not modified in case of error.
@@ -878,8 +878,7 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 					UCLOGIC_RDESC_V2_FRAME_BUTTONS_ID);
 			if (rc != 0) {
 				hid_err(hdev,
-					"failed creating v2 frame button "
-					"parameters: %d\n",
+					"failed creating v2 frame button parameters: %d\n",
 					rc);
 				goto cleanup;
 			}
@@ -902,8 +901,7 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 					UCLOGIC_RDESC_V2_FRAME_TOUCH_ID);
 				if (rc != 0) {
 					hid_err(hdev,
-						"failed creating v2 frame touch "
-						"ring parameters: %d\n",
+						"failed creating v2 frame touch ring parameters: %d\n",
 						rc);
 					goto cleanup;
 				}
@@ -922,8 +920,7 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 					UCLOGIC_RDESC_V2_FRAME_TOUCH_ID);
 				if (rc != 0) {
 					hid_err(hdev,
-						"failed creating v2 frame touch "
-						"strip parameters: %d\n",
+						"failed creating v2 frame touch strip parameters: %d\n",
 						rc);
 					goto cleanup;
 				}
@@ -947,8 +944,7 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 					UCLOGIC_RDESC_V2_FRAME_DIAL_ID);
 			if (rc != 0) {
 				hid_err(hdev,
-					"failed creating v2 frame dial "
-					"parameters: %d\n",
+					"failed creating v2 frame dial parameters: %d\n",
 					rc);
 				goto cleanup;
 			}
