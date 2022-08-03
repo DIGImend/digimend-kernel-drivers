@@ -110,15 +110,15 @@ dkms_modules_uninstall: dkms_check
 	dkms status $(DKMS_MODULES_NAME) | \
 	    while IFS=':' read -r modules status; do \
 	        echo "$$modules" | { \
-	            IFS=', ' read -r modules_name modules_version \
+	            IFS=', ' read -r modules_name_modules_version \
 	                             kernel_version kernel_arch ignore; \
 	            if [ -z "$$kernel_version" ]; then \
 	                dkms remove \
-	                            "$$modules_name/$$modules_version" \
+	                            "$$modules_name_modules_version" \
 	                            --all; \
 	            else \
 	                dkms remove \
-	                            "$$modules_name/$$modules_version" \
+	                            "$$modules_name_modules_version" \
 	                            -k "$$kernel_version/$$kernel_arch"; \
 	            fi; \
 	        } \
