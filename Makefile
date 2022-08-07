@@ -33,14 +33,12 @@ depmod_conf_uninstall:
 	depmod -a
 
 dracut_conf_install:
-	set -e -x; \
 	if test -e $(DRACUT_CONF_DIR); then \
 	    install -m 0644 dracut.conf $(DRACUT_CONF); \
 	    dracut --force; \
 	fi
 
 dracut_conf_uninstall:
-	set -e -x; \
 	if test -e $(DRACUT_CONF); then \
 	    rm -v $(DRACUT_CONF); \
 	    dracut --force; \
@@ -104,13 +102,13 @@ dkms_modules_install: dkms_check
 	dkms add .
 	dkms build $(DKMS_MODULES)
 	dkms install $(DKMS_MODULES)
+	@! rmmod hid_uclogic
 
 dkms_modules_uninstall: dkms_check
-	set -e -x; \
-	dkms status $(DKMS_MODULES_NAME) | \
+	@dkms status $(DKMS_MODULES_NAME) | \
 	    while IFS=':' read -r modules status; do \
 	        echo "$$modules" | { \
-	            IFS=', ' read -r modules_name modules_version \
+	            IFS=',/ ' read -r modules_name modules_version \
 	                             kernel_version kernel_arch ignore; \
 	            if [ -z "$$kernel_version" ]; then \
 	                dkms remove \
@@ -127,6 +125,11 @@ dkms_modules_uninstall: dkms_check
 dkms_install: dkms_modules_install depmod_conf_install dracut_conf_install udev_rules_install xorg_conf_install tools_install
 
 dkms_uninstall: tools_uninstall xorg_conf_uninstall udev_rules_uninstall dracut_conf_uninstall depmod_conf_uninstall dkms_modules_uninstall
+
+enable_debug:
+	./digimend-debug 1
+
+dkms_reinstall: dkms_uninstall dkms_install enable_debug
 
 dist:
 	git archive --format=tar.gz --prefix=$(PACKAGE)/ HEAD > $(PACKAGE).tar.gz
