@@ -56,16 +56,15 @@ also automatically reinstalls the modules when the kernel is updated.
 Installing with DKMS is the recommended way of installing development versions
 of DIGImend kernel drivers.
 
-To install with DKMS, make sure you have the `dkms` package installed (on
-Debian-based distros):
+To install with DKMS, make sure you have the `dkms` package installed
 
+    # ON DEBIAN (Ubuntu,...):
     sudo apt-get install -y dkms
-
-or (on Fedora-based distros):
-
+    # or
+    # on Fedora-based distros):
     sudo dnf install -y dkms
 
-After that, run the following command from the source directory to install:
+Then, git clone the current repository, inside it, run the following command :
 
     sudo make dkms_install
 
