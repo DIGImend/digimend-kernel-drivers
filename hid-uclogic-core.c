@@ -144,9 +144,8 @@ static int uclogic_input_configured(struct hid_device *hdev,
 			 * Disable EV_MSC reports for touch ring interfaces to
 			 * make the Wacom driver pickup touch ring extents
 			 */
-			if (frame->touch_byte > 0) {
+			if (frame->touch_byte > 0)
 				__clear_bit(EV_MSC, hi->input->evbit);
-			}
 		}
 	}
 
@@ -335,9 +334,8 @@ static int uclogic_raw_event_pen(struct uclogic_drvdata *drvdata,
 				jiffies + msecs_to_jiffies(100));
 	}
 	/* If we report tilt and Y direction is flipped */
-	if (size >= 12 && pen->tilt_y_flipped) {
+	if (size >= 12 && pen->tilt_y_flipped)
 		data[11] = -data[11];
-	}
 
 	return 0;
 }
@@ -401,12 +399,12 @@ static int uclogic_raw_event_frame(
 	/* If need to, and can, transform the touch ring reports */
 	if (frame->touch_byte > 0 && frame->touch_byte < size) {
 		__s8 value = data[frame->touch_byte];
+
 		if (value != 0) {
 			if (frame->touch_flip_at != 0) {
 				value = frame->touch_flip_at - value;
-				if (value <= 0) {
+				if (value <= 0)
 					value = frame->touch_max + value;
-				}
 			}
 			data[frame->touch_byte] = value - 1;
 		}
@@ -414,9 +412,8 @@ static int uclogic_raw_event_frame(
 
 	/* If need to, and can, transform the bitmap dial reports */
 	if (frame->bitmap_dial_byte > 0 && frame->bitmap_dial_byte < size) {
-		if (data[frame->bitmap_dial_byte] == 2) {
+		if (data[frame->bitmap_dial_byte] == 2)
 			data[frame->bitmap_dial_byte] = -1;
-		}
 	}
 
 	return 0;
@@ -434,9 +431,8 @@ static int uclogic_raw_event(struct hid_device *hdev,
 	size_t i;
 
 	/* Do not handle anything but input reports */
-	if (report->type != HID_INPUT_REPORT) {
+	if (report->type != HID_INPUT_REPORT)
 		return 0;
-	}
 
 	while (true) {
 		/* Tweak pen reports, if necessary */
@@ -506,6 +502,8 @@ static const struct hid_device_id uclogic_devices[] = {
 				USB_DEVICE_ID_HUION_TABLET) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION,
 				USB_DEVICE_ID_HUION_TABLET2) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_TRUST,
+				USB_DEVICE_ID_TRUST_PANORA_TABLET) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
 				USB_DEVICE_ID_HUION_TABLET) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
@@ -520,6 +518,8 @@ static const struct hid_device_id uclogic_devices[] = {
 				USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER,
 				USB_DEVICE_ID_UGTIZER_TABLET_GP0610) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER,
+				USB_DEVICE_ID_UGTIZER_TABLET_GT5040) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
 				USB_DEVICE_ID_UGEE_TABLET_G5) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
@@ -532,6 +532,8 @@ static const struct hid_device_id uclogic_devices[] = {
 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_G640) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06) },
 	{ }
