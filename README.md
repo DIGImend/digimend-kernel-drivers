@@ -11,11 +11,6 @@ users to test new drivers before we contribute them to the mainline kernel.
 See the [list of supported tablets][supported_tablets] on the [project
 website][website].
 
-Consider [becoming a patron][patreon_pledge] of the [project
-maintainer][patreon_profile] to help make more tablets work with Linux.
-You can also [support the maintainer on Liberapay][liberapay_profile], or you
-can [buy him a coffee][buymeacoffee_profile]!
-
 Installing
 ----------
 
@@ -89,7 +84,7 @@ Then, to install the drivers, run this command in the same directory:
 
     sudo make install
 
-Note that if you built and installed the drivers this way, you will need to
+Note that if you have built and installed the drivers this way, you will need to
 run `make clean` in the source directory, and then redo the above, after each
 kernel upgrade.
 
@@ -328,10 +323,6 @@ drivers, tablets, development, to ask for help, and to help others!
 [website]: http://digimend.github.io/
 [supported_tablets]: http://digimend.github.io/drivers/digimend/tablets/
 [releases]: https://github.com/DIGImend/digimend-kernel-drivers/releases
-[patreon_profile]: https://www.patreon.com/spbnick
-[patreon_pledge]: https://www.patreon.com/bePatron?c=930980
-[liberapay_profile]: https://liberapay.com/spbnick/
-[buymeacoffee_profile]: https://www.buymeacoffee.com/spbnick
 [dkms_issue1_pr]: https://github.com/dell/dkms/pull/47
 [dkms_issue2_pr]: https://github.com/dell/dkms/pull/66
 [secure_boot]: https://en.wikipedia.org/wiki/Unified_Extensible_Firmware_Interface#Secure_boot
