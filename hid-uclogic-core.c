@@ -261,6 +261,34 @@ static int uclogic_resume(struct hid_device *hdev)
 #endif
 
 /**
+ * uclogic_exec_event_hook - if the received event is hooked schedules the
+ * associated work.
+ *
+ * @p:		Tablet interface report parameters.
+ * @event:	Raw event.
+ * @size:	The size of event.
+ *
+ * Returns:
+ *	Whether the event was hooked or not.
+ */
+static bool uclogic_exec_event_hook(struct uclogic_params *p, u8 *event, int size)
+{
+	struct uclogic_raw_event_hook *curr;
+
+	if (!p->event_hooks)
+		return false;
+
+	list_for_each_entry(curr, &p->event_hooks->list, list) {
+		if (curr->size == size && memcmp(curr->event, event, size) == 0) {
+			schedule_work(&curr->work);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
  * uclogic_raw_event_pen - handle raw pen events (pen HID reports).
  *
  * @drvdata:	Driver data.
@@ -418,6 +446,9 @@ static int uclogic_raw_event(struct hid_device *hdev,
 	if (report->type != HID_INPUT_REPORT)
 		return 0;
 
+	if (uclogic_exec_event_hook(params, data, size))
+		return 0;
+
 	while (true) {
 		/* Tweak pen reports, if necessary */
 		if ((report_id == params->pen.id) && (size >= 2)) {
@@ -550,3 +581,7 @@ MODULE_AUTHOR("Martin Rusko");
 MODULE_AUTHOR("Nikolai Kondrashov");
 MODULE_LICENSE("GPL");
 MODULE_VERSION("11");
+
+#ifdef CONFIG_HID_KUNIT_TEST
+#include "hid-uclogic-core-test.c"
+#endif
