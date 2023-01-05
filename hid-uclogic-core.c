@@ -163,13 +163,20 @@ static int uclogic_input_configured(struct hid_device *hdev,
 			suffix = "Pad";
 			break;
 		case HID_DG_PEN:
+		case HID_DG_DIGITIZER:
 			suffix = "Pen";
+			break;
+		case HID_DG_STYLUS:
+			suffix = "Stylus";
 			break;
 		case HID_CP_CONSUMER_CONTROL:
 			suffix = "Consumer Control";
 			break;
 		case HID_GD_SYSTEM_CONTROL:
 			suffix = "System Control";
+			break;
+		case HID_GD_SYSTEM_MULTIAXIS:
+			suffix = "System Multi Axis";
 			break;
 		}
 	}
