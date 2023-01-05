@@ -830,12 +830,17 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
 
 	/* If it's a custom keyboard interface */
-	if (bInterfaceNumber == 1) {
+	/*
+	 * The pen interface now is not limit to 0, such as KD200, it has
+	 * two pen interfaces. It seems this thing also occurs in the hardware
+	 * with device id 0x006d.
+	 */
+	if (bInterfaceNumber == 1 || bInterfaceNumber == 2) {
 		/* Keep everything intact, but mark pen usage invalid */
 		p.pen.usage_invalid = true;
 		goto output;
 	/* Else, if it's not a pen interface */
-	} else if (bInterfaceNumber != 0) {
+	} else if (bInterfaceNumber > 2) {
 		uclogic_params_init_invalid(&p);
 		goto output;
 	}
