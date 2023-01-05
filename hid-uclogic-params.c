@@ -857,7 +857,7 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
 
 	/* If it's a custom keyboard interface */
-	if (bInterfaceNumber == 1) {
+	if (bInterfaceNumber == 1 || bInterfaceNumber == 2) {
 		/* Keep everything intact, but mark pen usage invalid */
 		p.pen.usage_invalid = true;
 		goto output;
