@@ -200,6 +200,7 @@ static int uclogic_probe(struct hid_device *hdev,
 	 * than the pen, so use QUIRK_MULTI_INPUT for all tablets.
 	 */
 	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+	hdev->quirks |= HID_QUIRK_HIDINPUT_FORCE;
 #ifdef HID_QUIRK_NO_EMPTY_INPUT
 	hdev->quirks |= HID_QUIRK_NO_EMPTY_INPUT;
 #endif
