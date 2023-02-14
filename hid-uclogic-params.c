@@ -785,6 +785,29 @@ cleanup:
 }
 
 /**
+ * uclogic_params_huion_touch_check() - check tablet has touch ring or touch strip.
+ *
+ * @ver_ptr:	The firmware name of the tablet, Cannot be NULL.
+ *
+ * Returns:
+ *	-1, if not found in no touch list. otherwise the tablet has no touch.
+ */
+static int uclogic_params_huion_touch_check(const char *ver_ptr)
+{
+	static const char *huion_no_touch_firmware[] = {
+		"HUION_T197_220816",
+		"HUION_T197_220817",
+	};
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(huion_no_touch_firmware); i++)
+		if (strcmp(ver_ptr, huion_no_touch_firmware[i]) == 0)
+			return i;
+
+	return -1;
+}
+
+/**
  * uclogic_params_huion_init() - initialize a Huion tablet interface and discover
  * its parameters.
  *
@@ -922,7 +945,7 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 		p.frame_list[1].touch_byte = 5;
 		p.frame_list[1].touch_max = 12;
 		p.frame_list[1].touch_flip_at = 7;
-	} else {
+	} else if (uclogic_params_huion_touch_check(ver_ptr) == -1) {
 		/* Create touch strip parameters */
 		rc = uclogic_params_frame_init_with_desc(
 			&p.frame_list[1],
