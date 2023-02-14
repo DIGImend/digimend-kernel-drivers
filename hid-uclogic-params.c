@@ -795,6 +795,7 @@ cleanup:
 static int uclogic_params_huion_touch_check(const char *ver_ptr)
 {
 	static const char *huion_no_touch_firmware[] = {
+		"HUION_T197_220708",
 		"HUION_T197_220816",
 		"HUION_T197_220817",
 	};
