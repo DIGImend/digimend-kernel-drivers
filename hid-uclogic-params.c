@@ -864,110 +864,115 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 	if (strcmp(ver_ptr, transition_ver) == 0) {
 		hid_dbg(hdev,
 			"transition firmware detected, not probing pen v2 parameters\n");
-	} else {
-		/* Try to probe v2 pen parameters */
-		rc = uclogic_params_pen_init_v2(&p.pen, &found,
-						&params_ptr, &params_len,
-						hdev);
-		if (rc != 0) {
-			hid_err(hdev,
-				"failed probing pen v2 parameters: %d\n", rc);
-			goto cleanup;
-		} else if (found) {
-			hid_dbg(hdev, "pen v2 parameters found\n");
-			/* Create v2 frame button parameters */
-			rc = uclogic_params_frame_init_with_desc(
-					&p.frame_list[0],
-					uclogic_rdesc_v2_frame_buttons_arr,
-					uclogic_rdesc_v2_frame_buttons_size,
-					UCLOGIC_RDESC_V2_FRAME_BUTTONS_ID);
-			if (rc != 0) {
-				hid_err(hdev,
-					"failed creating v2 frame button parameters: %d\n",
-					rc);
-				goto cleanup;
-			}
-
-			/* Link from pen sub-report */
-			p.pen.subreport_list[0].value = 0xe0;
-			p.pen.subreport_list[0].id =
-				UCLOGIC_RDESC_V2_FRAME_BUTTONS_ID;
-
-			/* If this is the model with touch ring */
-			if (params_ptr != NULL &&
-			    params_len == sizeof(touch_ring_model_params_buf) &&
-			    memcmp(params_ptr, touch_ring_model_params_buf,
-				   params_len) == 0) {
-				/* Create touch ring parameters */
-				rc = uclogic_params_frame_init_with_desc(
-					&p.frame_list[1],
-					uclogic_rdesc_v2_frame_touch_ring_arr,
-					uclogic_rdesc_v2_frame_touch_ring_size,
-					UCLOGIC_RDESC_V2_FRAME_TOUCH_ID);
-				if (rc != 0) {
-					hid_err(hdev,
-						"failed creating v2 frame touch ring parameters: %d\n",
-						rc);
-					goto cleanup;
-				}
-				p.frame_list[1].suffix = "Touch Ring";
-				p.frame_list[1].dev_id_byte =
-					UCLOGIC_RDESC_V2_FRAME_TOUCH_DEV_ID_BYTE;
-				p.frame_list[1].touch_byte = 5;
-				p.frame_list[1].touch_max = 12;
-				p.frame_list[1].touch_flip_at = 7;
-			} else {
-				/* Create touch strip parameters */
-				rc = uclogic_params_frame_init_with_desc(
-					&p.frame_list[1],
-					uclogic_rdesc_v2_frame_touch_strip_arr,
-					uclogic_rdesc_v2_frame_touch_strip_size,
-					UCLOGIC_RDESC_V2_FRAME_TOUCH_ID);
-				if (rc != 0) {
-					hid_err(hdev,
-						"failed creating v2 frame touch strip parameters: %d\n",
-						rc);
-					goto cleanup;
-				}
-				p.frame_list[1].suffix = "Touch Strip";
-				p.frame_list[1].dev_id_byte =
-					UCLOGIC_RDESC_V2_FRAME_TOUCH_DEV_ID_BYTE;
-				p.frame_list[1].touch_byte = 5;
-				p.frame_list[1].touch_max = 8;
-			}
-
-			/* Link from pen sub-report */
-			p.pen.subreport_list[1].value = 0xf0;
-			p.pen.subreport_list[1].id =
-				UCLOGIC_RDESC_V2_FRAME_TOUCH_ID;
-
-			/* Create v2 frame dial parameters */
-			rc = uclogic_params_frame_init_with_desc(
-					&p.frame_list[2],
-					uclogic_rdesc_v2_frame_dial_arr,
-					uclogic_rdesc_v2_frame_dial_size,
-					UCLOGIC_RDESC_V2_FRAME_DIAL_ID);
-			if (rc != 0) {
-				hid_err(hdev,
-					"failed creating v2 frame dial parameters: %d\n",
-					rc);
-				goto cleanup;
-			}
-			p.frame_list[2].suffix = "Dial";
-			p.frame_list[2].dev_id_byte =
-				UCLOGIC_RDESC_V2_FRAME_DIAL_DEV_ID_BYTE;
-			p.frame_list[2].bitmap_dial_byte = 5;
-
-			/* Link from pen sub-report */
-			p.pen.subreport_list[2].value = 0xf1;
-			p.pen.subreport_list[2].id =
-				UCLOGIC_RDESC_V2_FRAME_DIAL_ID;
-
-			goto output;
-		}
-		hid_dbg(hdev, "pen v2 parameters not found\n");
+		goto detect_pen_v1;
 	}
 
+	/* Try to probe v2 pen parameters */
+	rc = uclogic_params_pen_init_v2(&p.pen, &found,
+					&params_ptr, &params_len,
+					hdev);
+	if (rc != 0) {
+		hid_err(hdev,
+			"failed probing pen v2 parameters: %d\n", rc);
+		goto cleanup;
+	} else if (!found) {
+		hid_dbg(hdev, "pen v2 parameters not found\n");
+		goto detect_pen_v1;
+	}
+
+	hid_dbg(hdev, "pen v2 parameters found\n");
+	/* Create v2 frame button parameters */
+	rc = uclogic_params_frame_init_with_desc(
+			&p.frame_list[0],
+			uclogic_rdesc_v2_frame_buttons_arr,
+			uclogic_rdesc_v2_frame_buttons_size,
+			UCLOGIC_RDESC_V2_FRAME_BUTTONS_ID);
+	if (rc != 0) {
+		hid_err(hdev,
+			"failed creating v2 frame button parameters: %d\n",
+			rc);
+		goto cleanup;
+	}
+
+	/* Link from pen sub-report */
+	p.pen.subreport_list[0].value = 0xe0;
+	p.pen.subreport_list[0].id =
+		UCLOGIC_RDESC_V2_FRAME_BUTTONS_ID;
+
+	/* If this is the model with touch ring */
+	if (params_ptr != NULL &&
+		params_len == sizeof(touch_ring_model_params_buf) &&
+		memcmp(params_ptr, touch_ring_model_params_buf,
+			params_len) == 0) {
+		/* Create touch ring parameters */
+		rc = uclogic_params_frame_init_with_desc(
+			&p.frame_list[1],
+			uclogic_rdesc_v2_frame_touch_ring_arr,
+			uclogic_rdesc_v2_frame_touch_ring_size,
+			UCLOGIC_RDESC_V2_FRAME_TOUCH_ID);
+		if (rc != 0) {
+			hid_err(hdev,
+				"failed creating v2 frame touch ring parameters: %d\n",
+				rc);
+			goto cleanup;
+		}
+		p.frame_list[1].suffix = "Touch Ring";
+		p.frame_list[1].dev_id_byte =
+			UCLOGIC_RDESC_V2_FRAME_TOUCH_DEV_ID_BYTE;
+		p.frame_list[1].touch_byte = 5;
+		p.frame_list[1].touch_max = 12;
+		p.frame_list[1].touch_flip_at = 7;
+	} else {
+		/* Create touch strip parameters */
+		rc = uclogic_params_frame_init_with_desc(
+			&p.frame_list[1],
+			uclogic_rdesc_v2_frame_touch_strip_arr,
+			uclogic_rdesc_v2_frame_touch_strip_size,
+			UCLOGIC_RDESC_V2_FRAME_TOUCH_ID);
+		if (rc != 0) {
+			hid_err(hdev,
+				"failed creating v2 frame touch strip parameters: %d\n",
+				rc);
+			goto cleanup;
+		}
+		p.frame_list[1].suffix = "Touch Strip";
+		p.frame_list[1].dev_id_byte =
+			UCLOGIC_RDESC_V2_FRAME_TOUCH_DEV_ID_BYTE;
+		p.frame_list[1].touch_byte = 5;
+		p.frame_list[1].touch_max = 8;
+	}
+
+	/* Link from pen sub-report */
+	p.pen.subreport_list[1].value = 0xf0;
+	p.pen.subreport_list[1].id =
+		UCLOGIC_RDESC_V2_FRAME_TOUCH_ID;
+
+	/* Create v2 frame dial parameters */
+	rc = uclogic_params_frame_init_with_desc(
+			&p.frame_list[2],
+			uclogic_rdesc_v2_frame_dial_arr,
+			uclogic_rdesc_v2_frame_dial_size,
+			UCLOGIC_RDESC_V2_FRAME_DIAL_ID);
+	if (rc != 0) {
+		hid_err(hdev,
+			"failed creating v2 frame dial parameters: %d\n",
+			rc);
+		goto cleanup;
+	}
+	p.frame_list[2].suffix = "Dial";
+	p.frame_list[2].dev_id_byte =
+		UCLOGIC_RDESC_V2_FRAME_DIAL_DEV_ID_BYTE;
+	p.frame_list[2].bitmap_dial_byte = 5;
+
+	/* Link from pen sub-report */
+	p.pen.subreport_list[2].value = 0xf1;
+	p.pen.subreport_list[2].id =
+		UCLOGIC_RDESC_V2_FRAME_DIAL_ID;
+
+	goto output;
+
+
+detect_pen_v1:
 	/* Try to probe v1 pen parameters */
 	rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
 	if (rc != 0) {
