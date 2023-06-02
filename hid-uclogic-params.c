@@ -1223,7 +1223,9 @@ int uclogic_params_init(struct uclogic_params *params,
 
 	/* Check arguments */
 	if (params == NULL || hdev == NULL
-#if KERNEL_VERSION(4, 14, 0) <= LINUX_VERSION_CODE
+#if KERNEL_VERSION(6, 3, 0) <= LINUX_VERSION_CODE
+	    || !hid_is_usb(hdev)
+#elif KERNEL_VERSION(4, 14, 0) <= LINUX_VERSION_CODE
 	    || !hid_is_using_ll_driver(hdev, &usb_hid_driver)
 #endif
 	   ) {
