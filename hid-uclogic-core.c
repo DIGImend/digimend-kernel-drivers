@@ -95,10 +95,8 @@ static int uclogic_input_configured(struct hid_device *hdev,
 {
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 	struct uclogic_params *params = &drvdata->params;
-	char *name;
 	const char *suffix = NULL;
 	struct hid_field *field;
-	size_t len;
 	size_t i;
 	const struct uclogic_params_frame *frame;
 
@@ -156,14 +154,10 @@ static int uclogic_input_configured(struct hid_device *hdev,
 		}
 	}
 
-	if (suffix) {
-		len = strlen(hdev->name) + 2 + strlen(suffix);
-		name = devm_kzalloc(&hi->input->dev, len, GFP_KERNEL);
-		if (name) {
-			snprintf(name, len, "%s %s", hdev->name, suffix);
-			hi->input->name = name;
-		}
-	}
+	if (suffix)
+		hi->input->name = devm_kasprintf(&hdev->dev, GFP_KERNEL,
+						 "%s %s", hdev->name, suffix);
+
 	RETURN_SUCCESS;
 }
 #undef RETURN_SUCCESS
