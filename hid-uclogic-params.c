@@ -23,7 +23,8 @@
 #include <linux/version.h>
 
 /**
- * Convert a pen in-range reporting type to a string.
+ * uclogic_params_pen_inrange_to_str() - Convert a pen in-range reporting type
+ *                                       to a string.
  *
  * @inrange:	The in-range reporting type to convert.
  *
@@ -152,7 +153,7 @@ static int uclogic_params_get_str_desc(__u8 **pbuf, struct hid_device *hdev,
 					__u8 idx, size_t len)
 {
 	int rc;
-	struct usb_device *udev = hid_to_usb_dev(hdev);
+	struct usb_device *udev;
 	__u8 *buf = NULL;
 
 	/* Check arguments */
@@ -160,6 +161,8 @@ static int uclogic_params_get_str_desc(__u8 **pbuf, struct hid_device *hdev,
 		rc = -EINVAL;
 		goto cleanup;
 	}
+
+	udev = hid_to_usb_dev(hdev);
 
 	buf = kmalloc(len, GFP_KERNEL);
 	if (buf == NULL) {
@@ -177,7 +180,7 @@ static int uclogic_params_get_str_desc(__u8 **pbuf, struct hid_device *hdev,
 		goto cleanup;
 	} else if (rc < 0) {
 		hid_err(hdev,
-			"failed retrieving string descriptor #%hhu: %d\n",
+			"failed retrieving string descriptor #%u: %d\n",
 			idx, rc);
 		goto cleanup;
 	}
@@ -233,7 +236,7 @@ static int uclogic_params_pen_init_v1(struct uclogic_params_pen *pen,
 	const int len = 12;
 	s32 resolution;
 	/* Pen report descriptor template parameters */
-	s32 desc_params[UCLOGIC_RDESC_PEN_PH_ID_NUM];
+	s32 desc_params[UCLOGIC_RDESC_PH_ID_NUM];
 	__u8 *desc_ptr = NULL;
 
 	/* Check arguments */
@@ -342,19 +345,19 @@ static s32 uclogic_params_get_le24(const void *p)
  *			modified in case of error, or if parameters are not
  *			found. Cannot be NULL.
  * @pfound:		Location for a flag which is set to true if the
- * 			parameters were found, and to false if not (e.g.
- * 			device was incompatible). Not modified in case of
- * 			error. Cannot be NULL.
+ *			parameters were found, and to false if not (e.g.
+ *			device was incompatible). Not modified in case of
+ *			error. Cannot be NULL.
  * @pparams_ptr:	Location for a kmalloc'ed pointer to the retrieved raw
- * 			parameters, which could be used to identify the tablet
- * 			to some extent. Should be freed with kfree after use.
- * 			NULL, if not needed. Not modified in case of error.
- * 			Only set if *pfound is set to true.
+ *			parameters, which could be used to identify the tablet
+ *			to some extent. Should be freed with kfree after use.
+ *			NULL, if not needed. Not modified in case of error.
+ *			Only set if *pfound is set to true.
  * @pparams_len:	Location for the length of the retrieved raw
- * 			parameters. NULL, if not needed. Not modified in case
- * 			of error. Only set if *pfound is set to true.
+ *			parameters. NULL, if not needed. Not modified in case
+ *			of error. Only set if *pfound is set to true.
  * @hdev:		The HID device of the tablet interface to initialize
- * 			and get parameters from. Cannot be NULL.
+ *			and get parameters from. Cannot be NULL.
  *
  * Returns:
  *	Zero, if successful. A negative errno code on error.
@@ -378,7 +381,7 @@ static int uclogic_params_pen_init_v2(struct uclogic_params_pen *pen,
 	size_t i;
 	s32 resolution;
 	/* Pen report descriptor template parameters */
-	s32 desc_params[UCLOGIC_RDESC_PEN_PH_ID_NUM];
+	s32 desc_params[UCLOGIC_RDESC_PH_ID_NUM];
 	__u8 *desc_ptr = NULL;
 
 	/* Check arguments */
@@ -475,9 +478,9 @@ static int uclogic_params_pen_init_v2(struct uclogic_params_pen *pen,
 		*pparams_ptr = buf;
 		buf = NULL;
 	}
-	if (pparams_len != NULL) {
+	if (pparams_len != NULL)
 		*pparams_len = params_len;
-	}
+
 finish:
 	*pfound = found;
 	rc = 0;
@@ -559,7 +562,7 @@ static int uclogic_params_frame_init_v1(struct uclogic_params_frame *frame,
 {
 	int rc;
 	bool found = false;
-	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
+	struct usb_device *usb_dev;
 	char *str_buf = NULL;
 	const size_t str_len = 16;
 
@@ -568,6 +571,8 @@ static int uclogic_params_frame_init_v1(struct uclogic_params_frame *frame,
 		rc = -EINVAL;
 		goto cleanup;
 	}
+
+	usb_dev = hid_to_usb_dev(hdev);
 
 	/*
 	 * Enable generic button mode
@@ -620,15 +625,16 @@ void uclogic_params_cleanup(struct uclogic_params *params)
 		size_t i;
 		kfree(params->desc_ptr);
 		uclogic_params_pen_cleanup(&params->pen);
-		for (i = 0; i < ARRAY_SIZE(params->frame_list); i++) {
+		for (i = 0; i < ARRAY_SIZE(params->frame_list); i++)
 			uclogic_params_frame_cleanup(&params->frame_list[i]);
-		}
+
 		memset(params, 0, sizeof(*params));
 	}
 }
 
 /**
- * Get a replacement report descriptor for a tablet's interface.
+ * uclogic_params_get_desc() - Get a replacement report descriptor for a
+ *                             tablet's interface.
  *
  * @params:	The parameters of a tablet interface to get report
  *		descriptor for. Cannot be NULL.
@@ -779,8 +785,8 @@ cleanup:
 }
 
 /**
- * uclogic_params_huion_init() - initialize a Huion tablet interface and
- * discover its parameters.
+ * uclogic_params_huion_init() - initialize a Huion tablet interface and discover
+ * its parameters.
  *
  * @params:	Parameters to fill in (to be cleaned with
  *		uclogic_params_cleanup()). Not modified in case of error.
@@ -795,9 +801,9 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 				     struct hid_device *hdev)
 {
 	int rc;
-	struct usb_device *udev = hid_to_usb_dev(hdev);
-	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
-	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
+	struct usb_device *udev;
+	struct usb_interface *iface;
+	__u8 bInterfaceNumber;
 	bool found;
 	/* The resulting parameters (noop) */
 	struct uclogic_params p = {0, };
@@ -818,6 +824,10 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 		rc = -EINVAL;
 		goto cleanup;
 	}
+
+	udev = hid_to_usb_dev(hdev);
+	iface = to_usb_interface(hdev->dev.parent);
+	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
 
 	/* If it's a custom keyboard interface */
 	if (bInterfaceNumber == 1) {
@@ -868,8 +878,7 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 					UCLOGIC_RDESC_V2_FRAME_BUTTONS_ID);
 			if (rc != 0) {
 				hid_err(hdev,
-					"failed creating v2 frame button "
-					"parameters: %d\n",
+					"failed creating v2 frame button parameters: %d\n",
 					rc);
 				goto cleanup;
 			}
@@ -892,8 +901,7 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 					UCLOGIC_RDESC_V2_FRAME_TOUCH_ID);
 				if (rc != 0) {
 					hid_err(hdev,
-						"failed creating v2 frame touch "
-						"ring parameters: %d\n",
+						"failed creating v2 frame touch ring parameters: %d\n",
 						rc);
 					goto cleanup;
 				}
@@ -912,8 +920,7 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 					UCLOGIC_RDESC_V2_FRAME_TOUCH_ID);
 				if (rc != 0) {
 					hid_err(hdev,
-						"failed creating v2 frame touch "
-						"strip parameters: %d\n",
+						"failed creating v2 frame touch strip parameters: %d\n",
 						rc);
 					goto cleanup;
 				}
@@ -937,8 +944,7 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 					UCLOGIC_RDESC_V2_FRAME_DIAL_ID);
 			if (rc != 0) {
 				hid_err(hdev,
-					"failed creating v2 frame dial "
-					"parameters: %d\n",
+					"failed creating v2 frame dial parameters: %d\n",
 					rc);
 				goto cleanup;
 			}
@@ -999,6 +1005,197 @@ cleanup:
 }
 
 /**
+ * uclogic_probe_interface() - some tablets, like the Parblo A610 PLUS V2 or
+ * the XP-PEN Deco Mini 7, need to be initialized by sending them magic data.
+ *
+ * @hdev:	The HID device of the tablet interface to initialize and get
+ *		parameters from. Cannot be NULL.
+ * @magic_arr:	The magic data that should be sent to probe the interface.
+ *		Cannot be NULL.
+ * @magic_size:	Size of the magic data.
+ * @endpoint:	Endpoint where the magic data should be sent.
+ *
+ * Returns:
+ *	Zero, if successful. A negative errno code on error.
+ */
+static int uclogic_probe_interface(struct hid_device *hdev, u8 *magic_arr,
+				   int magic_size, int endpoint)
+{
+	struct usb_device *udev;
+	unsigned int pipe = 0;
+	int sent;
+	u8 *buf = NULL;
+	int rc = 0;
+
+	if (!hdev || !magic_arr) {
+		rc = -EINVAL;
+		goto cleanup;
+	}
+
+	buf = kmemdup(magic_arr, magic_size, GFP_KERNEL);
+	if (!buf) {
+		rc = -ENOMEM;
+		goto cleanup;
+	}
+
+	udev = hid_to_usb_dev(hdev);
+	pipe = usb_sndintpipe(udev, endpoint);
+
+	rc = usb_interrupt_msg(udev, pipe, buf, magic_size, &sent, 1000);
+	if (rc || sent != magic_size) {
+		hid_err(hdev, "Interface probing failed: %d\n", rc);
+		rc = -1;
+		goto cleanup;
+	}
+
+	rc = 0;
+cleanup:
+	kfree(buf);
+	return rc;
+}
+
+/**
+ * uclogic_params_ugee_v2_init() - initialize a UGEE graphics tablets by
+ * discovering their parameters.
+ *
+ * These tables, internally designed as v2 to differentiate them from older
+ * models, expect a payload of magic data in orther to be switched to the fully
+ * functional mode and expose their parameters in a similar way to the
+ * information present in uclogic_params_pen_init_v1() but with some
+ * differences.
+ *
+ * @params:	Parameters to fill in (to be cleaned with
+ *		uclogic_params_cleanup()). Not modified in case of error.
+ *		Cannot be NULL.
+ * @hdev:	The HID device of the tablet interface to initialize and get
+ *		parameters from. Cannot be NULL.
+ *
+ * Returns:
+ *	Zero, if successful. A negative errno code on error.
+ */
+static int uclogic_params_ugee_v2_init(struct uclogic_params *params,
+				       struct hid_device *hdev)
+{
+	int rc = 0;
+	struct usb_interface *iface;
+	__u8 bInterfaceNumber;
+	const int str_desc_len = 12;
+	__u8 *str_desc = NULL;
+	__u8 *rdesc_pen = NULL;
+	__u8 *rdesc_frame = NULL;
+	s32 desc_params[UCLOGIC_RDESC_PH_ID_NUM];
+	s32 resolution;
+	__u8 magic_arr[] = {
+		0x02, 0xb0, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+	};
+	/* The resulting parameters (noop) */
+	struct uclogic_params p = {0, };
+
+	if (!params || !hdev) {
+		rc = -EINVAL;
+		goto cleanup;
+	}
+
+	iface = to_usb_interface(hdev->dev.parent);
+	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
+	if (bInterfaceNumber != 2) {
+		uclogic_params_init_invalid(&p);
+		goto output;
+	}
+
+	/*
+	 * Initialize the interface by sending magic data.
+	 * The specific data was discovered by sniffing the Windows driver
+	 * traffic.
+	 */
+	rc = uclogic_probe_interface(hdev, magic_arr, sizeof(magic_arr), 0x03);
+	if (rc) {
+		uclogic_params_init_invalid(&p);
+		goto output;
+	}
+
+	/*
+	 * Read the string descriptor containing pen and frame parameters.
+	 * The specific string descriptor and data were discovered by sniffing
+	 * the Windows driver traffic.
+	 */
+	rc = uclogic_params_get_str_desc(&str_desc, hdev, 100, str_desc_len);
+	if (rc != str_desc_len) {
+		hid_err(hdev, "failed retrieving pen and frame parameters: %d\n", rc);
+		uclogic_params_init_invalid(&p);
+		goto output;
+	}
+
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] =
+		get_unaligned_le16(str_desc + 2);
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] =
+		get_unaligned_le16(str_desc + 4);
+	desc_params[UCLOGIC_RDESC_FRAME_PH_ID_UM] = str_desc[6];
+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_PRESSURE_LM] =
+		get_unaligned_le16(str_desc + 8);
+	resolution = get_unaligned_le16(str_desc + 10);
+	if (resolution == 0) {
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] = 0;
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] = 0;
+	} else {
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] =
+			desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] * 1000 /
+			resolution;
+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] =
+			desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] * 1000 /
+			resolution;
+	}
+	kfree(str_desc);
+	str_desc = NULL;
+
+	/* Initialize the pen interface */
+	rdesc_pen = uclogic_rdesc_template_apply(
+				uclogic_rdesc_ugee_v2_pen_template_arr,
+				uclogic_rdesc_ugee_v2_pen_template_size,
+				desc_params, ARRAY_SIZE(desc_params));
+	if (!rdesc_pen) {
+		rc = -ENOMEM;
+		goto cleanup;
+	}
+
+	p.pen.desc_ptr = rdesc_pen;
+	p.pen.desc_size = uclogic_rdesc_ugee_v2_pen_template_size;
+	p.pen.id = 0x02;
+	p.pen.subreport_list[0].value = 0xf0;
+	p.pen.subreport_list[0].id = UCLOGIC_RDESC_V1_FRAME_ID;
+
+	/* Initialize the frame interface */
+	rdesc_frame = uclogic_rdesc_template_apply(
+				uclogic_rdesc_ugee_v2_frame_btn_template_arr,
+				uclogic_rdesc_ugee_v2_frame_btn_template_size,
+				desc_params, ARRAY_SIZE(desc_params));
+	if (!rdesc_frame) {
+		rc = -ENOMEM;
+		goto cleanup;
+	}
+
+	rc = uclogic_params_frame_init_with_desc(&p.frame_list[0],
+						 rdesc_frame,
+						 uclogic_rdesc_ugee_v2_frame_btn_template_size,
+						 UCLOGIC_RDESC_V1_FRAME_ID);
+	kfree(rdesc_frame);
+	if (rc) {
+		uclogic_params_init_invalid(&p);
+		goto output;
+	}
+
+output:
+	/* Output parameters */
+	memcpy(params, &p, sizeof(*params));
+	memset(&p, 0, sizeof(p));
+	rc = 0;
+cleanup:
+	kfree(str_desc);
+	uclogic_params_cleanup(&p);
+	return rc;
+}
+
+/**
  * uclogic_params_init() - initialize a tablet interface and discover its
  * parameters.
  *
@@ -1016,23 +1213,30 @@ int uclogic_params_init(struct uclogic_params *params,
 			struct hid_device *hdev)
 {
 	int rc;
-	struct usb_device *udev = hid_to_usb_dev(hdev);
-	__u8  bNumInterfaces = udev->config->desc.bNumInterfaces;
-	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
-	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
+	struct usb_device *udev;
+	__u8  bNumInterfaces;
+	struct usb_interface *iface;
+	__u8 bInterfaceNumber;
 	bool found;
 	/* The resulting parameters (noop) */
 	struct uclogic_params p = {0, };
 
 	/* Check arguments */
 	if (params == NULL || hdev == NULL
-#if KERNEL_VERSION(4, 14, 0) <= LINUX_VERSION_CODE
+#if KERNEL_VERSION(6, 3, 0) <= LINUX_VERSION_CODE
+	    || !hid_is_usb(hdev)
+#elif KERNEL_VERSION(4, 14, 0) <= LINUX_VERSION_CODE
 	    || !hid_is_using_ll_driver(hdev, &usb_hid_driver)
 #endif
 	   ) {
 		rc = -EINVAL;
 		goto cleanup;
 	}
+
+	udev = hid_to_usb_dev(hdev);
+	bNumInterfaces = udev->config->desc.bNumInterfaces;
+	iface = to_usb_interface(hdev->dev.parent);
+	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
 
 	/*
 	 * Set replacement report descriptor if the original matches the
@@ -1161,7 +1365,7 @@ int uclogic_params_init(struct uclogic_params *params,
 			}
 			break;
 		}
-		/* FALL THROUGH */
+		/* FALLTHROUGH */
 	case VID_PID(USB_VENDOR_ID_HUION,
 		     USB_DEVICE_ID_HUION_TABLET):
 	case VID_PID(USB_VENDOR_ID_HUION,
@@ -1186,6 +1390,8 @@ int uclogic_params_init(struct uclogic_params *params,
 		break;
 	case VID_PID(USB_VENDOR_ID_UGTIZER,
 		     USB_DEVICE_ID_UGTIZER_TABLET_GP0610):
+	case VID_PID(USB_VENDOR_ID_UGTIZER,
+		     USB_DEVICE_ID_UGTIZER_TABLET_GT5040):
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540):
 	case VID_PID(USB_VENDOR_ID_UGEE,
@@ -1232,6 +1438,14 @@ int uclogic_params_init(struct uclogic_params *params,
 			uclogic_params_init_invalid(&p);
 		}
 		break;
+	case VID_PID(USB_VENDOR_ID_UGEE,
+		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L):
+		rc = uclogic_params_ugee_v2_init(&p, hdev);
+		if (rc != 0)
+			goto cleanup;
+		break;
+	case VID_PID(USB_VENDOR_ID_TRUST,
+		     USB_DEVICE_ID_TRUST_PANORA_TABLET):
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_TABLET_G5):
 		/* Ignore non-pen interfaces */
