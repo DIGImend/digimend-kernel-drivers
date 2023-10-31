@@ -1365,7 +1365,7 @@ int uclogic_params_init(struct uclogic_params *params,
 			}
 			break;
 		}
-		/* FALLTHROUGH */
+		fallthrough;
 	case VID_PID(USB_VENDOR_ID_HUION,
 		     USB_DEVICE_ID_HUION_TABLET):
 	case VID_PID(USB_VENDOR_ID_HUION,
