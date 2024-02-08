@@ -988,6 +988,25 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 			p.pen.subreport_list[2].id =
 				UCLOGIC_RDESC_V2_FRAME_DIAL_ID;
 
+			/* Create v2 frame group buttons parameters */
+			rc = uclogic_params_frame_init_with_desc(
+					&p.frame_list[3],
+					uclogic_rdesc_v2_frame_gbuttons_arr,
+					uclogic_rdesc_v2_frame_gbuttons_size,
+					UCLOGIC_RDESC_V2_FRAME_GBUTTONS_ID);
+			if (rc != 0) {
+				hid_err(hdev,
+					"failed creating v2 frame dial parameters: %d\n",
+					rc);
+				goto cleanup;
+			}
+			p.frame_list[3].suffix = "Group Buttons";
+
+			/* Link from pen sub-report */
+			p.pen.subreport_list[3].value = 0xe3;
+			p.pen.subreport_list[3].id =
+				UCLOGIC_RDESC_V2_FRAME_GBUTTONS_ID;
+
 			goto output;
 		}
 		hid_dbg(hdev, "pen v2 parameters not found\n");
