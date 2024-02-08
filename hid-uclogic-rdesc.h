@@ -154,6 +154,13 @@ extern const size_t uclogic_rdesc_v2_frame_touch_strip_size;
 /* Report ID for tweaked v2 frame dial reports */
 #define UCLOGIC_RDESC_V2_FRAME_DIAL_ID 0xf9
 
+/* Report descriptor for group buttons */
+extern const __u8 uclogic_rdesc_v2_frame_gbuttons_arr[];
+extern const size_t uclogic_rdesc_v2_frame_gbuttons_size;
+
+/* Report ID for group buttons */
+#define UCLOGIC_RDESC_V2_FRAME_GBUTTONS_ID 0xfa
+
 /* Fixed report descriptor for (tweaked) v2 frame dial reports */
 extern const __u8 uclogic_rdesc_v2_frame_dial_arr[];
 extern const size_t uclogic_rdesc_v2_frame_dial_size;

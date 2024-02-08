@@ -713,6 +713,14 @@ const __u8 uclogic_rdesc_v2_frame_buttons_arr[] = {
 const size_t uclogic_rdesc_v2_frame_buttons_size =
 			sizeof(uclogic_rdesc_v2_frame_buttons_arr);
 
+/* Report descriptor for group buttons */
+const __u8 uclogic_rdesc_v2_frame_gbuttons_arr[] = {
+	UCLOGIC_RDESC_FRAME_BUTTONS_BYTES(UCLOGIC_RDESC_V2_FRAME_GBUTTONS_ID,
+					  12)
+};
+const size_t uclogic_rdesc_v2_frame_gbuttons_size =
+			sizeof(uclogic_rdesc_v2_frame_gbuttons_arr);
+
 /* Fixed report descriptor for (tweaked) v2 frame touch ring reports */
 const __u8 uclogic_rdesc_v2_frame_touch_ring_arr[] = {
 	0x05, 0x01,         /*  Usage Page (Desktop),               */
