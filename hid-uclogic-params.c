@@ -48,6 +48,27 @@ static const char *uclogic_params_pen_inrange_to_str(
 }
 
 /**
+ * Patches the descriptor if needed
+ *
+ * @hdev:		The HID device the pen parameters describe.
+ * @desc_ptr:	The pointer to the report descriptor
+ */
+static void patch_descriptor(struct hid_device *hdev, __u8 *desc_ptr)
+{
+	if (strcmp(hdev->name, "UC-Logic ARTISUL D16") == 0) {
+		//it's the D16, so patch the
+		//descriptor to ignore the tilt bytes
+		const int template_size = uclogic_rdesc_v1_pen_template_size;
+
+		desc_ptr[template_size - 5] = 0x95; // \ Report Count (1)
+		desc_ptr[template_size - 4] = 0x01; // /
+		desc_ptr[template_size - 3] = 0x80; // input
+		desc_ptr[template_size - 2] = 0xC0; // End Collection
+		desc_ptr[template_size - 1] = 0xC0; // End Collection
+	}
+}
+
+/**
  * Dump tablet interface pen parameters with hid_dbg(), indented with one tab.
  *
  * @hdev:	The HID device the pen parameters describe.
@@ -298,6 +319,9 @@ static int uclogic_params_pen_init_v1(struct uclogic_params_pen *pen,
 				uclogic_rdesc_v1_pen_template_arr,
 				uclogic_rdesc_v1_pen_template_size,
 				desc_params, ARRAY_SIZE(desc_params));
+
+	patch_descriptor(hdev,desc_ptr);
+
 	if (desc_ptr == NULL) {
 		rc = -ENOMEM;
 		goto cleanup;

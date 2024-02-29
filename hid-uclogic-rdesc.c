@@ -579,7 +579,9 @@ const __u8 uclogic_rdesc_v1_pen_template_arr[] = {
 				/*          Logical Maximum (PLACEHOLDER),  */
 	0x81, 0x02,             /*          Input (Variable),               */
 	0xC0,                   /*      End Collection,                     */
-	0xC0                    /*  End Collection                          */
+	0xC0,                    /*  End Collection                          */
+
+	0, 0, 0 //a few extra bytes in case it needs expanded
 };
 
 const size_t uclogic_rdesc_v1_pen_template_size =
