@@ -145,11 +145,17 @@ static int uclogic_input_configured(struct hid_device *hdev,
 		case HID_DG_DIGITIZER:
 			suffix = "Pen";
 			break;
+		case HID_DG_STYLUS:
+			suffix = "Stylus";
+			break;
 		case HID_CP_CONSUMER_CONTROL:
 			suffix = "Consumer Control";
 			break;
 		case HID_GD_SYSTEM_CONTROL:
 			suffix = "System Control";
+			break;
+		case HID_GD_SYSTEM_MULTIAXIS:
+			suffix = "System Multi Axis";
 			break;
 		}
 	}
@@ -511,6 +517,8 @@ static const struct hid_device_id uclogic_devices[] = {
 				USB_DEVICE_ID_HUION_TABLET) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION,
 				USB_DEVICE_ID_HUION_TABLET2) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION,
+				USB_DEVICE_ID_HUION_TABLET3) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_TRUST,
 				USB_DEVICE_ID_TRUST_PANORA_TABLET) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,

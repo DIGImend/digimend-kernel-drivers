@@ -812,6 +812,30 @@ cleanup:
 }
 
 /**
+ * uclogic_params_huion_touch_check() - check tablet has touch ring or touch strip.
+ *
+ * @ver_ptr:	The firmware name of the tablet, Cannot be NULL.
+ *
+ * Returns:
+ *	-1, if not found in no touch list. otherwise the tablet has no touch.
+ */
+static int uclogic_params_huion_touch_check(const char *ver_ptr)
+{
+	static const char *huion_no_touch_firmware[] = {
+		"HUION_T197_220708",
+		"HUION_T197_220816",
+		"HUION_T197_220817",
+	};
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(huion_no_touch_firmware); i++)
+		if (strcmp(ver_ptr, huion_no_touch_firmware[i]) == 0)
+			return i;
+
+	return -1;
+}
+
+/**
  * uclogic_params_huion_init() - initialize a Huion tablet interface and discover
  * its parameters.
  *
@@ -857,12 +881,17 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
 
 	/* If it's a custom keyboard interface */
-	if (bInterfaceNumber == 1) {
+	/*
+	 * The pen interface now is not limit to 0, such as KD200, it has
+	 * two pen interfaces. It seems this thing also occurs in the hardware
+	 * with device id 0x006d.
+	 */
+	if (bInterfaceNumber == 1 || bInterfaceNumber == 2) {
 		/* Keep everything intact, but mark pen usage invalid */
 		p.pen.usage_invalid = true;
 		goto output;
 	/* Else, if it's not a pen interface */
-	} else if (bInterfaceNumber != 0) {
+	} else if (bInterfaceNumber > 2) {
 		uclogic_params_init_invalid(&p);
 		goto output;
 	}
@@ -886,110 +915,115 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 	if (strcmp(ver_ptr, transition_ver) == 0) {
 		hid_dbg(hdev,
 			"transition firmware detected, not probing pen v2 parameters\n");
-	} else {
-		/* Try to probe v2 pen parameters */
-		rc = uclogic_params_pen_init_v2(&p.pen, &found,
-						&params_ptr, &params_len,
-						hdev);
-		if (rc != 0) {
-			hid_err(hdev,
-				"failed probing pen v2 parameters: %d\n", rc);
-			goto cleanup;
-		} else if (found) {
-			hid_dbg(hdev, "pen v2 parameters found\n");
-			/* Create v2 frame button parameters */
-			rc = uclogic_params_frame_init_with_desc(
-					&p.frame_list[0],
-					uclogic_rdesc_v2_frame_buttons_arr,
-					uclogic_rdesc_v2_frame_buttons_size,
-					UCLOGIC_RDESC_V2_FRAME_BUTTONS_ID);
-			if (rc != 0) {
-				hid_err(hdev,
-					"failed creating v2 frame button parameters: %d\n",
-					rc);
-				goto cleanup;
-			}
-
-			/* Link from pen sub-report */
-			p.pen.subreport_list[0].value = 0xe0;
-			p.pen.subreport_list[0].id =
-				UCLOGIC_RDESC_V2_FRAME_BUTTONS_ID;
-
-			/* If this is the model with touch ring */
-			if (params_ptr != NULL &&
-			    params_len == sizeof(touch_ring_model_params_buf) &&
-			    memcmp(params_ptr, touch_ring_model_params_buf,
-				   params_len) == 0) {
-				/* Create touch ring parameters */
-				rc = uclogic_params_frame_init_with_desc(
-					&p.frame_list[1],
-					uclogic_rdesc_v2_frame_touch_ring_arr,
-					uclogic_rdesc_v2_frame_touch_ring_size,
-					UCLOGIC_RDESC_V2_FRAME_TOUCH_ID);
-				if (rc != 0) {
-					hid_err(hdev,
-						"failed creating v2 frame touch ring parameters: %d\n",
-						rc);
-					goto cleanup;
-				}
-				p.frame_list[1].suffix = "Touch Ring";
-				p.frame_list[1].dev_id_byte =
-					UCLOGIC_RDESC_V2_FRAME_TOUCH_DEV_ID_BYTE;
-				p.frame_list[1].touch_byte = 5;
-				p.frame_list[1].touch_max = 12;
-				p.frame_list[1].touch_flip_at = 7;
-			} else {
-				/* Create touch strip parameters */
-				rc = uclogic_params_frame_init_with_desc(
-					&p.frame_list[1],
-					uclogic_rdesc_v2_frame_touch_strip_arr,
-					uclogic_rdesc_v2_frame_touch_strip_size,
-					UCLOGIC_RDESC_V2_FRAME_TOUCH_ID);
-				if (rc != 0) {
-					hid_err(hdev,
-						"failed creating v2 frame touch strip parameters: %d\n",
-						rc);
-					goto cleanup;
-				}
-				p.frame_list[1].suffix = "Touch Strip";
-				p.frame_list[1].dev_id_byte =
-					UCLOGIC_RDESC_V2_FRAME_TOUCH_DEV_ID_BYTE;
-				p.frame_list[1].touch_byte = 5;
-				p.frame_list[1].touch_max = 8;
-			}
-
-			/* Link from pen sub-report */
-			p.pen.subreport_list[1].value = 0xf0;
-			p.pen.subreport_list[1].id =
-				UCLOGIC_RDESC_V2_FRAME_TOUCH_ID;
-
-			/* Create v2 frame dial parameters */
-			rc = uclogic_params_frame_init_with_desc(
-					&p.frame_list[2],
-					uclogic_rdesc_v2_frame_dial_arr,
-					uclogic_rdesc_v2_frame_dial_size,
-					UCLOGIC_RDESC_V2_FRAME_DIAL_ID);
-			if (rc != 0) {
-				hid_err(hdev,
-					"failed creating v2 frame dial parameters: %d\n",
-					rc);
-				goto cleanup;
-			}
-			p.frame_list[2].suffix = "Dial";
-			p.frame_list[2].dev_id_byte =
-				UCLOGIC_RDESC_V2_FRAME_DIAL_DEV_ID_BYTE;
-			p.frame_list[2].bitmap_dial_byte = 5;
-
-			/* Link from pen sub-report */
-			p.pen.subreport_list[2].value = 0xf1;
-			p.pen.subreport_list[2].id =
-				UCLOGIC_RDESC_V2_FRAME_DIAL_ID;
-
-			goto output;
-		}
-		hid_dbg(hdev, "pen v2 parameters not found\n");
+		goto detect_pen_v1;
 	}
 
+	/* Try to probe v2 pen parameters */
+	rc = uclogic_params_pen_init_v2(&p.pen, &found,
+					&params_ptr, &params_len,
+					hdev);
+	if (rc != 0) {
+		hid_err(hdev,
+			"failed probing pen v2 parameters: %d\n", rc);
+		goto cleanup;
+	} else if (!found) {
+		hid_dbg(hdev, "pen v2 parameters not found\n");
+		goto detect_pen_v1;
+	}
+
+	hid_dbg(hdev, "pen v2 parameters found\n");
+	/* Create v2 frame button parameters */
+	rc = uclogic_params_frame_init_with_desc(
+			&p.frame_list[0],
+			uclogic_rdesc_v2_frame_buttons_arr,
+			uclogic_rdesc_v2_frame_buttons_size,
+			UCLOGIC_RDESC_V2_FRAME_BUTTONS_ID);
+	if (rc != 0) {
+		hid_err(hdev,
+			"failed creating v2 frame button parameters: %d\n",
+			rc);
+		goto cleanup;
+	}
+
+	/* Link from pen sub-report */
+	p.pen.subreport_list[0].value = 0xe0;
+	p.pen.subreport_list[0].id =
+		UCLOGIC_RDESC_V2_FRAME_BUTTONS_ID;
+
+	/* If this is the model with touch ring */
+	if (params_ptr != NULL &&
+		params_len == sizeof(touch_ring_model_params_buf) &&
+		memcmp(params_ptr, touch_ring_model_params_buf,
+			params_len) == 0) {
+		/* Create touch ring parameters */
+		rc = uclogic_params_frame_init_with_desc(
+			&p.frame_list[1],
+			uclogic_rdesc_v2_frame_touch_ring_arr,
+			uclogic_rdesc_v2_frame_touch_ring_size,
+			UCLOGIC_RDESC_V2_FRAME_TOUCH_ID);
+		if (rc != 0) {
+			hid_err(hdev,
+				"failed creating v2 frame touch ring parameters: %d\n",
+				rc);
+			goto cleanup;
+		}
+		p.frame_list[1].suffix = "Touch Ring";
+		p.frame_list[1].dev_id_byte =
+			UCLOGIC_RDESC_V2_FRAME_TOUCH_DEV_ID_BYTE;
+		p.frame_list[1].touch_byte = 5;
+		p.frame_list[1].touch_max = 12;
+		p.frame_list[1].touch_flip_at = 7;
+	} else if (uclogic_params_huion_touch_check(ver_ptr) == -1) {
+		/* Create touch strip parameters */
+		rc = uclogic_params_frame_init_with_desc(
+			&p.frame_list[1],
+			uclogic_rdesc_v2_frame_touch_strip_arr,
+			uclogic_rdesc_v2_frame_touch_strip_size,
+			UCLOGIC_RDESC_V2_FRAME_TOUCH_ID);
+		if (rc != 0) {
+			hid_err(hdev,
+				"failed creating v2 frame touch strip parameters: %d\n",
+				rc);
+			goto cleanup;
+		}
+		p.frame_list[1].suffix = "Touch Strip";
+		p.frame_list[1].dev_id_byte =
+			UCLOGIC_RDESC_V2_FRAME_TOUCH_DEV_ID_BYTE;
+		p.frame_list[1].touch_byte = 5;
+		p.frame_list[1].touch_max = 8;
+	}
+
+	/* Link from pen sub-report */
+	p.pen.subreport_list[1].value = 0xf0;
+	p.pen.subreport_list[1].id =
+		UCLOGIC_RDESC_V2_FRAME_TOUCH_ID;
+
+	/* Create v2 frame dial parameters */
+	rc = uclogic_params_frame_init_with_desc(
+			&p.frame_list[2],
+			uclogic_rdesc_v2_frame_dial_arr,
+			uclogic_rdesc_v2_frame_dial_size,
+			UCLOGIC_RDESC_V2_FRAME_DIAL_ID);
+	if (rc != 0) {
+		hid_err(hdev,
+			"failed creating v2 frame dial parameters: %d\n",
+			rc);
+		goto cleanup;
+	}
+	p.frame_list[2].suffix = "Dial";
+	p.frame_list[2].dev_id_byte =
+		UCLOGIC_RDESC_V2_FRAME_DIAL_DEV_ID_BYTE;
+	p.frame_list[2].bitmap_dial_byte = 5;
+
+	/* Link from pen sub-report */
+	p.pen.subreport_list[2].value = 0xf1;
+	p.pen.subreport_list[2].id =
+		UCLOGIC_RDESC_V2_FRAME_DIAL_ID;
+
+	goto output;
+
+
+detect_pen_v1:
 	/* Try to probe v1 pen parameters */
 	rc = uclogic_params_pen_init_v1(&p.pen, &found, hdev);
 	if (rc != 0) {
@@ -1699,6 +1733,8 @@ int uclogic_params_init(struct uclogic_params *params,
 		     USB_DEVICE_ID_HUION_TABLET):
 	case VID_PID(USB_VENDOR_ID_HUION,
 		     USB_DEVICE_ID_HUION_TABLET2):
+	case VID_PID(USB_VENDOR_ID_HUION,
+		     USB_DEVICE_ID_HUION_TABLET3):
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_HUION_TABLET):
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
