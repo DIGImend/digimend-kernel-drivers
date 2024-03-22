@@ -1,3 +1,14 @@
+digimend-dkms (12) unstable; urgency=low
+
+  * Add support for XP-PEN Deco Pro S, with VID:PID 28bd:0909
+  * Add support for Parblo A610 PRO, with VID:PID 28bd:1903
+  * Add support for XP-PEN Deco LW, with VID:PID 28bd:0935
+  * Add support for XP-PEN Deco 01 V2, with VID:PID 28bd:0905
+  * Add support for XP-PEN Deco Pro SW, with VID:PID 28bd:0933
+  * Add support for XP-PEN Deco Pro MW, with VID:PID 28bd:0934
+
+ -- José Expósito <jose.exposito89@gmail.com>  Sat, 24 Feb 2024 12:04:41 +0100
+
 digimend-dkms (11) unstable; urgency=low
 
   * Fix uninstallation with newer DKMS versions.
