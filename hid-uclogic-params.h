@@ -88,7 +88,7 @@ struct uclogic_params_pen {
 	/* Report ID, if reports should be tweaked, zero if not */
 	unsigned int id;
 	/* The list of subreports, only valid if "id" is not zero */
-	struct uclogic_params_pen_subreport subreport_list[3];
+	struct uclogic_params_pen_subreport subreport_list[4];
 	/* Type of in-range reporting, only valid if "id" is not zero */
 	enum uclogic_params_pen_inrange inrange;
 	/*
@@ -227,7 +227,7 @@ struct uclogic_params {
 	 * The list of frame control parameters and optional report descriptor
 	 * parts. Only valid, if "invalid" is false.
 	 */
-	struct uclogic_params_frame frame_list[3];
+	struct uclogic_params_frame frame_list[4];
 	/*
 	 * List of event hooks.
 	 */
