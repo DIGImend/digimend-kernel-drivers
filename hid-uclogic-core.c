@@ -588,7 +588,7 @@ module_hid_driver(uclogic_driver);
 MODULE_AUTHOR("Martin Rusko");
 MODULE_AUTHOR("Nikolai Kondrashov");
 MODULE_LICENSE("GPL");
-MODULE_VERSION("12");
+MODULE_VERSION("13");
 
 #ifdef CONFIG_HID_KUNIT_TEST
 #include "hid-uclogic-core-test.c"

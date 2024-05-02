@@ -1,3 +1,16 @@
+digimend-dkms (13) unstable; urgency=low
+
+  * Expose the firmware name to as uniq ID for user space
+  * Support HUION devices with up to 20 buttons
+  * Use Rx and Ry for touch strips so they work with libinput
+  * Add support for HUION pid 0x006F
+  * Add support for pid 0x0064: Gaomon 1060 Pro, Gaomon M6, HUION KD200
+    and HUION KD100 among others
+  * Add support for HUION Inspiroy 2 M, with VID:PID 256c:0067
+  * Add support for HUION Inspiroy 2 L, with VID:PID 256c:0068
+
+ -- José Expósito <jose.exposito89@gmail.com>  Thu, 02 May 2024 20:02:56 +0100
+
 digimend-dkms (12) unstable; urgency=low
 
   * Add support for XP-PEN Deco Pro S, with VID:PID 28bd:0909
