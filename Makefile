@@ -7,11 +7,12 @@ KVERSION := $(shell uname -r)
 KDIR := /lib/modules/$(KVERSION)/build
 PWD := $(shell pwd)
 DESTDIR =
-UDEV_RULES = $(DESTDIR)/lib/udev/rules.d/90-digimend.rules
+UDEVDIR = $(shell pkg-config --variable=udevdir udev)
+UDEV_RULES = $(DESTDIR)$(UDEVDIR)/rules.d/90-digimend.rules
 DEPMOD_CONF = $(DESTDIR)/etc/depmod.d/digimend.conf
 DRACUT_CONF_DIR = $(DESTDIR)/usr/lib/dracut/dracut.conf.d
 DRACUT_CONF = $(DRACUT_CONF_DIR)/90-digimend.conf
-HID_REBIND = $(DESTDIR)/lib/udev/hid-rebind
+HID_REBIND = $(DESTDIR)$(UDEVDIR)/hid-rebind
 DIGIMEND_DEBUG = $(DESTDIR)/usr/sbin/digimend-debug
 XORG_CONF := $(DESTDIR)/usr/share/X11/xorg.conf.d/50-digimend.conf
 PACKAGE_NAME = digimend-kernel-drivers
