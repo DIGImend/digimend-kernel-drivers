@@ -1279,10 +1279,10 @@ static bool uclogic_params_ugee_v2_has_battery(struct hid_device *hdev)
 	 * version.
 	 */
 	if (hdev->vendor == USB_VENDOR_ID_UGEE &&
-	    hdev->product == USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L || hdev->product == USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_M) {
+	    hdev->product == USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L) {
 		struct usb_device *udev = hid_to_usb_dev(hdev);
 
-		if (strstarts(udev->product, "Deco LW") || strstarts(udev->product, "Deco MW"))
+		if (strstarts(udev->product, "Deco LW"))
 			return true;
 	}
 
@@ -1799,8 +1799,6 @@ int uclogic_params_init(struct uclogic_params *params,
 		     USB_DEVICE_ID_UGEE_PARBLO_A610_PRO):
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01_V2):
-	case VID_PID(USB_VENDOR_ID_UGEE,
-		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_M):
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L):
 	case VID_PID(USB_VENDOR_ID_UGEE,
