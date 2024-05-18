@@ -8,3 +8,4 @@
 /modules.order
 !.travis.yml
 /cscope.out
+!.editorconfig
