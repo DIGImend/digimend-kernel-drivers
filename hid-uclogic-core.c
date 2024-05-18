@@ -83,15 +83,8 @@ static int uclogic_input_mapping(struct hid_device *hdev,
 	return 0;
 }
 
-#if KERNEL_VERSION(4, 4, 0) > LINUX_VERSION_CODE
-#define RETURN_SUCCESS return
-static void uclogic_input_configured(struct hid_device *hdev,
-		struct hid_input *hi)
-#else
-#define RETURN_SUCCESS return 0
 static int uclogic_input_configured(struct hid_device *hdev,
 		struct hid_input *hi)
-#endif
 {
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 	struct uclogic_params *params = &drvdata->params;
@@ -102,7 +95,7 @@ static int uclogic_input_configured(struct hid_device *hdev,
 
 	/* no report associated (HID_QUIRK_MULTI_INPUT not set) */
 	if (!hi->report)
-		RETURN_SUCCESS;
+		return 0;
 
 	/*
 	 * If this is the input corresponding to the pen report
@@ -158,10 +151,8 @@ static int uclogic_input_configured(struct hid_device *hdev,
 		hi->input->name = devm_kasprintf(&hdev->dev, GFP_KERNEL,
 						 "%s %s", hdev->name, suffix);
 
-	RETURN_SUCCESS;
+	return 0;
 }
-#undef RETURN_SUCCESS
-
 
 static int uclogic_probe(struct hid_device *hdev,
 		const struct hid_device_id *id)

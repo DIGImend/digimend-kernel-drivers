@@ -14,7 +14,7 @@ website][website].
 Installing
 ----------
 
-Kernel v3.5 or newer is required.
+Kernel v4.18 or newer is required.
 
 Download appropriate files for one of the releases from the [releases
 page][releases]. The "Download ZIP" link on the right of the GitHub page leads
