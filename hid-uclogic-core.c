@@ -162,10 +162,10 @@ static int uclogic_probe(struct hid_device *hdev,
 	bool params_initialized = false;
 
 	/*
-	 * libinput requires the pad interface to be on a different node
-	 * than the pen, so use QUIRK_MULTI_INPUT for all tablets.
+	 * libinput requires the pen interface to be on a different node
+	 * than the pad, dials, touch strips, etc.
 	 */
-	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+	hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
 	hdev->quirks |= HID_QUIRK_HIDINPUT_FORCE;
 #ifdef HID_QUIRK_NO_EMPTY_INPUT
 	hdev->quirks |= HID_QUIRK_NO_EMPTY_INPUT;
