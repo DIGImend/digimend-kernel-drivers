@@ -1819,6 +1819,8 @@ int uclogic_params_init(struct uclogic_params *params,
 		     USB_DEVICE_ID_TRUST_PANORA_TABLET):
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_TABLET_G5):
+	case VID_PID(USB_VENDOR_ID_UGEE,
+		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06C):
 		/* Ignore non-pen interfaces */
 		if (bInterfaceNumber != 1) {
 			uclogic_params_init_invalid(&p);

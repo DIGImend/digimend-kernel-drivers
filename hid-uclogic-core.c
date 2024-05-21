@@ -569,6 +569,8 @@ static const struct hid_device_id uclogic_devices[] = {
 		.driver_data = UCLOGIC_MOUSE_FRAME_QUIRK | UCLOGIC_BATTERY_QUIRK },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06) },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+				USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06C) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, uclogic_devices);
