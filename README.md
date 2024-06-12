@@ -41,7 +41,7 @@ your kernel installed (on Debian-based systems):
 
 or (on Fedora-based systems):
 
-    sudo dnf install -y "kernel-devel-uname-r == $(uname -r)"
+    sudo dnf install -y "kernel-devel-$(uname -r)"
 
 If you get "Error: Unable to find a match" from the above command, make sure
 your kernel is up-to-date, and if not, update it and try again.
