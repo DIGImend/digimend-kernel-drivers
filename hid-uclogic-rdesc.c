@@ -1200,6 +1200,93 @@ const __u8 uclogic_rdesc_xppen_deco01_frame_arr[] = {
 const size_t uclogic_rdesc_xppen_deco01_frame_size =
 			sizeof(uclogic_rdesc_xppen_deco01_frame_arr);
 
+/* Fixed report descriptor for XP-Pen Artist 16 2nd Gen */
+__u8 uclogic_rdesc_xppen_a162g_fixed_arr[] = {
+0x05, 0x0D,         /*  Usage Page (Digitizer),             */
+0x09, 0x02,         /*  Usage (Pen),                        */
+0xA1, 0x01,         /*  Collection (Application),           */
+0x85, 0x07,         /*      Report ID (7),                  */
+0x09, 0x20,         /*      Usage (Stylus),                 */
+0xA0,               /*      Collection (Physical),          */
+0x75, 0x01,         /*          Report Size (1),            */
+0x09, 0x42,         /*          Usage (Tip Switch),         */
+0x09, 0x44,         /*          Usage (Barrel Switch),      */
+0x09, 0x46,         /*          Usage (Tablet Pick),        */
+0x14,               /*          Logical Minimum (0),        */
+0x25, 0x01,         /*          Logical Maximum (1),        */
+0x95, 0x03,         /*          Report Count (3),           */
+0x81, 0x02,         /*          Input (Variable),           */
+0x95, 0x03,         /*          Report Count (3),           */
+0x81, 0x01,         /*          Input (Constant),           */
+0x09, 0x32,         /*          Usage (In Range),           */
+0x95, 0x01,         /*          Report Count (1),           */
+0x81, 0x02,         /*          Input (Variable),           */
+0x95, 0x01,         /*          Report Count (1),           */
+0x81, 0x01,         /*          Input (Constant),           */
+0x75, 0x10,         /*          Report Size (16),           */
+0x95, 0x01,         /*          Report Count (1),           */
+0x34,               /*          Physical Minimum (0),       */
+0xA4,               /*          Push,                       */
+0x05, 0x01,         /*          Usage Page (Desktop),       */
+0x55, 0x0D,         /*          Unit Exponent (13),         */
+0x65, 0x13,         /*          Unit (Inch),                */
+0x09, 0x30,         /*          Usage (X),                  */
+0x46, 0x71, 0x34,   /*          Physical Maximum (13425),   */
+0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),    */
+0x81, 0x02,         /*          Input (Variable),           */
+0x09, 0x31,         /*          Usage (Y),                  */
+0x46, 0x7F, 0x1D,   /*          Physical Maximum (7551),    */
+0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),    */
+0x81, 0x02,         /*          Input (Variable),           */
+0xB4,               /*          Pop,                        */
+0x09, 0x30,         /*          Usage (Tip Pressure),       */
+0x26, 0xFF, 0x1F,   /*          Logical Maximum (8191),     */
+0x81, 0x02,         /*          Input (Variable),           */
+0x75, 0x08,         /*          Report Size (8),            */
+0x09, 0x3D,         /*          Usage (X Tilt),             */
+0x15, 0x81,         /*          Logical Minimum (-127),     */
+0x25, 0x7F,         /*          Logical Maximum (127),      */
+0x95, 0x01,         /*          Report Count (1),           */
+0x81, 0x02,         /*          Input (Variable),           */
+0x09, 0x3E,         /*          Usage (Y Tilt),             */
+0x15, 0x81,         /*          Logical Minimum (-127),     */
+0x25, 0x7F,         /*          Logical Maximum (127),      */
+0x95, 0x01,         /*          Report Count (1),           */
+0x81, 0x02,         /*          Input (Variable),           */
+0xC0,               /*      End Collection,                 */
+0xC0                /*  End Collection                      */
+};
+
+const size_t uclogic_rdesc_xppen_a162g_fixed_size =
+                       sizeof(uclogic_rdesc_xppen_a162g_fixed_arr);
+
+/* Fixed report descriptor for XP-Pen Artist 16 2nd Gen keyboard */
+__u8 uclogic_rdesc_xppen_a162g_kb_fixed_arr[] = {
+  0x05, 0x01,         /*  Usage Page (Desktop),               */
+  0x09, 0x06,         /*  Usage (Keyboard),                   */
+  0xA1, 0x01,         /*  Collection (Application),           */
+  0x85, 0x06,         /*      Report ID (6),                  */
+  0x05, 0x07,         /*      Usage Page (Keyboard),          */
+  0x14,               /*      Logical Minimum (0),            */
+  0x19, 0xE0,         /*      Usage Minimum (KB Leftcontrol), */
+  0x29, 0xE7,         /*      Usage Maximum (KB Right GUI),   */
+  0x25, 0x01,         /*      Logical Maximum (1),            */
+  0x75, 0x01,         /*      Report Size (1),                */
+  0x95, 0x08,         /*      Report Count (8),               */
+  0x81, 0x02,         /*      Input (Variable),               */
+  0x18,               /*      Usage Minimum (None),           */
+  0x29, 0xFF,         /*      Usage Maximum (FFh),            */
+  0x26, 0xFF, 0x00,   /*      Logical Maximum (255),          */
+  0x75, 0x08,         /*      Report Size (8),                */
+  0x95, 0x06,         /*      Report Count (6),               */
+  0x80,               /*      Input,                          */
+  0xC0                /*  End Collection                      */
+};
+
+const size_t uclogic_rdesc_xppen_a162g_kb_fixed_size =
+                       sizeof(uclogic_rdesc_xppen_a162g_kb_fixed_arr);
+
+
 /**
  * uclogic_rdesc_template_apply() - apply report descriptor parameters to a
  * report descriptor template, creating a report descriptor. Copies the
