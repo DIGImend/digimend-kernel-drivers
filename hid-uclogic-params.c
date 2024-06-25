@@ -1883,6 +1883,23 @@ int uclogic_params_init(struct uclogic_params *params,
 		}
 
 		break;
+	case VID_PID(USB_VENDOR_ID_UGEE,
+		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_A162G):
+		switch(bInterfaceNumber) {
+			case 0:
+				rc = WITH_OPT_DESC(XPPEN_A162G_KB_ORIG, xppen_a162g_kb_fixed);
+				if (rc != 0)
+					goto cleanup;
+				break;
+			case 1:
+				rc = WITH_OPT_DESC(XPPEN_A162G_ORIG, xppen_a162g_fixed);
+				if (rc != 0)
+					goto cleanup;
+				break;
+			default:
+				uclogic_params_init_invalid(&p);
+		}
+		break;
 	}
 
 #undef VID_PID

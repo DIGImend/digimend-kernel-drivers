@@ -217,4 +217,18 @@ extern const size_t uclogic_rdesc_ugee_g5_frame_size;
 /* Least-significant bit of Ugee G5 frame rotary encoder state */
 #define UCLOGIC_RDESC_UGEE_G5_FRAME_RE_LSB 38
 
+/* Fixed report descriptor for XP-Pen Artist 16 2nd Gen */
+extern __u8 uclogic_rdesc_xppen_a162g_fixed_arr[];
+extern const size_t uclogic_rdesc_xppen_a162g_fixed_size;
+
+/* Size of the original descriptor of XP-Pen Artist 16 2nd Gen tablet */
+#define UCLOGIC_RDESC_XPPEN_A162G_ORIG_SIZE            139
+
+/* Fixed report descriptor for XP-Pen Artist 16 2nd Gen keyboard */
+extern __u8 uclogic_rdesc_xppen_a162g_kb_fixed_arr[];
+extern const size_t uclogic_rdesc_xppen_a162g_kb_fixed_size;
+
+/* Size of the original descriptor of XP-Pen Artist 16 2nd Gen tablet keyboard */
+#define UCLOGIC_RDESC_XPPEN_A162G_KB_ORIG_SIZE         177
+
 #endif /* _HID_UCLOGIC_RDESC_H */
