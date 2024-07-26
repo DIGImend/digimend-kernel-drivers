@@ -288,6 +288,7 @@ static int uclogic_params_pen_init_v1(struct uclogic_params_pen *pen,
 			desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] * 1000 /
 			resolution;
 	}
+
 	kfree(buf);
 	buf = NULL;
 
@@ -1800,9 +1801,33 @@ int uclogic_params_init(struct uclogic_params *params,
 		}
 		break;
 	case VID_PID(USB_VENDOR_ID_UGEE,
-		     USB_DEVICE_ID_UGEE_PARBLO_A610_PRO):
-	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01_V2):
+		switch (bInterfaceNumber) {
+		case 0: // Keyboard
+			rc = uclogic_params_frame_init_with_desc(
+				&p.frame_list[0],
+				uclogic_rdesc_xppen_deco01v2_fixed0_arr,
+				uclogic_rdesc_xppen_deco01v2_fixed0_size,
+				0);
+			if (rc != 0)
+				goto cleanup;
+			break;
+		case 1: // Tablet
+			rc = uclogic_params_frame_init_with_desc(
+				&p.frame_list[1],
+				uclogic_rdesc_xppen_deco01v2_fixed1_arr,
+				uclogic_rdesc_xppen_deco01v2_fixed1_size,
+				0);
+			if (rc != 0)
+				goto cleanup;
+			break;
+		case 2: //What is this interface?
+			uclogic_params_init_invalid(&p);
+			break;
+		}
+		break;
+	case VID_PID(USB_VENDOR_ID_UGEE,
+		     USB_DEVICE_ID_UGEE_PARBLO_A610_PRO):
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L):
 	case VID_PID(USB_VENDOR_ID_UGEE,
