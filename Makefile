@@ -7,15 +7,16 @@ KVERSION := $(shell uname -r)
 KDIR := /lib/modules/$(KVERSION)/build
 PWD := $(shell pwd)
 DESTDIR =
-UDEV_RULES = $(DESTDIR)/lib/udev/rules.d/90-digimend.rules
+UDEVDIR = $(shell pkg-config --variable=udevdir udev)
+UDEV_RULES = $(DESTDIR)$(UDEVDIR)/rules.d/90-digimend.rules
 DEPMOD_CONF = $(DESTDIR)/etc/depmod.d/digimend.conf
 DRACUT_CONF_DIR = $(DESTDIR)/usr/lib/dracut/dracut.conf.d
 DRACUT_CONF = $(DRACUT_CONF_DIR)/90-digimend.conf
-HID_REBIND = $(DESTDIR)/lib/udev/hid-rebind
+HID_REBIND = $(DESTDIR)$(UDEVDIR)/hid-rebind
 DIGIMEND_DEBUG = $(DESTDIR)/usr/sbin/digimend-debug
 XORG_CONF := $(DESTDIR)/usr/share/X11/xorg.conf.d/50-digimend.conf
 PACKAGE_NAME = digimend-kernel-drivers
-PACKAGE_VERSION = 10
+PACKAGE_VERSION = 13
 PACKAGE = $(PACKAGE_NAME)-$(PACKAGE_VERSION)
 DKMS_MODULES_NAME = digimend
 DKMS_MODULES = $(DKMS_MODULES_NAME)/$(PACKAGE_VERSION)
@@ -110,8 +111,8 @@ dkms_modules_uninstall: dkms_check
 	dkms status $(DKMS_MODULES_NAME) | \
 	    while IFS=':' read -r modules status; do \
 	        echo "$$modules" | { \
-	            IFS=', ' read -r modules_name modules_version \
-	                             kernel_version kernel_arch ignore; \
+	            IFS=',/ ' read -r modules_name modules_version \
+	                              kernel_version kernel_arch ignore; \
 	            if [ -z "$$kernel_version" ]; then \
 	                dkms remove \
 	                            "$$modules_name/$$modules_version" \

@@ -11,11 +11,6 @@ users to test new drivers before we contribute them to the mainline kernel.
 See the [list of supported tablets][supported_tablets] on the [project
 website][website].
 
-Consider [becoming a patron][patreon_pledge] of the [project
-maintainer][patreon_profile] to help make more tablets work with Linux.
-You can also [support the maintainer on Liberapay][liberapay_profile], or you
-can [buy him a coffee][buymeacoffee_profile]!
-
 Installing
 ----------
 
@@ -89,7 +84,7 @@ Then, to install the drivers, run this command in the same directory:
 
     sudo make install
 
-Note that if you built and installed the drivers this way, you will need to
+Note that if you have built and installed the drivers this way, you will need to
 run `make clean` in the source directory, and then redo the above, after each
 kernel upgrade.
 
@@ -320,7 +315,7 @@ yet, leave a thumbs-up :thumbsup: reaction on the first post in the issue.
 This will let developers identify popular issues and pick them first for
 solving!
 
-Join the [#DIGImend channel on irc.freenode.net][irc_channel] to discuss the
+Join the [#DIGImend channel on irc.libera.chat][irc_channel] to discuss the
 drivers, tablets, development, to ask for help, and to help others!
 
 [travis_ci_badge]: https://travis-ci.org/DIGImend/digimend-kernel-drivers.svg?branch=master
@@ -328,15 +323,11 @@ drivers, tablets, development, to ask for help, and to help others!
 [website]: http://digimend.github.io/
 [supported_tablets]: http://digimend.github.io/drivers/digimend/tablets/
 [releases]: https://github.com/DIGImend/digimend-kernel-drivers/releases
-[patreon_profile]: https://www.patreon.com/spbnick
-[patreon_pledge]: https://www.patreon.com/bePatron?c=930980
-[liberapay_profile]: https://liberapay.com/spbnick/
-[buymeacoffee_profile]: https://www.buymeacoffee.com/spbnick
 [dkms_issue1_pr]: https://github.com/dell/dkms/pull/47
 [dkms_issue2_pr]: https://github.com/dell/dkms/pull/66
 [secure_boot]: https://en.wikipedia.org/wiki/Unified_Extensible_Firmware_Interface#Secure_boot
 [xsetwacom_manpage]: https://www.mankier.com/1/xsetwacom
 [howtos]: http://digimend.github.io/support/
 [issues]: https://github.com/DIGImend/digimend-kernel-drivers/issues
-[irc_channel]: https://webchat.freenode.net/?channels=DIGImend
+[irc_channel]: https://web.libera.chat/#DIGImend
 [gnome_touch_scroll_issue]: https://gitlab.gnome.org/GNOME/gnome-control-center/issues/118

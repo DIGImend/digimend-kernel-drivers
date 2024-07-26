@@ -1,8 +1,62 @@
+digimend-dkms (13) unstable; urgency=low
+
+  * Expose the firmware name to as uniq ID for user space
+  * Support HUION devices with up to 20 buttons
+  * Use Rx and Ry for touch strips so they work with libinput
+  * Add support for HUION pid 0x006F
+  * Add support for pid 0x0064: Gaomon 1060 Pro, Gaomon M6, HUION KD200
+    and HUION KD100 among others
+  * Add support for HUION Inspiroy 2 M, with VID:PID 256c:0067
+  * Add support for HUION Inspiroy 2 L, with VID:PID 256c:0068
+
+ -- José Expósito <jose.exposito89@gmail.com>  Thu, 02 May 2024 20:02:56 +0100
+
+digimend-dkms (12) unstable; urgency=low
+
+  * Add support for XP-PEN Deco Pro S, with VID:PID 28bd:0909
+  * Add support for Parblo A610 PRO, with VID:PID 28bd:1903
+  * Add support for XP-PEN Deco LW, with VID:PID 28bd:0935
+  * Add support for XP-PEN Deco 01 V2, with VID:PID 28bd:0905
+  * Add support for XP-PEN Deco Pro SW, with VID:PID 28bd:0933
+  * Add support for XP-PEN Deco Pro MW, with VID:PID 28bd:0934
+
+ -- José Expósito <jose.exposito89@gmail.com>  Sat, 24 Feb 2024 12:04:41 +0100
+
+digimend-dkms (11) unstable; urgency=low
+
+  * Fix uninstallation with newer DKMS versions.
+  * Bring in the latest changes from the (upstream) Linux kernel, listed
+    below.
+  * Add support for Trust Flex Design Tablet / UGTizer GT5040, with PID
+    0x0077. By Martijn van de Streek.
+  * Add support for Trust Panora (UGEE G5), with VID:PID 145f:0212.
+    By Cristian Klein.
+  * Add support for XP-Pen Deco L. Thank you, José Expósito!
+
+ -- Nikolai Kondrashov <spbnick@gmail.com>  Sun, 07 Aug 2022 18:51:41 +0300
+
 digimend-dkms (10) unstable; urgency=low
 
-  * Bump version number.
+  * Add support for Huion tilt reporting protocol.
+  * Add support for Ugee Rainbow CV720. Thank you, Wang Xuerui!
+  * Handle the new Huion product ID (006d), unlocking support for many new
+    models.
+  * Add support for 13th button on Huion tablet frames.
+  * Do not expose unused input interfaces, to simplify code and reduce user
+    confusion.
+  * Support touch rings and strips on Huion devices. However, this requires
+    the user-space Wacom drivers v0.34.99.1 or older for now. See way too many
+    details about this in issue #275. Also note that Gnome has support for
+    this broken.
+  * Support dials on Huion devices.
+  * Add support for Huion Q620M.
+  * Add support for Huion HS611.
+  * Add pen support for XP-Pen Star 06. Thank you, romanenkor!
+  * Add digimend-debug tool. Now you can make debug messages to appear in your
+    dmesg upon tablet connection, if you run sudo digimend-debug on first.
+  * Fix multiple issues with compatibility with newer kernels and distros.
 
- -- Nikolai Kondrashov <spbnick@gmail.com>  Sat, 15 Dec 2018 18:17:23 +0200
+ -- Nikolai Kondrashov <spbnick@gmail.com>  Sun, 4 Oct 2020 15:23:30 +0300
 
 digimend-dkms (9) unstable; urgency=low
 
