@@ -881,7 +881,7 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
 
 	/* If it's a custom keyboard interface */
-	if (bInterfaceNumber == 1) {
+	if (bInterfaceNumber == 1 || bInterfaceNumber == 2) {
 		/* Keep everything intact, but mark pen usage invalid */
 		p.pen.usage_invalid = true;
 		goto output;
@@ -1011,6 +1011,25 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
 			p.pen.subreport_list[2].value = 0xf1;
 			p.pen.subreport_list[2].id =
 				UCLOGIC_RDESC_V2_FRAME_DIAL_ID;
+
+			/* Create v2 frame group buttons parameters */
+			rc = uclogic_params_frame_init_with_desc(
+					&p.frame_list[3],
+					uclogic_rdesc_v2_frame_gbuttons_arr,
+					uclogic_rdesc_v2_frame_gbuttons_size,
+					UCLOGIC_RDESC_V2_FRAME_GBUTTONS_ID);
+			if (rc != 0) {
+				hid_err(hdev,
+					"failed creating v2 frame dial parameters: %d\n",
+					rc);
+				goto cleanup;
+			}
+			p.frame_list[3].suffix = "Group Buttons";
+
+			/* Link from pen sub-report */
+			p.pen.subreport_list[3].value = 0xe3;
+			p.pen.subreport_list[3].id =
+				UCLOGIC_RDESC_V2_FRAME_GBUTTONS_ID;
 
 			goto output;
 		}
@@ -1726,6 +1745,16 @@ int uclogic_params_init(struct uclogic_params *params,
 		     USB_DEVICE_ID_HUION_TABLET):
 	case VID_PID(USB_VENDOR_ID_HUION,
 		     USB_DEVICE_ID_HUION_TABLET2):
+	case VID_PID(USB_VENDOR_ID_HUION,
+		     USB_DEVICE_ID_HUION_TABLET3):
+	case VID_PID(USB_VENDOR_ID_HUION,
+		     USB_DEVICE_ID_HUION_TABLET4):
+	case VID_PID(USB_VENDOR_ID_HUION,
+		     USB_DEVICE_ID_HUION_H951P):
+	case VID_PID(USB_VENDOR_ID_HUION,
+		     USB_DEVICE_ID_HUION_H1061P):
+	case VID_PID(USB_VENDOR_ID_HUION,
+		     USB_DEVICE_ID_HUION_H641P):
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_HUION_TABLET):
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
@@ -1738,6 +1767,8 @@ int uclogic_params_init(struct uclogic_params *params,
 		     USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_45):
 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 		     USB_DEVICE_ID_UCLOGIC_UGEE_TABLET_47):
+	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+		     USB_DEVICE_ID_UCLOGIC_XPPEN_ARTIST_10S):
 		rc = uclogic_params_huion_init(&p, hdev);
 		if (rc != 0)
 			goto cleanup;
@@ -1798,6 +1829,8 @@ int uclogic_params_init(struct uclogic_params *params,
 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01_V2):
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L):
+	case VID_PID(USB_VENDOR_ID_UGEE,
+		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_M):
 	case VID_PID(USB_VENDOR_ID_UGEE,
 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_MW):
 	case VID_PID(USB_VENDOR_ID_UGEE,
