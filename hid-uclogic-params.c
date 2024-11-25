@@ -19,7 +19,7 @@
 #include "hid-ids.h"
 #include <linux/ctype.h>
 #include <linux/string.h>
-#include <asm/unaligned.h>
+#include <linux/unaligned.h>
 
 #include <linux/version.h>
 

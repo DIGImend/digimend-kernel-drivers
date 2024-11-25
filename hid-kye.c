@@ -579,7 +579,7 @@ static __u8 *kye_consumer_control_fixup(struct hid_device *hdev, __u8 *rdesc,
 	return rdesc;
 }
 
-static __u8 *kye_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+static const __u8 *kye_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 		unsigned int *rsize)
 {
 	switch (hdev->product) {

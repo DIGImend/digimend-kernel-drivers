@@ -149,7 +149,7 @@ static __u8 pt1001_rdesc_fixed[] = {
 	0xC0,               /*  End Collection                          */
 };
 
-static __u8 *polostar_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+static const __u8 *polostar_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 				   unsigned int *rsize)
 {
 	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
