@@ -53,8 +53,13 @@ static void uclogic_inrange_timeout(struct timer_list *t)
 	input_sync(input);
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 12, 0)
+static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+				unsigned int *rsize)
+#else
 static const __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 					unsigned int *rsize)
+#endif
 {
 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 

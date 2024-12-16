@@ -16,6 +16,7 @@
 #include <linux/hid.h>
 #include <linux/module.h>
 #include <linux/usb.h>
+#include <linux/version.h>
 
 #include "hid-ids.h"
 
@@ -71,8 +72,13 @@ static __u8 pd1011_rdesc_fixed[] = {
 	0xC0                    /*  End Collection                      */
 };
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 12, 0)
+static __u8 *viewsonic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+				    unsigned int *rsize)
+#else
 static const __u8 *viewsonic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 				    unsigned int *rsize)
+#endif
 {
 	switch (hdev->product) {
 	case USB_DEVICE_ID_VIEWSONIC_PD1011:
