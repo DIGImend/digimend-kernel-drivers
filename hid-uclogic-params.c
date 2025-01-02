@@ -19,9 +19,14 @@
 #include "hid-ids.h"
 #include <linux/ctype.h>
 #include <linux/string.h>
-#include <asm/unaligned.h>
-
 #include <linux/version.h>
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 12, 0)
+#include <asm/unaligned.h>
+#else
+#include <linux/unaligned.h>
+#endif
+
 
 /**
  * uclogic_params_pen_inrange_to_str() - Convert a pen in-range reporting type

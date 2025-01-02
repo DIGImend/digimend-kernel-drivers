@@ -18,6 +18,8 @@
 #include <linux/hid.h>
 #include <linux/module.h>
 
+#include <linux/version.h>
+
 #include "hid-ids.h"
 
 /* Original EasyPen i405X report descriptor size */
@@ -579,8 +581,13 @@ static __u8 *kye_consumer_control_fixup(struct hid_device *hdev, __u8 *rdesc,
 	return rdesc;
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 12, 0)
 static __u8 *kye_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 		unsigned int *rsize)
+#else
+static const __u8 *kye_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+		unsigned int *rsize)
+#endif
 {
 	switch (hdev->product) {
 	case USB_DEVICE_ID_KYE_ERGO_525V:

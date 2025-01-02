@@ -16,6 +16,7 @@
 #include <linux/hid.h>
 #include <linux/module.h>
 #include <linux/usb.h>
+#include <linux/version.h>
 
 #include "hid-ids.h"
 
@@ -149,8 +150,13 @@ static __u8 pt1001_rdesc_fixed[] = {
 	0xC0,               /*  End Collection                          */
 };
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 12, 0)
 static __u8 *polostar_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 				   unsigned int *rsize)
+#else
+static const __u8 *polostar_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+				   unsigned int *rsize)
+#endif
 {
 	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
 	__u8 iface_num = iface->cur_altsetting->desc.bInterfaceNumber;
